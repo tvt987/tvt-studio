@@ -28,6 +28,12 @@ jobs:
           cache: "npm"
 
       - name: Install Dependencies, Run Vitest & Build Production Bundle
+        env:
+          VITE_BANK_BIN: ${{ vars.VITE_BANK_BIN }}
+          VITE_BANK_ACCOUNT: ${{ vars.VITE_BANK_ACCOUNT }}
+          VITE_BANK_ACCOUNT_NAME: ${{ vars.VITE_BANK_ACCOUNT_NAME }}
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
         run: |
           npm ci
           npm test

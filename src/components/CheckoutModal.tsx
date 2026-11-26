@@ -82,7 +82,9 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 }) => {
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [orderCode, setOrderCode] = useState(() => generateOrderCode());
-  const [paymentChannel, setPaymentChannel] = useState<PaymentChannel>('consult-first');
+  const [paymentChannel, setPaymentChannel] = useState<PaymentChannel>(() =>
+    isValidBankVietQrConfig(bankConfig) ? 'vietqr' : 'consult-first'
+  );
   const [paymentRef, setPaymentRef] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [client, setClient] = useState<ClientOrderForm>({
