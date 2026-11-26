@@ -1,6 +1,7 @@
 -- ============================================================================
 -- TVT STUDIO — PRODUCTION POSTGRESQL / SUPABASE SCHEMA (FREE TIER READY: 0đ)
--- Supports: Order Persistence, Idempotent VietQR Webhooks (SePay/PayOS/Casso),
+-- Supports: Order Persistence, Real-Time Auto-Verified VietQR Webhooks
+--           (SePay / PayOS / Casso), Non-PII Live Payment Status RPC,
 --           Audit Timeline Events, and Custom Consultation Leads.
 -- ============================================================================
 
@@ -34,6 +35,7 @@ CREATE TABLE IF NOT EXISTS public.tvt_orders (
   payable_now_vnd BIGINT NOT NULL CHECK (payable_now_vnd >= 0),
   payable_now_usd INTEGER NOT NULL CHECK (payable_now_usd >= 0),
   paid_amount_vnd BIGINT NOT NULL DEFAULT 0,
+  paid_at TIMESTAMPTZ,
   items_json JSONB NOT NULL DEFAULT '[]'::jsonb,
   milestones_json JSONB NOT NULL DEFAULT '[]'::jsonb,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -79,7 +81,7 @@ CREATE TABLE IF NOT EXISTS public.tvt_inquiries (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- 5. Row Level Security (Public can INSERT orders/inquiries; only Service Role reads all)
+-- 5. Row Level Security (Public can INSERT orders/inquiries; ZERO PII exposure on SELECT)
 ALTER TABLE public.tvt_orders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.tvt_order_events ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.tvt_payment_webhooks ENABLE ROW LEVEL SECURITY;
@@ -92,3 +94,33 @@ CREATE POLICY "allow_anon_insert_orders"
 DROP POLICY IF EXISTS "allow_anon_insert_inquiries" ON public.tvt_inquiries;
 CREATE POLICY "allow_anon_insert_inquiries"
   ON public.tvt_inquiries FOR INSERT TO anon WITH CHECK (true);
+
+-- 6. Zero-PII Real-Time Payment Status RPC (Called every 3s by Checkout / Order Tracker)
+-- Returns ONLY non-sensitive payment confirmation state for the exact requested order_code.
+CREATE OR REPLACE FUNCTION public.get_order_payment_status(p_order_code TEXT)
+RETURNS TABLE (
+  order_code TEXT,
+  status TEXT,
+  paid_amount_vnd BIGINT,
+  payment_ref TEXT,
+  paid_at TIMESTAMPTZ,
+  updated_at TIMESTAMPTZ
+)
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT
+    o.order_code,
+    o.status,
+    o.paid_amount_vnd,
+    o.payment_ref,
+    o.paid_at,
+    o.updated_at
+  FROM public.tvt_orders o
+  WHERE UPPER(o.order_code) = UPPER(TRIM(p_order_code))
+  LIMIT 1;
+$$;
+
+REVOKE ALL ON FUNCTION public.get_order_payment_status(TEXT) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.get_order_payment_status(TEXT) TO anon, authenticated;

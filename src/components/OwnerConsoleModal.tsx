@@ -32,6 +32,7 @@ interface OwnerConsoleModalProps {
   bankConfig: BankVietQrConfig | null;
   onClose: () => void;
   onUpdateOrderStatus: (orderCode: string, nextStatus: OrderLifecycleStatus) => void;
+  onSimulateRealtimeWebhook: (orderCode: string, amountVnd: number) => void;
   onBankConfigChange: (next: BankVietQrConfig | null) => void;
 }
 
@@ -43,6 +44,7 @@ export const OwnerConsoleModal: React.FC<OwnerConsoleModalProps> = ({
   bankConfig,
   onClose,
   onUpdateOrderStatus,
+  onSimulateRealtimeWebhook,
   onBankConfigChange,
 }) => {
   const [tab, setTab] = useState<'orders' | 'vietqr' | 'cloud-db'>('orders');
@@ -236,20 +238,39 @@ export const OwnerConsoleModal: React.FC<OwnerConsoleModalProps> = ({
                         </div>
                       </div>
 
-                      <select
-                        value={order.status ?? 'AWAITING_PAYMENT'}
-                        onChange={(e) =>
-                          onUpdateOrderStatus(order.orderCode, e.target.value as OrderLifecycleStatus)
-                        }
-                        className="input-studio h-9 rounded-lg px-3 text-xs font-semibold"
-                        aria-label={`Status for ${order.orderCode}`}
-                      >
-                        {ORDER_STATUS_SEQUENCE.map((st) => (
-                          <option key={st} value={st}>
-                            {ORDER_STATUS_META[st][locale]}
-                          </option>
-                        ))}
-                      </select>
+                      <div className="flex flex-wrap items-center gap-2">
+                        {order.status !== 'DEPOSIT_VERIFIED' && order.status !== 'DELIVERED' && (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              onSimulateRealtimeWebhook(order.orderCode, order.totals.payableNowVnd)
+                            }
+                            data-testid={`simulate-webhook-${order.orderCode}`}
+                            className="rounded-lg border px-2.5 py-2 text-[11px] font-bold transition-colors hover:bg-[var(--emerald-soft)]"
+                            style={{
+                              borderColor: 'var(--emerald)',
+                              color: 'var(--emerald)',
+                              backgroundColor: 'var(--bg-surface)',
+                            }}
+                          >
+                            {locale === 'vi' ? 'Test SePay PAID' : 'Test SePay PAID'}
+                          </button>
+                        )}
+                        <select
+                          value={order.status ?? 'AWAITING_PAYMENT'}
+                          onChange={(e) =>
+                            onUpdateOrderStatus(order.orderCode, e.target.value as OrderLifecycleStatus)
+                          }
+                          className="input-studio h-9 rounded-lg px-3 text-xs font-semibold"
+                          aria-label={`Status for ${order.orderCode}`}
+                        >
+                          {ORDER_STATUS_SEQUENCE.map((st) => (
+                            <option key={st} value={st}>
+                              {ORDER_STATUS_META[st][locale]}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -408,7 +429,7 @@ export const OwnerConsoleModal: React.FC<OwnerConsoleModalProps> = ({
                     <strong>Tầng 2 (Đang bật sẵn · 0đ)</strong>: Email Webhook (FormSubmit.co) tự động bắn đơn hàng mới về hộp thư <code>tinhkun102@gmail.com</code> (chỉ cần bấm Confirm 1 lần ở email đầu tiên).
                   </li>
                   <li>
-                    <strong>Tầng 3 (Plug-and-Play PostgreSQL + Tự động xác nhận chuyển khoản)</strong>: Chạy sẵn file <code>supabase/schema.sql</code> trên Supabase Free Tier + triển khai <code>supabase/sepay_vietqr_webhook.ts</code> với SePay / PayOS, sau đó dán URL & Anon Key bên dưới.
+                    <strong>Tầng 3 (Real-Time 24/7 PostgreSQL + Tự động xác nhận VietQR + Telegram &lt;1 giây)</strong>: Chạy <code>supabase/schema.sql</code> + deploy 2 Edge Functions (<code>sepay-webhook</code> &amp; <code>order-notify</code>) trên Supabase Free Tier + nối SePay.vn / PayOS.vn. Khi khách chuyển khoản 1–3 giây: DB tự cập nhật <code>DEPOSIT_VERIFIED</code>, màn hình khách tự bật <strong>ĐÃ THANH TOÁN</strong> và điện thoại của bạn nhận tin Telegram tức thì (không bị trễ như Email). Xem chi tiết 4 bước trong <code>supabase/DEPLOY_REALTIME_GUIDE.md</code>.
                   </li>
                 </ul>
               </div>

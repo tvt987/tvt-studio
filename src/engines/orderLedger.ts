@@ -360,6 +360,26 @@ export async function dispatchOrderToCloud(
         }),
       });
       if (res.ok) {
+        // Also trigger instant <1s Telegram/Discord push via Supabase Edge Function if deployed
+        void fetch(`${cfg.url}/functions/v1/order-notify`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            apikey: cfg.anonKey,
+            Authorization: `Bearer ${cfg.anonKey}`,
+          },
+          body: JSON.stringify({
+            type: 'order',
+            code: order.orderCode,
+            clientName: order.client.fullName,
+            phone: order.client.phoneOrZalo,
+            channel: order.paymentChannel,
+            amountLabel: formatMoney(order.totals.payableNowVnd, 'VND'),
+            summary: order.items
+              .map((it) => (it.kind === 'template' ? `${it.title} x${it.quantity}` : `${it.title.vi} x${it.quantity}`))
+              .join(', '),
+          }),
+        }).catch(() => null);
         return 'supabase_synced';
       }
     } catch {
@@ -447,7 +467,24 @@ export async function dispatchInquiryToCloud(
           message: inquiry.message,
         }),
       });
-      if (res.ok) return 'supabase_synced';
+      if (res.ok) {
+        void fetch(`${cfg.url}/functions/v1/order-notify`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            apikey: cfg.anonKey,
+            Authorization: `Bearer ${cfg.anonKey}`,
+          },
+          body: JSON.stringify({
+            type: 'inquiry',
+            code: inquiry.inquiryCode,
+            clientName: inquiry.fullName,
+            phone: inquiry.phoneOrZalo,
+            summary: `${inquiry.productName || 'Custom'} · ${inquiry.preferredLanguage} · ${inquiry.message}`,
+          }),
+        }).catch(() => null);
+        return 'supabase_synced';
+      }
     } catch {
       // fall through
     }
@@ -544,4 +581,111 @@ export function exportOrdersToCsvBom(orders: OrderSnapshot[]): string {
   });
 
   return `\uFEFF${headers.join(',')}\n${rows.join('\n')}\n`;
+}
+
+// ============================================================================
+// Real-Time Payment Status Poller (Supabase Non-PII RPC) & Cross-Tab Bus
+// ============================================================================
+
+export interface RealtimePaymentUpdate {
+  orderCode: string;
+  status: OrderLifecycleStatus;
+  paidAmountVnd: number;
+  paymentRef: string;
+  gateway?: string;
+  verifiedAtIso: string;
+}
+
+const REALTIME_CHANNEL_NAME = 'tvt_studio_realtime_payments_v2';
+
+export function isCloudRealtimeConfigured(): boolean {
+  const cfg = loadSupabaseRuntimeConfig();
+  return Boolean(cfg.url && cfg.anonKey);
+}
+
+/**
+ * Polls the zero-PII Supabase RPC `get_order_payment_status(p_order_code)`
+ * so the customer's checkout / tracker screen auto-updates within 3 seconds
+ * of an inbound SePay / PayOS VietQR webhook (even while the owner is offline).
+ */
+export async function pollOrderCloudPaymentStatus(
+  orderCode: string
+): Promise<RealtimePaymentUpdate | null> {
+  const cfg = loadSupabaseRuntimeConfig();
+  if (!cfg.url || !cfg.anonKey || typeof fetch !== 'function') return null;
+
+  try {
+    const res = await fetch(`${cfg.url}/rest/v1/rpc/get_order_payment_status`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        apikey: cfg.anonKey,
+        Authorization: `Bearer ${cfg.anonKey}`,
+      },
+      body: JSON.stringify({ p_order_code: orderCode }),
+    });
+    if (!res.ok) return null;
+    const rows = (await res.json()) as Array<{
+      order_code: string;
+      status: OrderLifecycleStatus;
+      paid_amount_vnd: number;
+      payment_ref?: string | null;
+      paid_at?: string | null;
+      updated_at?: string | null;
+    }>;
+    const row = Array.isArray(rows) ? rows[0] : null;
+    if (!row) return null;
+    return {
+      orderCode: row.order_code,
+      status: row.status,
+      paidAmountVnd: Number(row.paid_amount_vnd || 0),
+      paymentRef: row.payment_ref || 'AUTO-VIETQR',
+      verifiedAtIso: row.paid_at || row.updated_at || new Date().toISOString(),
+    };
+  } catch {
+    return null;
+  }
+}
+
+export function broadcastRealtimePaymentVerified(update: RealtimePaymentUpdate): void {
+  if (typeof window === 'undefined') return;
+  try {
+    window.dispatchEvent(new CustomEvent<RealtimePaymentUpdate>(REALTIME_CHANNEL_NAME, { detail: update }));
+    if ('BroadcastChannel' in window) {
+      const ch = new BroadcastChannel(REALTIME_CHANNEL_NAME);
+      ch.postMessage(update);
+      ch.close();
+    }
+  } catch {
+    // Ignore unsupported environments
+  }
+}
+
+export function subscribeRealtimePaymentVerified(
+  handler: (update: RealtimePaymentUpdate) => void
+): () => void {
+  if (typeof window === 'undefined') return () => {};
+  const onDomEvent = (ev: Event) => {
+    const detail = (ev as CustomEvent<RealtimePaymentUpdate>).detail;
+    if (detail?.orderCode) handler(detail);
+  };
+  window.addEventListener(REALTIME_CHANNEL_NAME, onDomEvent);
+
+  let bc: BroadcastChannel | null = null;
+  if ('BroadcastChannel' in window) {
+    try {
+      bc = new BroadcastChannel(REALTIME_CHANNEL_NAME);
+      bc.onmessage = (msg) => {
+        const payload = msg.data as RealtimePaymentUpdate | undefined;
+        if (payload?.orderCode) handler(payload);
+      };
+    } catch {
+      bc = null;
+    }
+  }
+
+  return () => {
+    window.removeEventListener(REALTIME_CHANNEL_NAME, onDomEvent);
+    bc?.close();
+  };
 }

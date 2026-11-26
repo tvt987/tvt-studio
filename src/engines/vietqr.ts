@@ -37,6 +37,23 @@ export function sanitizeAccountName(raw: string): string {
     .toUpperCase();
 }
 
+/**
+ * Strips hyphens/spaces from `TVT-ORD-4821` -> `TVTORD4821` because several
+ * Vietnamese banks strip `-` characters from inbound transfer memos.
+ */
+export function formatBankSafeMemo(orderCode: string): string {
+  return orderCode.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 25);
+}
+
+/**
+ * Extracts and normalizes any TVT Studio order code from raw bank statements
+ * (handles `TVT-ORD-4821`, `TVTORD4821`, `MBVCB.9182.TVT ORD 4821.CT`).
+ */
+export function extractNormalizedOrderCode(rawMemo: string): string | null {
+  const match = rawMemo.toUpperCase().match(/TVT[\s_-]*ORD[\s_-]*(\d{4})/);
+  return match ? `TVT-ORD-${match[1]}` : null;
+}
+
 export function isValidBankVietQrConfig(config: BankVietQrConfig | null | undefined): config is BankVietQrConfig {
   if (!config) return false;
   const acct = sanitizeAccountNumber(config.accountNumber);

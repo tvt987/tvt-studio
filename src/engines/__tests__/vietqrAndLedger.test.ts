@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
   buildVietQrImageUrl,
+  extractNormalizedOrderCode,
+  formatBankSafeMemo,
   isValidBankVietQrConfig,
   sanitizeAccountName,
   sanitizeAccountNumber,
@@ -116,5 +118,13 @@ describe('VietQR Banking Engine & Order Persistence Ledger', () => {
     expect(csv).toContain('"Tran, Bao Ngoc"');
     expect(csv).toContain('TVT-ORD-9104');
     expect(csv).toContain('PENDING_CONSULTATION');
+  });
+
+  it('normalizes bank-safe transfer memos and parses raw Vietnamese bank statements accurately', () => {
+    expect(formatBankSafeMemo('TVT-ORD-4821')).toBe('TVTORD4821');
+    expect(extractNormalizedOrderCode('MBVCB.928412.TVTORD4821.CT TU 0931')).toBe('TVT-ORD-4821');
+    expect(extractNormalizedOrderCode('FT26330 TVT-ORD-7712 thanh toan web')).toBe('TVT-ORD-7712');
+    expect(extractNormalizedOrderCode('CHUYEN KHOAN TVT ORD 0099')).toBe('TVT-ORD-0099');
+    expect(extractNormalizedOrderCode('CHUYEN TIEN AN TRUA')).toBeNull();
   });
 });

@@ -8,8 +8,17 @@ import {
   generateOrderInvoiceMarkdown,
   getPaymentChannelLabel,
 } from '../engines/invoice';
-import { dispatchOrderToCloud } from '../engines/orderLedger';
-import { buildVietQrImageUrl, isValidBankVietQrConfig } from '../engines/vietqr';
+import {
+  dispatchOrderToCloud,
+  isCloudRealtimeConfigured,
+  pollOrderCloudPaymentStatus,
+  subscribeRealtimePaymentVerified,
+} from '../engines/orderLedger';
+import {
+  buildVietQrImageUrl,
+  formatBankSafeMemo,
+  isValidBankVietQrConfig,
+} from '../engines/vietqr';
 import type {
   BankVietQrConfig,
   CartItem,
@@ -46,6 +55,7 @@ interface CheckoutModalProps {
   bankConfig: BankVietQrConfig | null;
   onClose: () => void;
   onOrderCompleted: (order: OrderSnapshot) => void;
+  onAutoVerifiedPayment: (orderCode: string, paymentRef: string, paidAmountVnd: number) => void;
   onOpenTracker: (orderCode: string) => void;
 }
 
@@ -58,6 +68,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   bankConfig,
   onClose,
   onOrderCompleted,
+  onAutoVerifiedPayment,
   onOpenTracker,
 }) => {
   const [step, setStep] = useState<1 | 2 | 3>(1);
@@ -106,10 +117,54 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   );
 
   const hasLiveBankQr = isValidBankVietQrConfig(bankConfig);
+  const bankSafeMemo = useMemo(() => formatBankSafeMemo(orderCode), [orderCode]);
   const liveVietQrUrl = useMemo(() => {
     if (!hasLiveBankQr || !bankConfig) return null;
-    return buildVietQrImageUrl(bankConfig, totals.payableNowVnd, orderCode);
-  }, [bankConfig, hasLiveBankQr, orderCode, totals.payableNowVnd]);
+    return buildVietQrImageUrl(bankConfig, totals.payableNowVnd, bankSafeMemo);
+  }, [bankConfig, bankSafeMemo, hasLiveBankQr, totals.payableNowVnd]);
+
+  // Real-time auto-verification listener (Supabase non-PII RPC 3s poll + BroadcastChannel)
+  useEffect(() => {
+    if (!isOpen || step !== 3 || !confirmedOrder) return;
+    if (confirmedOrder.paymentChannel === 'consult-first') return;
+    if (confirmedOrder.status === 'DEPOSIT_VERIFIED' || confirmedOrder.status === 'DELIVERED') return;
+
+    const targetCode = confirmedOrder.orderCode;
+    const applyVerified = (ref: string, paidAmount: number) => {
+      setConfirmedOrder((prev) =>
+        prev && prev.orderCode === targetCode
+          ? { ...prev, status: 'DEPOSIT_VERIFIED', paymentRef: ref }
+          : prev
+      );
+      onAutoVerifiedPayment(targetCode, ref, paidAmount);
+    };
+
+    const unsub = subscribeRealtimePaymentVerified((ev) => {
+      if (ev.orderCode === targetCode && ev.status === 'DEPOSIT_VERIFIED') {
+        applyVerified(ev.paymentRef, ev.paidAmountVnd);
+      }
+    });
+
+    const cloudEnabled = isCloudRealtimeConfigured();
+    let timer: number | null = null;
+    if (cloudEnabled) {
+      const checkNow = async () => {
+        const res = await pollOrderCloudPaymentStatus(targetCode);
+        if (res && (res.status === 'DEPOSIT_VERIFIED' || res.status === 'DELIVERED')) {
+          applyVerified(res.paymentRef, res.paidAmountVnd);
+        }
+      };
+      void checkNow();
+      timer = window.setInterval(() => {
+        void checkNow();
+      }, 3000);
+    }
+
+    return () => {
+      unsub();
+      if (timer !== null) window.clearInterval(timer);
+    };
+  }, [confirmedOrder, isOpen, onAutoVerifiedPayment, step]);
 
   if (!isOpen) return null;
 
@@ -619,12 +674,12 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 
                         <div className="flex items-center justify-between rounded-lg border px-3 py-2" style={{ borderColor: 'var(--border-hairline)', backgroundColor: 'var(--bg-surface)' }}>
                           <div>
-                            <div style={{ color: 'var(--ink-muted)' }}>{locale === 'vi' ? 'Nội dung chuyển khoản' : 'Transfer Memo'}</div>
-                            <div className="font-mono-num font-bold" style={{ color: 'var(--accent)' }}>{orderCode}</div>
+                            <div style={{ color: 'var(--ink-muted)' }}>{locale === 'vi' ? 'Nội dung chuyển khoản (Chuẩn VietQR)' : 'Transfer Memo (Bank-Safe)'}</div>
+                            <div className="font-mono-num font-bold" style={{ color: 'var(--accent)' }}>{bankSafeMemo}</div>
                           </div>
                           <button
                             type="button"
-                            onClick={() => handleCopy('vqr-memo', orderCode)}
+                            onClick={() => handleCopy('vqr-memo', bankSafeMemo)}
                             className="btn-ghost inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-[11px] font-semibold"
                           >
                             {copiedKey === 'vqr-memo' ? <IconCheck className="h-3.5 w-3.5" /> : <IconCopy className="h-3.5 w-3.5" />}
@@ -906,6 +961,11 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                   backgroundColor: 'var(--emerald-soft)',
                   borderColor: 'var(--emerald)',
                 }}
+                data-testid={
+                  confirmedOrder.status === 'DEPOSIT_VERIFIED'
+                    ? 'realtime-paid-banner'
+                    : 'checkout-saved-banner'
+                }
               >
                 <div className="flex items-start gap-3">
                   <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-black/20" style={{ color: 'var(--emerald)' }}>
@@ -913,12 +973,20 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                   </div>
                   <div>
                     <h3 className="text-sm font-bold sm:text-base" style={{ color: 'var(--ink-primary)' }}>
-                      {locale === 'vi'
-                        ? `Đã Lưu Đơn Hàng ${confirmedOrder.orderCode}`
-                        : `Order ${confirmedOrder.orderCode} Saved Successfully`}
+                      {confirmedOrder.status === 'DEPOSIT_VERIFIED'
+                        ? locale === 'vi'
+                          ? `ĐÃ THANH TOÁN THÀNH CÔNG · ${confirmedOrder.orderCode} (AUTO-VERIFIED)`
+                          : `PAYMENT VERIFIED REAL-TIME · ${confirmedOrder.orderCode}`
+                        : locale === 'vi'
+                          ? `Đã Lưu Đơn Hàng ${confirmedOrder.orderCode}`
+                          : `Order ${confirmedOrder.orderCode} Saved Successfully`}
                     </h3>
                     <p className="mt-0.5 text-xs" style={{ color: 'var(--ink-secondary)' }}>
-                      {getPaymentChannelLabel(confirmedOrder.paymentChannel, locale)}
+                      {confirmedOrder.status === 'DEPOSIT_VERIFIED'
+                        ? locale === 'vi'
+                          ? 'Hệ thống đã tự động xác nhận tiền vào tài khoản & đẩy thông báo Telegram cho Trương Văn Tình.'
+                          : 'Inbound transfer auto-verified via real-time webhook & instant owner alert dispatched.'
+                        : getPaymentChannelLabel(confirmedOrder.paymentChannel, locale)}
                     </p>
                   </div>
                 </div>
@@ -930,13 +998,51 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                     color: 'var(--emerald)',
                   }}
                 >
-                  {confirmedOrder.syncState === 'supabase_synced'
-                    ? 'DB: SUPABASE + IDB'
-                    : confirmedOrder.syncState === 'email_webhook_sent'
-                      ? 'EMAIL ALERT + IDB SAVED'
-                      : 'INDEXEDDB SAVED'}
+                  {confirmedOrder.status === 'DEPOSIT_VERIFIED'
+                    ? 'PAID · AUTO-VERIFIED'
+                    : confirmedOrder.syncState === 'supabase_synced'
+                      ? 'DB: SUPABASE + IDB'
+                      : confirmedOrder.syncState === 'email_webhook_sent'
+                        ? 'EMAIL ALERT + IDB SAVED'
+                        : 'INDEXEDDB SAVED'}
                 </span>
               </div>
+
+              {/* Real-Time Auto-Verify Payment Radar (Visible while awaiting bank transfer) */}
+              {confirmedOrder.paymentChannel !== 'consult-first' &&
+                confirmedOrder.status !== 'DEPOSIT_VERIFIED' && (
+                  <div
+                    className="no-print flex flex-wrap items-center justify-between gap-3 rounded-xl border px-4 py-3 text-xs"
+                    style={{
+                      backgroundColor: 'var(--cyan-soft)',
+                      borderColor: 'var(--cyan)',
+                    }}
+                    data-testid="realtime-payment-radar"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <span
+                        className="h-2.5 w-2.5 shrink-0 animate-pulse rounded-full"
+                        style={{ backgroundColor: 'var(--cyan)' }}
+                      />
+                      <div>
+                        <div className="font-bold" style={{ color: 'var(--ink-primary)' }}>
+                          {isCloudRealtimeConfigured()
+                            ? locale === 'vi'
+                              ? 'Đang tự động lắng nghe biến động số dư VietQR (3 giây/lần)...'
+                              : 'Listening for real-time VietQR bank confirmation (every 3s)...'
+                            : locale === 'vi'
+                              ? 'Sẵn sàng đối soát Real-time (SePay/PayOS Webhook + Telegram <1s)'
+                              : 'Real-time Webhook Auto-Verify Ready (SePay/PayOS + Telegram <1s)'}
+                        </div>
+                        <div className="mt-0.5 text-[11px]" style={{ color: 'var(--ink-secondary)' }}>
+                          {locale === 'vi'
+                            ? `Nội dung CK chuẩn không dấu: ${formatBankSafeMemo(confirmedOrder.orderCode)} — chuyển xong màn hình sẽ tự động nhảy sang ĐÃ THANH TOÁN kể cả lúc chủ shop không online.`
+                            : `Bank-safe memo: ${formatBankSafeMemo(confirmedOrder.orderCode)} — screen auto-updates to PAID in 1–3s upon transfer.`}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
               {/* Printable A4 Itemized Receipt Card */}
               <div

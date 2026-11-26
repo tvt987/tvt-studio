@@ -10,10 +10,12 @@ import {
 import { CATALOG_PRODUCTS } from './engines/catalog';
 import {
   appendStatusTransition,
+  broadcastRealtimePaymentVerified,
   loadPersistedInquiries,
   loadPersistedOrders,
   savePersistedInquiry,
   savePersistedOrder,
+  subscribeRealtimePaymentVerified,
 } from './engines/orderLedger';
 import { loadBankVietQrConfig } from './engines/vietqr';
 import type {
@@ -133,6 +135,27 @@ export const App: React.FC = () => {
     return () => window.removeEventListener('keydown', handleShortcut);
   }, []);
 
+  // Cross-tab real-time payment verification sync into IndexedDB
+  useEffect(() => {
+    return subscribeRealtimePaymentVerified((ev) => {
+      if (ev.status !== 'DEPOSIT_VERIFIED') return;
+      setPersistedOrders((prev) => {
+        const target = prev.find((o) => o.orderCode === ev.orderCode);
+        if (!target || target.status === 'DEPOSIT_VERIFIED') return prev;
+        const updated = appendStatusTransition(
+          target,
+          'DEPOSIT_VERIFIED',
+          `Tự động xác nhận VietQR thành công (Ref ${ev.paymentRef})`,
+          `Auto-verified VietQR transfer (Ref ${ev.paymentRef})`,
+          ev.paymentRef,
+          ev.verifiedAtIso
+        );
+        void savePersistedOrder(updated);
+        return [updated, ...prev.filter((o) => o.orderCode !== ev.orderCode)];
+      });
+    });
+  }, []);
+
   const totals = useMemo(
     () => calculateCartTotals(cartItems, activeVoucherCode, paymentMode),
     [cartItems, activeVoucherCode, paymentMode]
@@ -238,6 +261,31 @@ export const App: React.FC = () => {
     if (!target) return;
     const updated = appendStatusTransition(target, nextStatus);
     void savePersistedOrder(updated).then((rows) => setPersistedOrders(rows));
+  };
+
+  const handleAutoVerifiedPayment = (orderCode: string, paymentRef: string) => {
+    const target = persistedOrders.find((o) => o.orderCode === orderCode);
+    if (!target || target.status === 'DEPOSIT_VERIFIED') return;
+    const updated = appendStatusTransition(
+      target,
+      'DEPOSIT_VERIFIED',
+      `Tự động xác nhận VietQR Real-time (Ref ${paymentRef})`,
+      `Auto-verified via real-time VietQR webhook (Ref ${paymentRef})`,
+      paymentRef
+    );
+    void savePersistedOrder(updated).then((rows) => setPersistedOrders(rows));
+  };
+
+  const handleSimulateRealtimeWebhook = (orderCode: string, amountVnd: number) => {
+    const syntheticRef = `SEPAY-${Date.now().toString().slice(-6)}`;
+    broadcastRealtimePaymentVerified({
+      orderCode,
+      status: 'DEPOSIT_VERIFIED',
+      paidAmountVnd: amountVnd,
+      paymentRef: syntheticRef,
+      gateway: 'MBBank',
+      verifiedAtIso: new Date().toISOString(),
+    });
   };
 
   const handleInquirySaved = (record: QuickInquiryRecord) => {
@@ -391,6 +439,7 @@ export const App: React.FC = () => {
         bankConfig={bankConfig}
         onClose={() => setIsCheckoutOpen(false)}
         onOrderCompleted={handleOrderCompleted}
+        onAutoVerifiedPayment={handleAutoVerifiedPayment}
         onOpenTracker={(orderCode) => {
           setTrackerInitialCode(orderCode);
           setIsTrackerOpen(true);
@@ -417,6 +466,7 @@ export const App: React.FC = () => {
         bankConfig={bankConfig}
         onClose={() => setIsOwnerConsoleOpen(false)}
         onUpdateOrderStatus={handleUpdateOrderStatus}
+        onSimulateRealtimeWebhook={handleSimulateRealtimeWebhook}
         onBankConfigChange={setBankConfig}
       />
 
