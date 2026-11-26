@@ -162,9 +162,17 @@ export const Footer: React.FC<FooterProps> = ({ locale, onOpenTracker }) => {
             © {new Date().getFullYear()} TVT Studio — {STUDIO_CONTACT.architectName}.{' '}
             {locale === 'vi' ? 'Bảo lưu mọi quyền.' : 'All rights reserved.'}
           </p>
-          <p className="font-mono-num text-[11px]">
-            React 19 · TypeScript Strict · Zero-Trust VietQR + Cloud DB Ready
-          </p>
+          <div className="flex flex-wrap items-center gap-4 text-[11px]">
+            <a href="./privacy.html" className="hover:text-[var(--accent)]">
+              {locale === 'vi' ? 'Chính sách bảo mật' : 'Privacy Policy'}
+            </a>
+            <a href="./terms.html" className="hover:text-[var(--accent)]">
+              {locale === 'vi' ? 'Điều khoản dịch vụ' : 'Terms of Service'}
+            </a>
+            <span className="font-mono-num">
+              React 19 · TypeScript Strict · Zero-Trust VietQR + Cloud DB
+            </span>
+          </div>
         </div>
       </div>
     </footer>
