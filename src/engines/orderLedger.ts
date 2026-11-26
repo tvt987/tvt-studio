@@ -328,58 +328,42 @@ export async function dispatchOrderToCloud(
 ): Promise<CloudSyncState> {
   const cfg = loadSupabaseRuntimeConfig();
 
-  // 1. Real Cloud PostgreSQL (Supabase REST) if configured
+  // 1. Authoritative Server-Side Order Creation (Supabase Edge Function `create-order`)
+  // Recomputes prices & discounts server-side to block DevTools price tampering!
   if (cfg.url && cfg.anonKey && typeof fetch === 'function') {
     try {
-      const res = await fetch(`${cfg.url}/rest/v1/tvt_orders`, {
+      const res = await fetch(`${cfg.url}/functions/v1/create-order`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           apikey: cfg.anonKey,
           Authorization: `Bearer ${cfg.anonKey}`,
-          Prefer: 'return=minimal',
         },
         body: JSON.stringify({
-          order_code: order.orderCode,
-          idempotency_key: order.orderCode,
-          status: order.status ?? 'AWAITING_PAYMENT',
-          payment_channel: order.paymentChannel,
-          payment_mode: order.paymentMode,
-          payment_ref: order.paymentRef ?? null,
-          client_name: order.client.fullName,
-          client_phone: order.client.phoneOrZalo,
-          client_email: order.client.email,
-          brand_or_domain: order.client.brandOrDomain || null,
-          notes: order.client.notes || null,
-          net_total_vnd: order.totals.netTotalVnd,
-          net_total_usd: order.totals.netTotalUsd,
-          payable_now_vnd: order.totals.payableNowVnd,
-          payable_now_usd: order.totals.payableNowUsd,
-          items_json: order.items,
-          milestones_json: order.milestones,
+          orderCode: order.orderCode,
+          paymentChannel: order.paymentChannel,
+          paymentMode: order.paymentMode,
+          paymentRef: order.paymentRef ?? null,
+          voucherCode: order.totals.appliedVoucher?.code ?? null,
+          client: order.client,
+          items: order.items.map((it) =>
+            it.kind === 'template'
+              ? {
+                  kind: 'template',
+                  productId: it.productId,
+                  license: it.license,
+                  quantity: it.quantity,
+                }
+              : {
+                  kind: 'custom',
+                  quantity: it.quantity,
+                  unitVnd: it.unitVnd,
+                  title: it.title,
+                }
+          ),
         }),
       });
       if (res.ok) {
-        // Also trigger instant <1s Telegram/Discord push via Supabase Edge Function if deployed
-        void fetch(`${cfg.url}/functions/v1/order-notify`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            apikey: cfg.anonKey,
-            Authorization: `Bearer ${cfg.anonKey}`,
-          },
-          body: JSON.stringify({
-            type: 'order',
-            code: order.orderCode,
-            clientName: order.client.fullName,
-            phone: order.client.phoneOrZalo,
-            channel: order.paymentChannel,
-            amountLabel: formatMoney(order.totals.payableNowVnd, 'VND'),
-            summary: order.items
-              .map((it) => (it.kind === 'template' ? `${it.title} x${it.quantity}` : `${it.title.vi} x${it.quantity}`))
-              .join(', '),
-          }),
-        }).catch(() => null);
         return 'supabase_synced';
       }
     } catch {

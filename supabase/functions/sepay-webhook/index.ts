@@ -95,13 +95,20 @@ Deno.serve(async (req: Request) => {
     });
   }
 
-  // 1. Authenticate SePay / PayOS Webhook Header (`Authorization: Apikey <KEY>`)
+  // 1. FAIL-CLOSED Authentication (`Authorization: Apikey <SEPAY_WEBHOOK_API_KEY>`)
   // @ts-ignore Deno global
   const expectedKey = (Deno.env.get('SEPAY_WEBHOOK_API_KEY') || '').trim();
+  if (!expectedKey || expectedKey.length < 16) {
+    return new Response(
+      JSON.stringify({ ok: false, error: 'Webhook secret not configured (fail-closed)' }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
   const authHeader = (req.headers.get('authorization') || '').trim();
   const providedKey = authHeader.replace(/^(Apikey|Bearer)\s+/i, '').trim();
 
-  if (expectedKey && !timingSafeEqual(providedKey, expectedKey)) {
+  if (!providedKey || !timingSafeEqual(providedKey, expectedKey)) {
     return new Response(JSON.stringify({ ok: false, error: 'Unauthorized webhook key' }), {
       status: 401,
       headers: { 'Content-Type': 'application/json' },
@@ -137,7 +144,14 @@ Deno.serve(async (req: Request) => {
   const memoSource = `${payload.content || ''} ${payload.description || ''}`;
   const orderCode = extractNormalizedOrderCode(memoSource);
   const providerTxId = String(payload.id || payload.referenceCode || Date.now());
-  const transferAmount = Math.max(0, Math.round(Number(payload.transferAmount || 0)));
+  const rawAmount = Number(payload.transferAmount);
+  if (!Number.isFinite(rawAmount) || rawAmount <= 0) {
+    return new Response(JSON.stringify({ ok: false, error: 'Invalid transferAmount' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+  const transferAmount = Math.round(rawAmount);
 
   // 2. Idempotent webhook insert (prevents duplicate processing on SePay retry)
   const { error: logErr } = await supabase.from('tvt_payment_webhooks').insert({

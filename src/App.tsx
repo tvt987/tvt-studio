@@ -364,7 +364,6 @@ export const App: React.FC = () => {
             setTrackerInitialCode(null);
             setIsTrackerOpen(true);
           }}
-          onOpenOwnerConsole={() => setIsOwnerConsoleOpen(true)}
         />
       </div>
 

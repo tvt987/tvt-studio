@@ -25,6 +25,7 @@ supabase secrets set \
   TELEGRAM_BOT_TOKEN="<BOT_TOKEN>" \
   TELEGRAM_CHAT_ID="<CHAT_ID>"
 
+supabase functions deploy create-order --no-verify-jwt
 supabase functions deploy sepay-webhook --no-verify-jwt
 supabase functions deploy order-notify --no-verify-jwt
 ```

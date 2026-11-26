@@ -6,10 +6,9 @@ import { IconArrowUpRight, IconGlobe, IconMail, IconPhone } from './Icons';
 interface FooterProps {
   locale: Locale;
   onOpenTracker: () => void;
-  onOpenOwnerConsole: () => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ locale, onOpenTracker, onOpenOwnerConsole }) => {
+export const Footer: React.FC<FooterProps> = ({ locale, onOpenTracker }) => {
   return (
     <footer
       className="border-t"
@@ -163,20 +162,9 @@ export const Footer: React.FC<FooterProps> = ({ locale, onOpenTracker, onOpenOwn
             © {new Date().getFullYear()} TVT Studio — {STUDIO_CONTACT.architectName}.{' '}
             {locale === 'vi' ? 'Bảo lưu mọi quyền.' : 'All rights reserved.'}
           </p>
-          <div className="flex items-center gap-4">
-            <p className="font-mono-num text-[11px]">
-              React 19 · TypeScript Strict · IndexedDB + Cloud DB Ready
-            </p>
-            <button
-              type="button"
-              onClick={onOpenOwnerConsole}
-              className="font-mono-num rounded-md border px-2.5 py-1 text-[10px] font-semibold transition-colors hover:border-[var(--accent)] hover:text-[var(--accent)]"
-              style={{ borderColor: 'var(--border-hairline)', color: 'var(--ink-muted)' }}
-              data-testid="footer-owner-console-btn"
-            >
-              Owner Console
-            </button>
-          </div>
+          <p className="font-mono-num text-[11px]">
+            React 19 · TypeScript Strict · Zero-Trust VietQR + Cloud DB Ready
+          </p>
         </div>
       </div>
     </footer>

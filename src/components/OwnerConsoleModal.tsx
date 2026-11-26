@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { formatMoney } from '../engines/catalog';
 import {
   exportOrdersToCsvBom,
+  isCloudRealtimeConfigured,
   loadSupabaseRuntimeConfig,
   ORDER_STATUS_META,
   ORDER_STATUS_SEQUENCE,
@@ -239,23 +240,25 @@ export const OwnerConsoleModal: React.FC<OwnerConsoleModalProps> = ({
                       </div>
 
                       <div className="flex flex-wrap items-center gap-2">
-                        {order.status !== 'DEPOSIT_VERIFIED' && order.status !== 'DELIVERED' && (
-                          <button
-                            type="button"
-                            onClick={() =>
-                              onSimulateRealtimeWebhook(order.orderCode, order.totals.payableNowVnd)
-                            }
-                            data-testid={`simulate-webhook-${order.orderCode}`}
-                            className="rounded-lg border px-2.5 py-2 text-[11px] font-bold transition-colors hover:bg-[var(--emerald-soft)]"
-                            style={{
-                              borderColor: 'var(--emerald)',
-                              color: 'var(--emerald)',
-                              backgroundColor: 'var(--bg-surface)',
-                            }}
-                          >
-                            {locale === 'vi' ? 'Test SePay PAID' : 'Test SePay PAID'}
-                          </button>
-                        )}
+                        {!isCloudRealtimeConfigured() &&
+                          order.status !== 'DEPOSIT_VERIFIED' &&
+                          order.status !== 'DELIVERED' && (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                onSimulateRealtimeWebhook(order.orderCode, order.totals.payableNowVnd)
+                              }
+                              data-testid={`simulate-webhook-${order.orderCode}`}
+                              className="rounded-lg border px-2.5 py-2 text-[11px] font-bold transition-colors hover:bg-[var(--emerald-soft)]"
+                              style={{
+                                borderColor: 'var(--emerald)',
+                                color: 'var(--emerald)',
+                                backgroundColor: 'var(--bg-surface)',
+                              }}
+                            >
+                              {locale === 'vi' ? 'Test SePay PAID' : 'Test SePay PAID'}
+                            </button>
+                          )}
                         <select
                           value={order.status ?? 'AWAITING_PAYMENT'}
                           onChange={(e) =>

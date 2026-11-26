@@ -81,15 +81,16 @@ CREATE TABLE IF NOT EXISTS public.tvt_inquiries (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- 5. Row Level Security (Public can INSERT orders/inquiries; ZERO PII exposure on SELECT)
+-- 5. Strict Zero-Trust Row Level Security
+-- ZERO direct anon SELECT / UPDATE / DELETE on any table.
+-- Orders are created EXCLUSIVELY through `supabase/functions/create-order` (server-side price validation!)
+-- Payments are confirmed EXCLUSIVELY through `supabase/functions/sepay-webhook` (fail-closed API key!).
 ALTER TABLE public.tvt_orders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.tvt_order_events ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.tvt_payment_webhooks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.tvt_inquiries ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "allow_anon_insert_orders" ON public.tvt_orders;
-CREATE POLICY "allow_anon_insert_orders"
-  ON public.tvt_orders FOR INSERT TO anon WITH CHECK (true);
 
 DROP POLICY IF EXISTS "allow_anon_insert_inquiries" ON public.tvt_inquiries;
 CREATE POLICY "allow_anon_insert_inquiries"
