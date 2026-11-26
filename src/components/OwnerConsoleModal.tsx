@@ -33,6 +33,7 @@ interface OwnerConsoleModalProps {
   bankConfig: BankVietQrConfig | null;
   onClose: () => void;
   onUpdateOrderStatus: (orderCode: string, nextStatus: OrderLifecycleStatus) => void;
+  onUpdateOrderDeliveryUrl: (orderCode: string, downloadUrl: string) => void;
   onSimulateRealtimeWebhook: (orderCode: string, amountVnd: number) => void;
   onBankConfigChange: (next: BankVietQrConfig | null) => void;
 }
@@ -45,6 +46,7 @@ export const OwnerConsoleModal: React.FC<OwnerConsoleModalProps> = ({
   bankConfig,
   onClose,
   onUpdateOrderStatus,
+  onUpdateOrderDeliveryUrl,
   onSimulateRealtimeWebhook,
   onBankConfigChange,
 }) => {
@@ -236,6 +238,20 @@ export const OwnerConsoleModal: React.FC<OwnerConsoleModalProps> = ({
                         <div className="mt-1 text-[11px]" style={{ color: 'var(--ink-secondary)' }}>
                           {formatMoney(order.totals.netTotalVnd, 'VND')} · {order.paymentChannel}
                           {order.paymentRef ? ` · Ref: ${order.paymentRef}` : ''}
+                        </div>
+                        <div className="mt-2 flex items-center gap-2">
+                          <input
+                            type="url"
+                            defaultValue={order.deliverable?.sourceDownloadUrl ?? ''}
+                            onBlur={(e) => {
+                              const val = e.target.value.trim();
+                              if (val !== (order.deliverable?.sourceDownloadUrl ?? '')) {
+                                onUpdateOrderDeliveryUrl(order.orderCode, val);
+                              }
+                            }}
+                            placeholder="Gắn link tải Source Code (.zip / GitHub Release) cho Kho Tài Khoản..."
+                            className="input-studio h-8 w-full max-w-md rounded-lg px-2.5 font-mono-num text-[11px]"
+                          />
                         </div>
                       </div>
 

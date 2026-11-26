@@ -9,6 +9,7 @@ import {
   IconMoon,
   IconSearch,
   IconSun,
+  IconUser,
 } from './Icons';
 
 interface NavbarProps {
@@ -18,11 +19,13 @@ interface NavbarProps {
   cartItemCount: number;
   cartPayableNow: number;
   savedOrderCount: number;
+  accountEmail: string | null;
   onToggleLocale: (next: Locale) => void;
   onToggleCurrency: (next: Currency) => void;
   onToggleTheme: () => void;
   onOpenCart: () => void;
   onOpenTracker: () => void;
+  onOpenAccount: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -32,11 +35,13 @@ export const Navbar: React.FC<NavbarProps> = ({
   cartItemCount,
   cartPayableNow,
   savedOrderCount,
+  accountEmail,
   onToggleLocale,
   onToggleCurrency,
   onToggleTheme,
   onOpenCart,
   onOpenTracker,
+  onOpenAccount,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -179,6 +184,21 @@ export const Navbar: React.FC<NavbarProps> = ({
             {theme === 'dark' ? <IconSun className="h-4 w-4" /> : <IconMoon className="h-4 w-4" />}
           </button>
 
+          {/* Account / Source Vault Trigger */}
+          <button
+            type="button"
+            onClick={onOpenAccount}
+            className="btn-ghost hidden h-9 shrink-0 items-center gap-1.5 rounded-lg px-2.5 text-xs font-semibold md:flex"
+            aria-label={locale === 'vi' ? 'Tài khoản & Kho Source' : 'Account & Source Vault'}
+            data-testid="navbar-account-btn"
+            style={accountEmail ? { borderColor: 'var(--emerald)', color: 'var(--ink-primary)' } : undefined}
+          >
+            <IconUser className="h-3.5 w-3.5" style={accountEmail ? { color: 'var(--emerald)' } : undefined} />
+            <span className="hidden max-w-[110px] truncate xl:inline">
+              {accountEmail ? accountEmail.split('@')[0] : locale === 'vi' ? 'Đăng nhập' : 'Sign in'}
+            </span>
+          </button>
+
           {/* Order Tracker Trigger */}
           <button
             type="button"
@@ -253,6 +273,26 @@ export const Navbar: React.FC<NavbarProps> = ({
                 {link.label}
               </a>
             ))}
+            <button
+              type="button"
+              onClick={() => {
+                setMobileMenuOpen(false);
+                onOpenAccount();
+              }}
+              className="flex items-center justify-between rounded-lg px-3 py-2 text-left text-sm font-semibold"
+              style={{ color: 'var(--emerald)', backgroundColor: 'var(--bg-elevated)' }}
+            >
+              <span>
+                {accountEmail
+                  ? locale === 'vi'
+                    ? `Tài khoản (${accountEmail.split('@')[0]})`
+                    : `Account (${accountEmail.split('@')[0]})`
+                  : locale === 'vi'
+                    ? 'Đăng Nhập Email & Kho Source'
+                    : 'Email Login & Source Vault'}
+              </span>
+              <IconUser className="h-4 w-4" />
+            </button>
             <button
               type="button"
               onClick={() => {

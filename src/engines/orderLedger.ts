@@ -324,7 +324,8 @@ export function saveSupabaseRuntimeConfig(config: SupabaseRuntimeConfig): void {
 
 export async function dispatchOrderToCloud(
   order: OrderSnapshot,
-  locale: Locale
+  locale: Locale,
+  authAccessToken?: string
 ): Promise<CloudSyncState> {
   const cfg = loadSupabaseRuntimeConfig();
 
@@ -337,7 +338,7 @@ export async function dispatchOrderToCloud(
         headers: {
           'Content-Type': 'application/json',
           apikey: cfg.anonKey,
-          Authorization: `Bearer ${cfg.anonKey}`,
+          Authorization: `Bearer ${authAccessToken || cfg.anonKey}`,
         },
         body: JSON.stringify({
           orderCode: order.orderCode,

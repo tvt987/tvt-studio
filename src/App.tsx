@@ -1,5 +1,15 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
+  createDefaultProfile,
+  ensureOrderDeliverable,
+  fetchCloudAccountData,
+  loadAuthSession,
+  loadLocalClientProfile,
+  mergeCloudAndLocalOrders,
+  saveAuthSession,
+  syncCloudProfile,
+} from './engines/authVault';
+import {
   addCustomScopeToCart,
   addTemplateToCart,
   calculateCartTotals,
@@ -19,8 +29,10 @@ import {
 } from './engines/orderLedger';
 import { loadBankVietQrConfig } from './engines/vietqr';
 import type {
+  AuthSession,
   BankVietQrConfig,
   CartItem,
+  ClientProfile,
   Currency,
   CustomScopeConfig,
   LicenseTier,
@@ -32,6 +44,7 @@ import type {
   TemplateProduct,
   ThemeMode,
 } from './engines/types';
+import { AccountPortalModal } from './components/AccountPortalModal';
 import { CartDrawer } from './components/CartDrawer';
 import { CatalogSection } from './components/CatalogSection';
 import { CheckoutModal } from './components/CheckoutModal';
@@ -74,10 +87,16 @@ export const App: React.FC = () => {
   const [persistedOrders, setPersistedOrders] = useState<OrderSnapshot[]>([]);
   const [persistedInquiries, setPersistedInquiries] = useState<QuickInquiryRecord[]>([]);
   const [bankConfig, setBankConfig] = useState<BankVietQrConfig | null>(() => loadBankVietQrConfig());
+  const [authSession, setAuthSession] = useState<AuthSession | null>(() => loadAuthSession());
+  const [clientProfile, setClientProfile] = useState<ClientProfile | null>(() => {
+    const sess = loadAuthSession();
+    return sess ? loadLocalClientProfile(sess.email) : null;
+  });
 
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [isTrackerOpen, setIsTrackerOpen] = useState(false);
+  const [isAccountOpen, setIsAccountOpen] = useState(false);
   const [trackerInitialCode, setTrackerInitialCode] = useState<string | null>(null);
   const [isOwnerConsoleOpen, setIsOwnerConsoleOpen] = useState(false);
 
@@ -109,11 +128,21 @@ export const App: React.FC = () => {
     }
   }, [cartItems]);
 
-  // Hydrate persistent IndexedDB order & inquiry ledger on mount
+  // Hydrate persistent IndexedDB order & inquiry ledger on mount (and merge Cloud Account orders when signed in)
   useEffect(() => {
     let active = true;
     void loadPersistedOrders().then((rows) => {
-      if (active) setPersistedOrders(rows);
+      if (!active) return;
+      setPersistedOrders(rows);
+      if (authSession) {
+        void fetchCloudAccountData(authSession).then(({ profile, orders: cloudOrders }) => {
+          if (!active) return;
+          if (profile) setClientProfile(profile);
+          if (cloudOrders.length > 0) {
+            setPersistedOrders((curr) => mergeCloudAndLocalOrders(cloudOrders, curr));
+          }
+        });
+      }
     });
     void loadPersistedInquiries().then((rows) => {
       if (active) setPersistedInquiries(rows);
@@ -121,7 +150,7 @@ export const App: React.FC = () => {
     return () => {
       active = false;
     };
-  }, []);
+  }, [authSession]);
 
   // Keyboard shortcut Ctrl+Shift+A to open Owner Console
   useEffect(() => {
@@ -231,6 +260,17 @@ export const App: React.FC = () => {
     void savePersistedOrder(order).then((updated) => {
       setPersistedOrders(updated);
     });
+    // Auto-save client's billing details into their signed-in profile for 1-click future orders
+    if (authSession) {
+      const base = clientProfile ?? createDefaultProfile(authSession.email, authSession.userId);
+      void syncCloudProfile(authSession, {
+        ...base,
+        fullName: order.client.fullName || base.fullName,
+        phoneOrZalo: order.client.phoneOrZalo || base.phoneOrZalo,
+        brandOrDomain: order.client.brandOrDomain || base.brandOrDomain,
+        preferredChannel: order.paymentChannel,
+      }).then((savedProf) => setClientProfile(savedProf));
+    }
     showToast(
       locale === 'vi'
         ? `Đã lưu đơn ${order.orderCode} vào Tra Cứu Đơn Hàng (IndexedDB)`
@@ -261,6 +301,38 @@ export const App: React.FC = () => {
     if (!target) return;
     const updated = appendStatusTransition(target, nextStatus);
     void savePersistedOrder(updated).then((rows) => setPersistedOrders(rows));
+  };
+
+  const handleUpdateOrderDeliveryUrl = (orderCode: string, downloadUrl: string) => {
+    const target = persistedOrders.find((o) => o.orderCode === orderCode);
+    if (!target) return;
+    const deliv = ensureOrderDeliverable(target);
+    const updated: OrderSnapshot = {
+      ...target,
+      deliverable: {
+        ...deliv,
+        sourceDownloadUrl: downloadUrl || undefined,
+      },
+    };
+    void savePersistedOrder(updated).then((rows) => setPersistedOrders(rows));
+  };
+
+  const handleAuthenticated = (nextSession: AuthSession) => {
+    setAuthSession(nextSession);
+    const localProf = loadLocalClientProfile(nextSession.email);
+    setClientProfile(localProf ?? createDefaultProfile(nextSession.email, nextSession.userId));
+    showToast(
+      locale === 'vi'
+        ? `Đã đăng nhập tài khoản ${nextSession.email}`
+        : `Signed in as ${nextSession.email}`
+    );
+  };
+
+  const handleLogout = () => {
+    saveAuthSession(null);
+    setAuthSession(null);
+    setClientProfile(null);
+    showToast(locale === 'vi' ? 'Đã đăng xuất khỏi tài khoản' : 'Signed out');
   };
 
   const handleAutoVerifiedPayment = (orderCode: string, paymentRef: string) => {
@@ -307,6 +379,7 @@ export const App: React.FC = () => {
           cartItemCount={totals.itemCount}
           cartPayableNow={currency === 'VND' ? totals.payableNowVnd : totals.payableNowUsd}
           savedOrderCount={persistedOrders.length}
+          accountEmail={authSession?.email ?? null}
           onToggleLocale={setLocale}
           onToggleCurrency={setCurrency}
           onToggleTheme={() => setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))}
@@ -315,6 +388,7 @@ export const App: React.FC = () => {
             setTrackerInitialCode(null);
             setIsTrackerOpen(true);
           }}
+          onOpenAccount={() => setIsAccountOpen(true)}
         />
 
         <main>
@@ -436,10 +510,31 @@ export const App: React.FC = () => {
         locale={locale}
         currency={currency}
         bankConfig={bankConfig}
+        authSession={authSession}
+        clientProfile={clientProfile}
         onClose={() => setIsCheckoutOpen(false)}
         onOrderCompleted={handleOrderCompleted}
         onAutoVerifiedPayment={handleAutoVerifiedPayment}
         onOpenTracker={(orderCode) => {
+          setTrackerInitialCode(orderCode);
+          setIsTrackerOpen(true);
+        }}
+        onOpenAccount={() => setIsAccountOpen(true)}
+      />
+
+      {/* Client Email Auth & Permanent Source Recovery Vault */}
+      <AccountPortalModal
+        isOpen={isAccountOpen}
+        locale={locale}
+        currency={currency}
+        session={authSession}
+        profile={clientProfile}
+        orders={persistedOrders}
+        onClose={() => setIsAccountOpen(false)}
+        onAuthenticated={handleAuthenticated}
+        onLogout={handleLogout}
+        onProfileSaved={setClientProfile}
+        onOpenOrderTracker={(orderCode) => {
           setTrackerInitialCode(orderCode);
           setIsTrackerOpen(true);
         }}
@@ -465,12 +560,13 @@ export const App: React.FC = () => {
         bankConfig={bankConfig}
         onClose={() => setIsOwnerConsoleOpen(false)}
         onUpdateOrderStatus={handleUpdateOrderStatus}
+        onUpdateOrderDeliveryUrl={handleUpdateOrderDeliveryUrl}
         onSimulateRealtimeWebhook={handleSimulateRealtimeWebhook}
         onBankConfigChange={setBankConfig}
       />
 
       {/* Subtle Bottom-Left Confirmation Toast (never collides with open modals/drawers) */}
-      {toastText && !isCartOpen && !isCheckoutOpen && !isTrackerOpen && !isOwnerConsoleOpen && (
+      {toastText && !isCartOpen && !isCheckoutOpen && !isTrackerOpen && !isAccountOpen && !isOwnerConsoleOpen && (
         <div
           className="no-print fixed bottom-4 left-4 z-50 flex max-w-md items-center gap-3 rounded-xl border px-4 py-3 text-xs font-semibold shadow-2xl sm:bottom-6 sm:left-6"
           style={{

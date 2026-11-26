@@ -8,6 +8,7 @@ import {
   generateOrderInvoiceMarkdown,
   getPaymentChannelLabel,
 } from '../engines/invoice';
+import { generateLicenseKey } from '../engines/authVault';
 import {
   dispatchOrderToCloud,
   isCloudRealtimeConfigured,
@@ -20,10 +21,12 @@ import {
   isValidBankVietQrConfig,
 } from '../engines/vietqr';
 import type {
+  AuthSession,
   BankVietQrConfig,
   CartItem,
   CartTotals,
   ClientOrderForm,
+  ClientProfile,
   Currency,
   Locale,
   OrderSnapshot,
@@ -53,10 +56,13 @@ interface CheckoutModalProps {
   locale: Locale;
   currency: Currency;
   bankConfig: BankVietQrConfig | null;
+  authSession: AuthSession | null;
+  clientProfile: ClientProfile | null;
   onClose: () => void;
   onOrderCompleted: (order: OrderSnapshot) => void;
   onAutoVerifiedPayment: (orderCode: string, paymentRef: string, paidAmountVnd: number) => void;
   onOpenTracker: (orderCode: string) => void;
+  onOpenAccount: () => void;
 }
 
 export const CheckoutModal: React.FC<CheckoutModalProps> = ({
@@ -66,10 +72,13 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   locale,
   currency,
   bankConfig,
+  authSession,
+  clientProfile,
   onClose,
   onOrderCompleted,
   onAutoVerifiedPayment,
   onOpenTracker,
+  onOpenAccount,
 }) => {
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [orderCode, setOrderCode] = useState(() => generateOrderCode());
@@ -99,8 +108,20 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
       setOrderCode(generateOrderCode());
       setPaymentRef('');
       setFormError(null);
+      if (clientProfile || authSession) {
+        setClient((prev) => ({
+          fullName: prev.fullName || clientProfile?.fullName || '',
+          phoneOrZalo: prev.phoneOrZalo || clientProfile?.phoneOrZalo || '',
+          email: prev.email || clientProfile?.email || authSession?.email || '',
+          brandOrDomain: prev.brandOrDomain || clientProfile?.brandOrDomain || '',
+          notes: prev.notes || clientProfile?.billingNote || '',
+        }));
+        if (clientProfile?.preferredChannel) {
+          setPaymentChannel(clientProfile.preferredChannel);
+        }
+      }
     }
-  }, [isOpen]);
+  }, [authSession, clientProfile, isOpen]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -208,8 +229,20 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
       totals,
       paymentRef: paymentChannel === 'consult-first' ? undefined : paymentRef.trim() || undefined,
     });
-    const syncState = await dispatchOrderToCloud(snapshot, locale);
-    const persistedSnapshot: OrderSnapshot = { ...snapshot, syncState };
+    const enrichedSnapshot: OrderSnapshot = {
+      ...snapshot,
+      userId: authSession?.userId,
+      deliverable: {
+        licenseKey: generateLicenseKey(orderCode),
+        downloadCount: 0,
+      },
+    };
+    const syncState = await dispatchOrderToCloud(
+      enrichedSnapshot,
+      locale,
+      authSession?.accessToken
+    );
+    const persistedSnapshot: OrderSnapshot = { ...enrichedSnapshot, syncState };
     setConfirmedOrder(persistedSnapshot);
     setStep(3);
     setSubmitting(false);
@@ -391,6 +424,47 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
           {/* STEP 1: Client Contact & Project Brief */}
           {step === 1 && (
             <form onSubmit={handleStep1Next} className="space-y-4">
+              {!authSession ? (
+                <div
+                  className="flex flex-wrap items-center justify-between gap-2 rounded-xl border px-3.5 py-2.5 text-xs"
+                  style={{
+                    backgroundColor: 'var(--bg-elevated)',
+                    borderColor: 'var(--border-hairline)',
+                  }}
+                >
+                  <span style={{ color: 'var(--ink-secondary)' }}>
+                    {locale === 'vi'
+                      ? 'Đăng nhập bằng Email để tự điền thông tin & lưu kho tải lại Source Code vĩnh viễn.'
+                      : 'Sign in with Email to auto-fill billing details & unlock lifetime source recovery.'}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onClose();
+                      onOpenAccount();
+                    }}
+                    className="font-semibold hover:underline"
+                    style={{ color: 'var(--accent)' }}
+                  >
+                    {locale === 'vi' ? 'Đăng nhập Email →' : 'Email Login →'}
+                  </button>
+                </div>
+              ) : (
+                <div
+                  className="flex items-center justify-between gap-2 rounded-xl border px-3.5 py-2 text-xs"
+                  style={{
+                    backgroundColor: 'var(--emerald-soft)',
+                    borderColor: 'var(--emerald)',
+                    color: 'var(--ink-primary)',
+                  }}
+                >
+                  <span>
+                    {locale === 'vi'
+                      ? `Đang đặt đơn bằng tài khoản ${authSession.email} — đơn & Source Code sẽ tự lưu vào Kho Tài Khoản.`
+                      : `Signed in as ${authSession.email} — order & Source Vault link automatically.`}
+                  </span>
+                </div>
+              )}
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <label htmlFor="chk-name" className="block text-xs font-semibold">

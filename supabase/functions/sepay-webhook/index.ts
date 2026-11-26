@@ -207,6 +207,8 @@ Deno.serve(async (req: Request) => {
   const nextStatus = sufficient ? 'DEPOSIT_VERIFIED' : 'PROOF_SUBMITTED';
   const refCode = payload.referenceCode || `SEPAY-${providerTxId}`;
   const nowIso = new Date().toISOString();
+  const digits = orderCode.slice(-4);
+  const licenseKey = order.license_key || (sufficient ? `TVT-LIC-${digits}-${providerTxId.slice(-4).toUpperCase()}` : null);
 
   await supabase
     .from('tvt_orders')
@@ -215,6 +217,7 @@ Deno.serve(async (req: Request) => {
       paid_amount_vnd: cumulativePaid,
       payment_ref: refCode,
       paid_at: sufficient ? nowIso : order.paid_at,
+      license_key: licenseKey,
       updated_at: nowIso,
     })
     .eq('order_code', orderCode);

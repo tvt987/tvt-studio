@@ -240,6 +240,34 @@ export interface ClientOrderForm {
   notes: string;
 }
 
+export interface OrderDeliverable {
+  licenseKey: string;
+  sourceDownloadUrl?: string;
+  repoUrl?: string;
+  docsUrl?: string;
+  unlockedAtIso?: string;
+  downloadCount?: number;
+}
+
+export interface ClientProfile {
+  userId?: string;
+  email: string;
+  fullName: string;
+  phoneOrZalo: string;
+  brandOrDomain: string;
+  preferredChannel: PaymentChannel;
+  billingNote: string;
+  updatedAtIso: string;
+}
+
+export interface AuthSession {
+  mode: 'supabase_otp' | 'local_vault';
+  userId: string;
+  email: string;
+  accessToken?: string;
+  loggedInAtIso: string;
+}
+
 export interface OrderSnapshot {
   orderCode: string;
   createdAtIso: string;
@@ -254,4 +282,6 @@ export interface OrderSnapshot {
   paymentRef?: string;
   syncState?: CloudSyncState;
   events?: OrderTimelineEvent[];
+  userId?: string;
+  deliverable?: OrderDeliverable;
 }

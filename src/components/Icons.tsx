@@ -221,3 +221,10 @@ export const IconLock: React.FC<IconProps> = ({ className, ...props }) => (
     <path d="M7 11V7a5 5 0 0 1 10 0v4" />
   </svg>
 );
+
+export const IconUser: React.FC<IconProps> = ({ className, ...props }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className={base(className)} aria-hidden="true" {...props}>
+    <circle cx="12" cy="8" r="4" />
+    <path d="M20 21a8 8 0 0 0-16 0" />
+  </svg>
+);

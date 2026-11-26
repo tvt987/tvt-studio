@@ -27,8 +27,13 @@ supabase secrets set \
 
 supabase functions deploy create-order --no-verify-jwt
 supabase functions deploy sepay-webhook --no-verify-jwt
+supabase functions deploy download-source --no-verify-jwt
 supabase functions deploy order-notify --no-verify-jwt
 ```
+> **Bật Kho Tải Lại Source Code Vĩnh Viễn (Miễn phí 1GB Private Storage trên Supabase)**:
+> 1. Vào **Supabase -> Storage -> New bucket** tên `source-packages` (chọn **Private**, tuyệt đối KHÔNG chọn Public).
+> 2. Upload file `.zip` source code từng mẫu (VD: `lumina-medspa-v1.zip`), sau đó thêm 1 dòng vào bảng `tvt_product_deliverables`.
+> 3. Khi khách đăng nhập bằng Email OTP (miễn phí `50,000` user/tháng), bấm **Tải Lại Source Code** -> Edge Function `download-source` xác thực đúng chủ đơn đã thanh toán và cấp link tải tạm sống **5 phút** (chống chia sẻ link lậu).
 Webhook URL của bạn sẽ là:
 `https://<YOUR_PROJECT_REF>.supabase.co/functions/v1/sepay-webhook`
 

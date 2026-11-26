@@ -1,15 +1,41 @@
 -- ============================================================================
--- TVT STUDIO — PRODUCTION POSTGRESQL / SUPABASE SCHEMA (FREE TIER READY: 0đ)
--- Supports: Order Persistence, Real-Time Auto-Verified VietQR Webhooks
---           (SePay / PayOS / Casso), Non-PII Live Payment Status RPC,
---           Audit Timeline Events, and Custom Consultation Leads.
+-- TVT STUDIO — PRODUCTION POSTGRESQL / SUPABASE SCHEMA (FREE TIER: 0đ)
+-- Supports:
+--  1. Free Email OTP / Magic Link Auth (50,000 MAU free on Supabase Auth)
+--  2. Client Saved Billing Profiles (`tvt_client_profiles`)
+--  3. Server-Verified Orders & Permanent Source Code Vault (`tvt_orders`)
+--  4. Private Source Package Catalog (`tvt_product_deliverables`)
+--  5. Fail-Closed Real-Time SePay/PayOS Webhooks + Zero-PII Live Status RPC
 -- ============================================================================
 
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
--- 1. Orders Ledger (Protected by unique order_code + idempotency_key)
+-- 1. Client Saved Billing & Contact Profiles (1-Click Checkout Auto-Fill)
+CREATE TABLE IF NOT EXISTS public.tvt_client_profiles (
+  user_id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  email TEXT NOT NULL,
+  full_name TEXT NOT NULL DEFAULT '',
+  phone_or_zalo TEXT NOT NULL DEFAULT '',
+  brand_or_domain TEXT NOT NULL DEFAULT '',
+  preferred_channel TEXT NOT NULL DEFAULT 'vietqr',
+  billing_note TEXT NOT NULL DEFAULT '',
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- 2. Private Product Deliverable Catalog (Stores Storage object path for each template)
+CREATE TABLE IF NOT EXISTS public.tvt_product_deliverables (
+  product_id TEXT PRIMARY KEY,
+  storage_bucket TEXT NOT NULL DEFAULT 'source-packages',
+  storage_path TEXT NOT NULL,
+  repo_url TEXT,
+  docs_url TEXT,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- 3. Orders Ledger & Permanent License / Source Recovery Vault
 CREATE TABLE IF NOT EXISTS public.tvt_orders (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
   order_code TEXT NOT NULL UNIQUE,
   idempotency_key TEXT NOT NULL UNIQUE,
   status TEXT NOT NULL DEFAULT 'AWAITING_PAYMENT'
@@ -36,6 +62,11 @@ CREATE TABLE IF NOT EXISTS public.tvt_orders (
   payable_now_usd INTEGER NOT NULL CHECK (payable_now_usd >= 0),
   paid_amount_vnd BIGINT NOT NULL DEFAULT 0,
   paid_at TIMESTAMPTZ,
+  license_key TEXT,
+  delivery_repo_url TEXT,
+  delivery_zip_url TEXT,
+  delivery_docs_url TEXT,
+  download_count INTEGER NOT NULL DEFAULT 0,
   items_json JSONB NOT NULL DEFAULT '[]'::jsonb,
   milestones_json JSONB NOT NULL DEFAULT '[]'::jsonb,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -43,9 +74,11 @@ CREATE TABLE IF NOT EXISTS public.tvt_orders (
 );
 
 CREATE INDEX IF NOT EXISTS idx_tvt_orders_status ON public.tvt_orders(status);
+CREATE INDEX IF NOT EXISTS idx_tvt_orders_user_id ON public.tvt_orders(user_id);
+CREATE INDEX IF NOT EXISTS idx_tvt_orders_client_email ON public.tvt_orders(LOWER(client_email));
 CREATE INDEX IF NOT EXISTS idx_tvt_orders_created_at ON public.tvt_orders(created_at DESC);
 
--- 2. Immutable Order Audit & Status Timeline
+-- 4. Immutable Order Audit & Status Timeline
 CREATE TABLE IF NOT EXISTS public.tvt_order_events (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   order_code TEXT NOT NULL REFERENCES public.tvt_orders(order_code) ON DELETE CASCADE,
@@ -55,7 +88,7 @@ CREATE TABLE IF NOT EXISTS public.tvt_order_events (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- 3. Idempotent Bank VietQR Webhook Log (SePay / PayOS / Casso)
+-- 5. Idempotent Bank VietQR Webhook Log (SePay / PayOS / Casso)
 CREATE TABLE IF NOT EXISTS public.tvt_payment_webhooks (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   provider TEXT NOT NULL,
@@ -67,7 +100,7 @@ CREATE TABLE IF NOT EXISTS public.tvt_payment_webhooks (
   received_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- 4. Custom Project Inquiries / Negotiations
+-- 6. Custom Project Inquiries / Negotiations
 CREATE TABLE IF NOT EXISTS public.tvt_inquiries (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   inquiry_code TEXT NOT NULL UNIQUE,
@@ -81,23 +114,54 @@ CREATE TABLE IF NOT EXISTS public.tvt_inquiries (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- 5. Strict Zero-Trust Row Level Security
--- ZERO direct anon SELECT / UPDATE / DELETE on any table.
--- Orders are created EXCLUSIVELY through `supabase/functions/create-order` (server-side price validation!)
--- Payments are confirmed EXCLUSIVELY through `supabase/functions/sepay-webhook` (fail-closed API key!).
+-- 7. Strict Zero-Trust Row Level Security
+ALTER TABLE public.tvt_client_profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.tvt_product_deliverables ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.tvt_orders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.tvt_order_events ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.tvt_payment_webhooks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.tvt_inquiries ENABLE ROW LEVEL SECURITY;
 
-DROP POLICY IF EXISTS "allow_anon_insert_orders" ON public.tvt_orders;
+-- Logged-in clients can ONLY manage their own saved billing profile
+DROP POLICY IF EXISTS "client_manage_own_profile" ON public.tvt_client_profiles;
+CREATE POLICY "client_manage_own_profile"
+  ON public.tvt_client_profiles
+  FOR ALL TO authenticated
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
 
+-- Logged-in clients can ONLY read their own past orders & source vault (never modify prices/status!)
+DROP POLICY IF EXISTS "client_read_own_orders" ON public.tvt_orders;
+CREATE POLICY "client_read_own_orders"
+  ON public.tvt_orders
+  FOR SELECT TO authenticated
+  USING (
+    auth.uid() = user_id
+    OR LOWER(client_email) = LOWER(COALESCE(auth.jwt() ->> 'email', ''))
+  );
+
+-- Logged-in clients can read audit events strictly for their own orders
+DROP POLICY IF EXISTS "client_read_own_order_events" ON public.tvt_order_events;
+CREATE POLICY "client_read_own_order_events"
+  ON public.tvt_order_events
+  FOR SELECT TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.tvt_orders o
+      WHERE o.order_code = tvt_order_events.order_code
+        AND (
+          o.user_id = auth.uid()
+          OR LOWER(o.client_email) = LOWER(COALESCE(auth.jwt() ->> 'email', ''))
+        )
+    )
+  );
+
+-- Public inquiries can be submitted without login (zero SELECT for anon)
 DROP POLICY IF EXISTS "allow_anon_insert_inquiries" ON public.tvt_inquiries;
 CREATE POLICY "allow_anon_insert_inquiries"
-  ON public.tvt_inquiries FOR INSERT TO anon WITH CHECK (true);
+  ON public.tvt_inquiries FOR INSERT TO anon, authenticated WITH CHECK (true);
 
--- 6. Zero-PII Real-Time Payment Status RPC (Called every 3s by Checkout / Order Tracker)
--- Returns ONLY non-sensitive payment confirmation state for the exact requested order_code.
+-- 8. Zero-PII Real-Time Payment Status RPC (Only returns non-sensitive payment state)
 CREATE OR REPLACE FUNCTION public.get_order_payment_status(p_order_code TEXT)
 RETURNS TABLE (
   order_code TEXT,

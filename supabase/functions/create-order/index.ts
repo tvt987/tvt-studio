@@ -158,7 +158,19 @@ Deno.serve(async (req: Request) => {
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
   );
 
+  // If buyer is signed in via Email OTP JWT, attach verified auth.uid() to the order
+  let authenticatedUserId: string | null = null;
+  const authHeader = req.headers.get('authorization') || '';
+  const bearer = authHeader.replace(/^Bearer\s+/i, '').trim();
+  if (bearer && bearer.split('.').length === 3) {
+    const { data: authData } = await supabase.auth.getUser(bearer).catch(() => ({ data: null }));
+    if (authData?.user?.id) {
+      authenticatedUserId = authData.user.id;
+    }
+  }
+
   const { error: insertErr } = await supabase.from('tvt_orders').insert({
+    user_id: authenticatedUserId,
     order_code: orderCode,
     idempotency_key: orderCode,
     status,
