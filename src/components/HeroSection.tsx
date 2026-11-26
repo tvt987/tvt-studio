@@ -16,14 +16,14 @@ interface HeroSectionProps {
 export const HeroSection: React.FC<HeroSectionProps> = ({ locale }) => {
   const trustStats = [
     {
-      value: '10+',
+      value: '11+',
       label: locale === 'vi' ? 'Sản Phẩm Thương Mại Live' : 'Live Commercial Products',
       detail: locale === 'vi' ? 'Xem demo thật 100% trước khi mua' : '100% live interactive sandboxes',
     },
     {
-      value: '250+',
+      value: '304+',
       label: locale === 'vi' ? 'CI Automated Tests Green' : 'CI Automated Tests Green',
-      detail: locale === 'vi' ? 'Vitest + Strict TypeScript + Zero Error' : 'Vitest + Strict TS + Zero Errors',
+      detail: locale === 'vi' ? 'Vitest + Pytest + .NET xUnit · 0 Error' : 'Vitest + Pytest + .NET xUnit · 0 Errors',
     },
     {
       value: '700+',
