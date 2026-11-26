@@ -60,8 +60,8 @@ export function generateOrderInvoiceMarkdown(order: OrderSnapshot, locale: Local
         const licenseText =
           item.license === 'full-source'
             ? locale === 'vi'
-              ? 'Full Source + Custom Brand (+40%)'
-              : 'Full Source + Custom Brand (+40%)'
+              ? 'Full Source + Custom Brand (+30%)'
+              : 'Full Source + Custom Brand (+30%)'
             : locale === 'vi'
               ? 'Standard Deploy'
               : 'Standard Deploy';

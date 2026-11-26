@@ -91,6 +91,7 @@ export interface CustomScopeConfig {
   selectedAddons: AddonId[];
   pace: DeliveryPace;
   projectName?: string;
+  preferredStack?: string;
 }
 
 export interface MilestoneStage {

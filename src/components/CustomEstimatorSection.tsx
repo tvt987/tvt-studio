@@ -3,6 +3,7 @@ import { formatMoney } from '../engines/catalog';
 import {
   calculateCustomEstimate,
   generateTechnicalProposalMarkdown,
+  PREFERRED_STACK_OPTIONS,
   PROJECT_TYPES,
   SCOPE_ADDONS,
 } from '../engines/estimator';
@@ -39,7 +40,13 @@ export const CustomEstimatorSection: React.FC<CustomEstimatorSectionProps> = ({
   const [selectedAddons, setSelectedAddons] = useState<AddonId[]>(['payment-gateway', 'seo-cwv']);
   const [pace, setPace] = useState<DeliveryPace>('standard');
   const [projectName, setProjectName] = useState('');
+  const [preferredStack, setPreferredStack] = useState<string>('flexible');
   const [addedFeedback, setAddedFeedback] = useState(false);
+
+  const selectedStackLabel = useMemo(() => {
+    const found = PREFERRED_STACK_OPTIONS.find((opt) => opt.id === preferredStack);
+    return found ? found[locale] : PREFERRED_STACK_OPTIONS[0][locale];
+  }, [preferredStack, locale]);
 
   const config: CustomScopeConfig = useMemo(
     () => ({
@@ -47,8 +54,9 @@ export const CustomEstimatorSection: React.FC<CustomEstimatorSectionProps> = ({
       selectedAddons,
       pace,
       projectName,
+      preferredStack: selectedStackLabel,
     }),
-    [projectType, selectedAddons, pace, projectName]
+    [projectType, selectedAddons, pace, projectName, selectedStackLabel]
   );
 
   const estimate = useMemo(() => calculateCustomEstimate(config), [config]);
@@ -106,13 +114,13 @@ export const CustomEstimatorSection: React.FC<CustomEstimatorSectionProps> = ({
             </span>
             <h2 className="font-display mt-2 max-w-2xl text-2xl font-extrabold text-white sm:text-4xl">
               {locale === 'vi'
-                ? 'Thiết Kế & Lập Trình Hệ Thống Riêng — Báo Giá Minh Bạch Ngay Lập Tức.'
-                : 'Bespoke Web, POS & .NET / AI Engineering — Instant Scope Estimator.'}
+                ? 'Thiết Kế & Code Theo Yêu Cầu Mọi Ngôn Ngữ — Giá Hợp Lý, Hỗ Trợ Tận Tâm.'
+                : 'Custom Design & Polyglot Engineering — Fair Pricing, Ongoing Support.'}
             </h2>
             <p className="mt-2 max-w-2xl text-xs leading-relaxed text-white/80 sm:text-sm">
               {locale === 'vi'
-                ? 'Ba gói dịch vụ rõ ràng từ Landing Page siêu tốc đến Kiến trúc chịu tải cao .NET 10 / Python AI. Tự chọn module để xem tổng ngân sách, số ngày bàn giao và lịch thanh toán 3 đợt.'
-                : 'Three transparent tiers spanning high-conversion landing sites to distributed .NET 10 and Hybrid RAG platforms. Toggle modules below for real-time pricing, turnaround, and 3-stage milestones.'}
+                ? 'Nhận thiết kế web, tinh chỉnh tính năng và lập trình theo BẤT KỲ ngôn ngữ/nền tảng nào bạn yêu cầu (React, Next.js, Vue, Angular, Node.js, Python, .NET, Java, Go, PHP/Laravel, WordPress...) — đồng hành hỗ trợ xuyên suốt quá trình sử dụng.'
+                : 'Bespoke websites, feature tuning, and full-stack builds in ANY language or framework you require (React, Next.js, Vue, Angular, Node.js, Python, .NET, Java, Go, PHP/Laravel, WordPress...) — backed by dedicated ongoing support.'}
             </p>
           </div>
         </div>
@@ -245,6 +253,40 @@ export const CustomEstimatorSection: React.FC<CustomEstimatorSectionProps> = ({
                 }
                 className="input-studio mt-2 h-11 w-full rounded-xl px-3.5 text-sm"
               />
+            </div>
+
+            {/* Polyglot Language & Stack Selector */}
+            <div className="mt-5">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-xs font-semibold uppercase" style={{ color: 'var(--ink-secondary)' }}>
+                  {locale === 'vi'
+                    ? 'Ngôn Ngữ / Nền Tảng Mong Muốn (Nhận Mọi Ngôn Ngữ)'
+                    : 'Preferred Tech Stack (Any Language Supported)'}
+                </span>
+                <span className="font-mono-num text-[11px]" style={{ color: 'var(--emerald)' }}>
+                  {locale === 'vi' ? 'Đa nền tảng' : 'Polyglot'}
+                </span>
+              </div>
+              <div className="mt-2.5 flex flex-wrap gap-1.5">
+                {PREFERRED_STACK_OPTIONS.map((opt) => {
+                  const active = preferredStack === opt.id;
+                  return (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      onClick={() => setPreferredStack(opt.id)}
+                      className="rounded-lg border px-2.5 py-1.5 text-[11px] font-semibold transition-all"
+                      style={{
+                        backgroundColor: active ? 'var(--accent-soft)' : 'var(--bg-surface)',
+                        borderColor: active ? 'var(--accent)' : 'var(--border-hairline)',
+                        color: active ? 'var(--accent)' : 'var(--ink-secondary)',
+                      }}
+                    >
+                      {opt[locale]}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             {/* 7 Add-on Module Toggles */}

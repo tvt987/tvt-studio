@@ -54,31 +54,31 @@ describe('Catalog Engine', () => {
     expect(desc[desc.length - 1].id).toBe('lumina-medspa');
 
     const fastest = filterAndSortCatalog(CATALOG_PRODUCTS, 'all', '', 'fastest');
-    expect(fastest[0].deliveryDaysMin).toBe(5);
+    expect(fastest[0].deliveryDaysMin).toBe(2);
   });
 
   it('formats VND and USD currency strings deterministically', () => {
-    expect(formatMoney(8_900_000, 'VND')).toBe('8.900.000₫');
-    expect(formatMoney(18_900_000, 'VND')).toBe('18.900.000₫');
-    expect(formatMoney(359, 'USD')).toBe('$359');
+    expect(formatMoney(3_490_000, 'VND')).toBe('3.490.000₫');
+    expect(formatMoney(6_990_000, 'VND')).toBe('6.990.000₫');
+    expect(formatMoney(139, 'USD')).toBe('$139');
     expect(formatMoney(1_450, 'USD')).toBe('$1,450');
     expect(formatMoney(-500, 'VND')).toBe('0₫');
   });
 
-  it('calculates Standard vs Full Source (+40%) license pricing cleanly', () => {
+  it('calculates Standard vs Full Source (+30%) license pricing cleanly', () => {
     const maison = CATALOG_PRODUCTS.find((p) => p.id === 'maison-vera')!;
-    expect(getLicensePrice(maison, 'standard', 'VND')).toBe(8_900_000);
-    expect(getLicensePrice(maison, 'standard', 'USD')).toBe(359);
-    // 8,900,000 * 1.4 = 12,460,000 -> rounded to nearest 100k = 12,500,000
-    expect(getLicensePrice(maison, 'full-source', 'VND')).toBe(12_500_000);
-    // 359 * 1.4 = 502.6 -> rounded = 503
-    expect(getLicensePrice(maison, 'full-source', 'USD')).toBe(503);
+    expect(getLicensePrice(maison, 'standard', 'VND')).toBe(3_490_000);
+    expect(getLicensePrice(maison, 'standard', 'USD')).toBe(139);
+    // 3,490,000 * 1.3 = 4,537,000 -> rounded to nearest 10k = 4,540,000
+    expect(getLicensePrice(maison, 'full-source', 'VND')).toBe(4_540_000);
+    // 139 * 1.3 = 180.7 -> rounded = 181
+    expect(getLicensePrice(maison, 'full-source', 'USD')).toBe(181);
   });
 
   it('computes savings percentage and localized delivery ranges', () => {
     const aegis = CATALOG_PRODUCTS.find((p) => p.id === 'aegispulse')!;
-    expect(getSavingsPercent(aegis, 'VND')).toBe(44);
-    expect(formatDeliveryRange(aegis, 'vi')).toBe('12–16 ngày');
-    expect(formatDeliveryRange(aegis, 'en')).toBe('12–16 days');
+    expect(getSavingsPercent(aegis, 'VND')).toBe(46);
+    expect(formatDeliveryRange(aegis, 'vi')).toBe('5–10 ngày');
+    expect(formatDeliveryRange(aegis, 'en')).toBe('5–10 days');
   });
 });

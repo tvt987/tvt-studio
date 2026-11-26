@@ -37,7 +37,7 @@ describe('Cart, Deposit & Digital Contract Invoice Engine', () => {
     cart = switchTemplateLicenseInCart(cart, stdKey, 'full-source', CATALOG_PRODUCTS);
     expect(cart).toHaveLength(1);
     expect(cart[0].kind === 'template' && cart[0].license).toBe('full-source');
-    expect(cart[0].unitVnd).toBe(12_500_000);
+    expect(cart[0].unitVnd).toBe(4_540_000);
 
     // Add another standard line, then upgrade it -> should merge quantities to 2
     cart = addTemplateToCart(cart, maison, 'standard');
@@ -55,7 +55,7 @@ describe('Cart, Deposit & Digital Contract Invoice Engine', () => {
       projectName: 'Apex Studio',
     });
     expect(cart).toHaveLength(1);
-    expect(cart[0].unitVnd).toBe(5_500_000 + 2_500_000 + 2_000_000);
+    expect(cart[0].unitVnd).toBe(2_400_000 + 800_000 + 600_000);
 
     const key = cart[0].cartKey;
     cart = updateCartQuantity(cart, key, 1);
@@ -74,21 +74,21 @@ describe('Cart, Deposit & Digital Contract Invoice Engine', () => {
     cart = addTemplateToCart(cart, lumina, 'standard');
 
     const fullTotals = calculateCartTotals(cart, 'VIP500K', 'full');
-    expect(fullTotals.subtotalVnd).toBe(8_900_000 + 6_900_000);
+    expect(fullTotals.subtotalVnd).toBe(3_490_000 + 2_490_000);
     expect(fullTotals.discountVnd).toBe(500_000);
-    expect(fullTotals.netTotalVnd).toBe(15_300_000);
-    expect(fullTotals.payableNowVnd).toBe(15_300_000);
+    expect(fullTotals.netTotalVnd).toBe(5_480_000);
+    expect(fullTotals.payableNowVnd).toBe(5_480_000);
     expect(fullTotals.remainingVnd).toBe(0);
 
     const depositTotals = calculateCartTotals(cart, 'VIP500K', 'deposit-30');
-    expect(depositTotals.netTotalVnd).toBe(15_300_000);
+    expect(depositTotals.netTotalVnd).toBe(5_480_000);
     expect(depositTotals.payableNowVnd + depositTotals.remainingVnd).toBe(
       depositTotals.netTotalVnd
     );
     expect(depositTotals.payableNowUsd + depositTotals.remainingUsd).toBe(
       depositTotals.netTotalUsd
     );
-    expect(depositTotals.payableNowVnd).toBe(4_600_000);
+    expect(depositTotals.payableNowVnd).toBe(1_640_000);
   });
 
   it('generates standardized TVT-ORD-XXXX transfer memos', () => {

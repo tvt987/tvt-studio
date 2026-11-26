@@ -221,7 +221,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                   }}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold">Full Source +40%</span>
+                    <span className="text-xs font-bold">Full Source +30%</span>
                     <span className="font-mono-num text-xs font-bold" style={{ color: 'var(--accent)' }}>
                       {formatMoney(getLicensePrice(product, 'full-source', currency), currency)}
                     </span>

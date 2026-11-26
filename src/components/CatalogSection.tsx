@@ -92,8 +92,8 @@ export const CatalogSection: React.FC<CatalogSectionProps> = ({
           </h2>
           <p className="mt-3 text-sm leading-relaxed sm:text-base" style={{ color: 'var(--ink-secondary)' }}>
             {locale === 'vi'
-              ? 'Mỗi sản phẩm đều có bản Demo Live thật 100%. Chọn gói Standard Deploy (triển khai sẵn cho thương hiệu của bạn) hoặc Full Source + Custom Brand (+40% để sở hữu trọn mã nguồn & CI/CD).'
-              : 'Every template features a real live interactive sandbox. Choose Standard Deploy (rebranded production deployment) or Full Source + Custom Brand (+40% for 100% repository & CI/CD ownership).'}
+              ? 'Mỗi mẫu được định giá vừa phải theo đúng độ phức tạp, đều có Demo Live thật 100%, bao gồm hỗ trợ trong quá trình sử dụng và nhận tinh chỉnh giao diện/tính năng theo yêu cầu. Chọn Standard Deploy hoặc Full Source + Tinh Chỉnh Sâu (+30%).'
+              : 'Fairly priced by actual complexity with live interactive sandboxes, ongoing usage support, and custom refinements. Pick Standard Deploy or Full Source + Deep Customization (+30%).'}
           </p>
         </div>
 
@@ -338,7 +338,7 @@ export const CatalogSection: React.FC<CatalogSectionProps> = ({
                         color: selectedLicense === 'full-source' ? 'var(--accent)' : 'var(--ink-muted)',
                       }}
                     >
-                      Full Source +40%
+                      Full Source +30%
                     </button>
                   </div>
 

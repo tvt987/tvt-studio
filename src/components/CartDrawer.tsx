@@ -276,7 +276,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                                     : 'var(--ink-muted)',
                               }}
                             >
-                              Full Source +40%
+                              Full Source +30%
                             </button>
                           </div>
                         )}

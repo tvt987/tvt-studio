@@ -3,14 +3,16 @@ import {
   buildMilestones,
   calculateCustomEstimate,
   generateTechnicalProposalMarkdown,
+  PREFERRED_STACK_OPTIONS,
   PROJECT_TYPES,
   SCOPE_ADDONS,
 } from '../estimator';
 
 describe('Custom Scope & Price Estimator Engine', () => {
-  it('exposes 3 service tiers and 7 selectable commercial add-ons', () => {
+  it('exposes 3 service tiers, 7 selectable commercial add-ons, and polyglot stack options', () => {
     expect(PROJECT_TYPES).toHaveLength(3);
     expect(SCOPE_ADDONS).toHaveLength(7);
+    expect(PREFERRED_STACK_OPTIONS.length).toBeGreaterThanOrEqual(8);
   });
 
   it('computes base estimates accurately for Starter, Growth, and Enterprise tiers', () => {
@@ -19,18 +21,18 @@ describe('Custom Scope & Price Estimator Engine', () => {
       selectedAddons: [],
       pace: 'standard',
     });
-    expect(starter.totalVnd).toBe(5_500_000);
-    expect(starter.totalUsd).toBe(220);
-    expect(starter.estimatedDays).toBe(5);
+    expect(starter.totalVnd).toBe(2_400_000);
+    expect(starter.totalUsd).toBe(95);
+    expect(starter.estimatedDays).toBe(3);
 
     const enterprise = calculateCustomEstimate({
       projectType: 'enterprise-system',
       selectedAddons: [],
       pace: 'standard',
     });
-    expect(enterprise.totalVnd).toBe(35_000_000);
-    expect(enterprise.totalUsd).toBe(1_400);
-    expect(enterprise.estimatedDays).toBe(21);
+    expect(enterprise.totalVnd).toBe(12_000_000);
+    expect(enterprise.totalUsd).toBe(480);
+    expect(enterprise.estimatedDays).toBe(14);
   });
 
   it('accumulates selected add-ons and deduplicates duplicate add-on IDs', () => {
@@ -40,10 +42,10 @@ describe('Custom Scope & Price Estimator Engine', () => {
       pace: 'standard',
     });
     expect(result.addons).toHaveLength(2);
-    expect(result.addonsVnd).toBe(4_500_000 + 3_500_000);
-    expect(result.addonsUsd).toBe(180 + 140);
-    expect(result.totalVnd).toBe(14_000_000 + 8_000_000);
-    expect(result.estimatedDays).toBe(10 + 4 + 3);
+    expect(result.addonsVnd).toBe(1_500_000 + 1_200_000);
+    expect(result.addonsUsd).toBe(60 + 49);
+    expect(result.totalVnd).toBe(5_500_000 + 2_700_000);
+    expect(result.estimatedDays).toBe(6 + 2 + 2);
   });
 
   it('applies priority rush pace (+20% surcharge, -25% delivery days with 4-day floor)', () => {

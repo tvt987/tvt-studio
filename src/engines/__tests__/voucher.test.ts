@@ -12,20 +12,20 @@ describe('Idempotent Voucher Engine', () => {
   });
 
   it('applies TVTLAUNCH15 (-15%) with minimum subtotal and maximum cap enforcement', () => {
-    const belowMin = evaluateVoucher('TVTLAUNCH15', 4_000_000, 160);
+    const belowMin = evaluateVoucher('TVTLAUNCH15', 1_500_000, 60);
     expect(belowMin.valid).toBe(false);
     expect(belowMin.discountVnd).toBe(0);
 
-    const normal = evaluateVoucher('TVTLAUNCH15', 10_000_000, 400);
+    const normal = evaluateVoucher('TVTLAUNCH15', 4_000_000, 160);
     expect(normal.valid).toBe(true);
-    expect(normal.discountVnd).toBe(1_500_000);
-    expect(normal.discountUsd).toBe(60);
+    expect(normal.discountVnd).toBe(600_000);
+    expect(normal.discountUsd).toBe(24);
 
-    // Cap check: 15% of 50M = 7.5M, capped at 4M / $160
-    const capped = evaluateVoucher('TVTLAUNCH15', 50_000_000, 2_000);
+    // Cap check: 15% of 20M = 3M, capped at 2M / $80
+    const capped = evaluateVoucher('TVTLAUNCH15', 20_000_000, 800);
     expect(capped.valid).toBe(true);
-    expect(capped.discountVnd).toBe(4_000_000);
-    expect(capped.discountUsd).toBe(160);
+    expect(capped.discountVnd).toBe(2_000_000);
+    expect(capped.discountUsd).toBe(80);
   });
 
   it('applies AGENCY10 (-10%) without minimum order requirement', () => {

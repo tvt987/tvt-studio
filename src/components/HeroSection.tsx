@@ -31,9 +31,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ locale }) => {
       detail: locale === 'vi' ? 'Kinh nghiệm lõi .NET 8 / 5.000+ RPS' : 'Battle-tested .NET / 5,000+ RPS',
     },
     {
-      value: locale === 'vi' ? '5–14 Ngày' : '5–14 Days',
+      value: locale === 'vi' ? '2–10 Ngày' : '2–10 Days',
       label: locale === 'vi' ? 'Thời Gian Bàn Giao' : 'Deployment Turnaround',
-      detail: locale === 'vi' ? 'Thanh toán 3 đợt minh bạch 30/40/30' : 'Transparent 30/40/30 milestones',
+      detail: locale === 'vi' ? 'Giá hợp lý · Hỗ trợ xuyên suốt khi dùng' : 'Fair pricing · Ongoing usage support',
     },
   ];
 
@@ -90,8 +90,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ locale }) => {
               style={{ color: 'var(--ink-secondary)' }}
             >
               {locale === 'vi'
-                ? 'Kiến trúc phần mềm cấp doanh nghiệp do Solution Architect Trương Văn Tình trực tiếp thiết kế & kiểm thử — sẵn sàng bàn giao trọn gói trong 5–14 ngày với báo giá minh bạch và thanh toán theo mốc nghiệm thu.'
-                : 'Commercial-grade storefronts, 3D WebGL experiences, F&B POS systems, and distributed .NET 10 / AI platforms architected directly by Principal Architect Truong Van Tinh — shipped in 5–14 days with transparent milestone pricing.'}
+                ? 'Kho Website mẫu chuẩn quốc tế với mức giá hợp lý theo độ phức tạp — nhận thiết kế & tinh chỉnh theo yêu cầu với BẤT KỲ ngôn ngữ lập trình nào (React, Next.js, Vue, Angular, Node.js, Python, .NET, Java, Go, PHP...) và hỗ trợ đồng hành trong suốt quá trình sử dụng.'
+                : 'Flagship ready-to-launch websites at fair complexity-based pricing — plus custom design, iterative tuning in ANY programming language/stack you need, and dedicated support throughout real-world usage.'}
             </p>
 
             {/* Primary CTA Cluster */}
@@ -132,14 +132,14 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ locale }) => {
               <span className="inline-flex items-center gap-1.5">
                 <IconShield className="h-3.5 w-3.5" style={{ color: 'var(--emerald)' }} />
                 {locale === 'vi'
-                  ? 'Bảo hành lỗi kỹ thuật 90 ngày'
-                  : '90-day engineering warranty'}
+                  ? 'Hỗ trợ kỹ thuật xuyên suốt khi sử dụng & nhận tinh chỉnh theo yêu cầu'
+                  : 'Ongoing operational support & custom tuning included'}
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <IconShield className="h-3.5 w-3.5" style={{ color: 'var(--cyan)' }} />
                 {locale === 'vi'
-                  ? 'Hỗ trợ xuất hợp đồng & hóa đơn B2B'
-                  : 'B2B / Deel / Wise contractor invoicing'}
+                  ? 'Nhận code mọi ngôn ngữ (React, Vue, Angular, Node, Python, .NET, Java, Go, PHP...)'
+                  : 'Polyglot builds: any language or framework you prefer'}
               </span>
             </div>
           </div>

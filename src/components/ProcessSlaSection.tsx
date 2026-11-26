@@ -59,11 +59,14 @@ export const ProcessSlaSection: React.FC<ProcessSlaSectionProps> = ({ locale }) 
     },
     {
       code: 'SLA-02',
-      title: locale === 'vi' ? 'Bảo Hành Lỗi Kỹ Thuật 90 Ngày' : '90-Day Technical Defect Warranty',
+      title:
+        locale === 'vi'
+          ? 'Đồng Hành Hỗ Trợ Trong Suốt Quá Trình Sử Dụng & Tinh Chỉnh Linh Hoạt'
+          : 'Ongoing Usage Support & Flexible Custom Refinements',
       detail:
         locale === 'vi'
-          ? 'Mọi lỗi phát sinh từ mã nguồn sau ngày bàn giao đều được Trương Văn Tình xử lý trực tiếp miễn phí trong vòng 24 giờ.'
-          : 'Any code defect discovered post-launch is fixed directly by the architect free of charge within 24 hours.',
+          ? 'Không bỏ rơi sau bàn giao: hướng dẫn vận hành 1-1, hỗ trợ kỹ thuật trực tiếp qua Zalo trong quá trình sử dụng thực tế, bảo hành lỗi miễn phí và nhận tinh chỉnh/nâng cấp theo yêu cầu.'
+          : 'Dedicated 1-on-1 guidance, direct technical support throughout real-world operation, free defect warranty, and flexible iterative feature refinements.',
     },
     {
       code: 'SLA-03',
@@ -87,12 +90,12 @@ export const ProcessSlaSection: React.FC<ProcessSlaSectionProps> = ({ locale }) 
     {
       q:
         locale === 'vi'
-          ? 'Khác biệt giữa gói Standard Deploy và Full Source + Custom Brand (+40%) là gì?'
-          : 'What is the difference between Standard Deploy and Full Source + Custom Brand (+40%)?',
+          ? 'Khác biệt giữa gói Standard Deploy và Full Source + Custom Brand (+30%) là gì?'
+          : 'What is the difference between Standard Deploy and Full Source + Custom Brand (+30%)?',
       a:
         locale === 'vi'
-          ? 'Standard Deploy bao gồm tùy biến logo, bảng màu, nội dung, danh sách sản phẩm và triển khai trọn gói lên tên miền riêng của bạn kèm SSL. Gói Full Source (+40%) bổ sung bàn giao 100% mã nguồn sạch trên GitHub, bộ kiểm thử Vitest, quy trình CI/CD và quyền tùy chỉnh/mở rộng không giới hạn cho đội ngũ kỹ thuật của bạn.'
-          : 'Standard Deploy covers complete brand styling, copy/product swap, and turnkey live deployment to your custom domain with SSL. Full Source (+40%) grants 100% private GitHub repository ownership, Vitest suites, CI/CD workflows, and unrestricted extensibility for your internal team.',
+          ? 'Standard Deploy bao gồm tùy biến logo, bảng màu, nội dung, tinh chỉnh theo nhu cầu và triển khai trọn gói lên tên miền riêng kèm hỗ trợ sử dụng. Gói Full Source (+30%) bổ sung bàn giao 100% mã nguồn sạch trên GitHub, bộ kiểm thử tự động, CI/CD và quyền tự mở rộng không giới hạn.'
+          : 'Standard Deploy covers brand styling, copy/product swap, custom tweaks, live domain launch, and usage support. Full Source (+30%) adds 100% private GitHub repository ownership, automated test suites, CI/CD, and unrestricted internal extensibility.',
     },
     {
       q:
@@ -101,28 +104,28 @@ export const ProcessSlaSection: React.FC<ProcessSlaSectionProps> = ({ locale }) 
           : 'How fast can you deliver a rebranded template or custom software build?',
       a:
         locale === 'vi'
-          ? 'Các mẫu sẵn có như Lumina MedSpa, Maison Véra hoặc Aether Acoustics bàn giao trong 5–8 ngày làm việc sau khi nhận nội dung thương hiệu. Hệ thống POS/SaaS hoặc code theo yêu cầu từ đầu dao động 10–21 ngày tùy số lượng module mở rộng.'
-          : 'Ready-to-deploy storefronts like Lumina MedSpa, Maison Véra, or Aether Acoustics launch within 5–8 business days after receiving brand assets. Custom POS, SaaS, or backend systems run 10–21 days depending on selected modules.',
+          ? 'Các mẫu sẵn có như Lumina MedSpa, Maison Véra hoặc Aether Acoustics chỉ cần 2–5 ngày làm việc sau khi nhận nội dung thương hiệu. Hệ thống POS/SaaS hoặc code theo yêu cầu từ đầu dao động 5–14 ngày tùy độ phức tạp.'
+          : 'Ready-to-deploy storefronts like Lumina MedSpa, Maison Véra, or Aether Acoustics launch within 2–5 business days after receiving brand assets. Custom POS, SaaS, or backend systems run 5–14 days depending on scope.',
     },
     {
       q:
         locale === 'vi'
-          ? 'Tôi có được xem bản chạy thử trước khi thanh toán đủ 100% không?'
-          : 'Can I review a working staging deployment before paying 100%?',
+          ? 'Tôi có được xem bản chạy thử và yêu cầu tinh chỉnh trước khi thanh toán đủ 100% không?'
+          : 'Can I review a working staging deployment and request adjustments before paying 100%?',
       a:
         locale === 'vi'
-          ? 'Chắc chắn có. Toàn bộ dự án đều có chế độ Đặt cọc khởi tạo 30%, thanh toán 40% chỉ sau khi bạn kiểm thử trực tiếp trên đường dẫn Staging chạy thật (Desktop & Mobile), và 30% cuối cùng khi gắn domain Go-Live hoàn tất.'
-          : 'Absolutely. You can start with a 30% kickoff deposit, settle 40% only after testing the live staging deployment across desktop and mobile, and pay the final 30% upon production domain launch.',
+          ? 'Chắc chắn có. Toàn bộ dự án đều có chế độ Đặt cọc khởi tạo 30%, bạn được dùng thử trực tiếp link Staging, yêu cầu tinh chỉnh giao diện/tính năng cho ưng ý rồi mới thanh toán 40%, và 30% cuối cùng khi Go-Live hoàn tất.'
+          : 'Absolutely. Start with a 30% kickoff deposit, test the live staging URL and request refinements before settling 40%, and pay the final 30% upon production launch.',
     },
     {
       q:
         locale === 'vi'
-          ? 'TVT Studio có hỗ trợ tích hợp Backend .NET 10, SQL Server, Redis hoặc AI Chatbot dữ liệu riêng không?'
-          : 'Can TVT Studio integrate .NET 10 backends, SQL Server, Redis, or private-data AI RAG?',
+          ? 'TVT Studio có nhận code bằng ngôn ngữ lập trình khác ngoài .NET hay Angular không?'
+          : 'Can TVT Studio build in programming languages other than .NET or Angular?',
       a:
         locale === 'vi'
-          ? 'Có — đây là thế mạnh lõi của Trương Văn Tình (3+ năm kinh nghiệm hệ thống 700+ siêu thị Con Cung, xử lý 5.000+ RPS, Redis Distributed Lock & Python Hybrid RAG). Bạn có thể chọn trực tiếp gói Enterprise hoặc module AI RAG ngay trong Bộ Tính Báo Giá.'
-          : 'Yes — high-concurrency .NET 8/10, SQL Server/Dapper, Redis locking, and Python Hybrid RAG are Truong Van Tinh’s core engineering specialties (proven across 700+ Con Cung retail stores at 5,000+ RPS).',
+          ? 'Có — chúng tôi nhận thiết kế web & lập trình theo yêu cầu bằng BẤT KỲ ngôn ngữ/nền tảng nào phù hợp với bài toán của bạn: React, Next.js, Vue, Nuxt, Angular, TypeScript, Node.js/NestJS, Python/FastAPI/Django, C#/.NET, Java Spring Boot, Golang, PHP/Laravel hay WordPress, đồng thời hỗ trợ trực tiếp trong suốt quá trình sử dụng.'
+          : 'Yes — we design and engineer custom projects in ANY language or stack your project requires: React, Next.js, Vue, Nuxt, Angular, TypeScript, Node.js/NestJS, Python/FastAPI/Django, C#/.NET, Java Spring Boot, Golang, PHP/Laravel, or WordPress, with full ongoing usage support.',
     },
     {
       q:
