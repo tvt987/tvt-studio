@@ -6,6 +6,7 @@ import {
   loadAuthSession,
   loadLocalClientProfile,
   mergeCloudAndLocalOrders,
+  parseOAuthCallbackFromUrl,
   saveAuthSession,
   syncCloudProfile,
 } from './engines/authVault';
@@ -127,6 +128,17 @@ export const App: React.FC = () => {
       // Ignore storage quota errors
     }
   }, [cartItems]);
+
+  // Handle returning OAuth 2.0 callback hash from Google / Facebook / LinkedIn via Supabase Auth
+  useEffect(() => {
+    void parseOAuthCallbackFromUrl().then((oauthSession) => {
+      if (oauthSession) {
+        setAuthSession(oauthSession);
+        const prof = loadLocalClientProfile(oauthSession.email);
+        setClientProfile(prof ?? createDefaultProfile(oauthSession.email, oauthSession.userId));
+      }
+    });
+  }, []);
 
   // Hydrate persistent IndexedDB order & inquiry ledger on mount (and merge Cloud Account orders when signed in)
   useEffect(() => {

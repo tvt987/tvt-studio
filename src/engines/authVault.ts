@@ -11,6 +11,432 @@ import type {
 
 const AUTH_SESSION_KEY = 'tvt_studio_auth_session_v2';
 const CLIENT_PROFILES_KEY = 'tvt_studio_client_profiles_v2';
+const LOCAL_ACCOUNTS_KEY = 'tvt_studio_local_accounts_v2';
+
+export type SocialAuthProvider = 'google' | 'facebook' | 'linkedin_oidc';
+
+interface LocalAccountEntry {
+  email: string;
+  fullName: string;
+  passwordHash: string;
+  createdAtIso: string;
+}
+
+export async function hashPasswordSalted(email: string, password: string): Promise<string> {
+  const input = `tvt-studio-v2::${normalizeEmail(email)}::${password}`;
+  if (typeof crypto !== 'undefined' && crypto.subtle) {
+    const bytes = new TextEncoder().encode(input);
+    const digest = await crypto.subtle.digest('SHA-256', bytes);
+    return Array.from(new Uint8Array(digest))
+      .map((b) => b.toString(16).padStart(2, '0'))
+      .join('');
+  }
+  // Fallback deterministic hash for non-WebCrypto test runtimes
+  let h = 2166136261;
+  for (let i = 0; i < input.length; i++) {
+    h ^= input.charCodeAt(i);
+    h = Math.imul(h, 16777619) >>> 0;
+  }
+  return `fnv-${h.toString(16).padStart(8, '0')}`;
+}
+
+function readLocalAccounts(): Record<string, LocalAccountEntry> {
+  if (typeof window === 'undefined') return {};
+  try {
+    const raw = window.localStorage.getItem(LOCAL_ACCOUNTS_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw) as Record<string, LocalAccountEntry>;
+    return parsed && typeof parsed === 'object' ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function writeLocalAccounts(map: Record<string, LocalAccountEntry>): void {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem(LOCAL_ACCOUNTS_KEY, JSON.stringify(map));
+  } catch {
+    // ignore
+  }
+}
+
+/**
+ * Builds the official Supabase Auth OAuth 2.0 redirect URL for Google, Facebook, or LinkedIn.
+ */
+export function buildOAuthAuthorizeUrl(
+  supabaseUrl: string,
+  provider: SocialAuthProvider,
+  redirectTo: string
+): string {
+  const base = supabaseUrl.trim().replace(/\/+$/, '');
+  return `${base}/auth/v1/authorize?provider=${encodeURIComponent(provider)}&redirect_to=${encodeURIComponent(redirectTo)}`;
+}
+
+export function startSocialOAuthLogin(provider: SocialAuthProvider): {
+  redirected: boolean;
+  messageVi: string;
+  messageEn: string;
+} {
+  const cfg = loadSupabaseRuntimeConfig();
+  if (cfg.url && cfg.anonKey && typeof window !== 'undefined') {
+    const redirectTo = `${window.location.origin}${window.location.pathname}`;
+    window.location.href = buildOAuthAuthorizeUrl(cfg.url, provider, redirectTo);
+    return {
+      redirected: true,
+      messageVi: 'Đang chuyển hướng tới trang đăng nhập bảo mật...',
+      messageEn: 'Redirecting to secure OAuth provider...',
+    };
+  }
+  const label =
+    provider === 'google' ? 'Google' : provider === 'facebook' ? 'Facebook' : 'LinkedIn';
+  return {
+    redirected: false,
+    messageVi: `Đăng nhập 1 chạm bằng ${label} (miễn phí 0₫ qua Supabase Auth) sẵn sàng ngay khi bật Supabase Cloud. Hiện tại bạn có thể đăng ký / đăng nhập ngay bằng Email & Mật khẩu bên dưới.`,
+    messageEn: `1-click ${label} OAuth (free via Supabase Auth) activates automatically once Supabase Cloud is connected. You can sign up or sign in immediately with Email & Password below.`,
+  };
+}
+
+/**
+ * Parses a returning Supabase OAuth 2.0 callback hash (`#access_token=...`)
+ * verifies the user via `/auth/v1/user`, persists the session, and strips tokens from the URL.
+ */
+export async function parseOAuthCallbackFromUrl(): Promise<AuthSession | null> {
+  if (typeof window === 'undefined' || !window.location.hash.includes('access_token=')) {
+    return null;
+  }
+  const cfg = loadSupabaseRuntimeConfig();
+  if (!cfg.url || !cfg.anonKey || typeof fetch !== 'function') return null;
+
+  const params = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+  const accessToken = params.get('access_token');
+  if (!accessToken) return null;
+
+  try {
+    const res = await fetch(`${cfg.url}/auth/v1/user`, {
+      headers: {
+        apikey: cfg.anonKey,
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+    if (!res.ok) return null;
+    const user = (await res.json()) as { id?: string; email?: string; user_metadata?: { full_name?: string } };
+    if (!user.id || !user.email) return null;
+    const session: AuthSession = {
+      mode: 'supabase_otp',
+      userId: user.id,
+      email: normalizeEmail(user.email),
+      accessToken,
+      loggedInAtIso: new Date().toISOString(),
+    };
+    saveAuthSession(session);
+    if (user.user_metadata?.full_name) {
+      const existing = loadLocalClientProfile(session.email) ?? createDefaultProfile(session.email, session.userId);
+      if (!existing.fullName) {
+        saveLocalClientProfile({ ...existing, fullName: user.user_metadata.full_name });
+      }
+    }
+    window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}`);
+    return session;
+  } catch {
+    return null;
+  }
+}
+
+export async function signUpWithEmailPassword(params: {
+  fullName: string;
+  email: string;
+  password: string;
+}): Promise<{
+  ok: boolean;
+  session?: AuthSession;
+  needsEmailConfirm?: boolean;
+  messageVi: string;
+  messageEn: string;
+}> {
+  const cleanEmail = normalizeEmail(params.email);
+  const fullName = params.fullName.trim();
+  const password = params.password;
+
+  if (!fullName) {
+    return {
+      ok: false,
+      messageVi: 'Vui lòng nhập họ và tên.',
+      messageEn: 'Please enter your full name.',
+    };
+  }
+  if (!isValidEmail(cleanEmail)) {
+    return {
+      ok: false,
+      messageVi: 'Địa chỉ email không hợp lệ.',
+      messageEn: 'Please enter a valid email address.',
+    };
+  }
+  if (password.length < 6) {
+    return {
+      ok: false,
+      messageVi: 'Mật khẩu cần tối thiểu 6 ký tự.',
+      messageEn: 'Password must be at least 6 characters.',
+    };
+  }
+
+  // 1. Real Supabase Email + Password Signup (50K MAU free)
+  if (isCloudRealtimeConfigured() && typeof fetch === 'function') {
+    const cfg = loadSupabaseRuntimeConfig();
+    try {
+      const res = await fetch(`${cfg.url}/auth/v1/signup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', apikey: cfg.anonKey },
+        body: JSON.stringify({
+          email: cleanEmail,
+          password,
+          data: { full_name: fullName },
+        }),
+      });
+      const data = (await res.json()) as {
+        access_token?: string;
+        user?: { id: string; email: string };
+        msg?: string;
+        error_description?: string;
+      };
+      if (!res.ok) {
+        const err = data.msg || data.error_description || 'Đăng ký thất bại.';
+        return { ok: false, messageVi: err, messageEn: err };
+      }
+      if (data.access_token && data.user?.id) {
+        const session: AuthSession = {
+          mode: 'supabase_otp',
+          userId: data.user.id,
+          email: cleanEmail,
+          accessToken: data.access_token,
+          loggedInAtIso: new Date().toISOString(),
+        };
+        saveAuthSession(session);
+        await syncCloudProfile(session, { ...createDefaultProfile(cleanEmail, session.userId), fullName });
+        return {
+          ok: true,
+          session,
+          messageVi: 'Tạo tài khoản thành công!',
+          messageEn: 'Account created successfully!',
+        };
+      }
+      return {
+        ok: true,
+        needsEmailConfirm: true,
+        messageVi: `Đã gửi email xác nhận tới ${cleanEmail}. Bấm link trong email để hoàn tất kích hoạt tài khoản.`,
+        messageEn: `Confirmation email sent to ${cleanEmail}. Click the link in your inbox to activate.`,
+      };
+    } catch {
+      return {
+        ok: false,
+        messageVi: 'Không thể kết nối máy chủ đăng ký. Vui lòng thử lại.',
+        messageEn: 'Network error during signup. Please try again.',
+      };
+    }
+  }
+
+  // 2. Local Salted SHA-256 Account Vault (never stores plain-text passwords)
+  const accounts = readLocalAccounts();
+  if (accounts[cleanEmail]) {
+    return {
+      ok: false,
+      messageVi: 'Email này đã được đăng ký. Vui lòng chuyển sang Đăng nhập.',
+      messageEn: 'This email is already registered. Please sign in instead.',
+    };
+  }
+  const passwordHash = await hashPasswordSalted(cleanEmail, password);
+  accounts[cleanEmail] = {
+    email: cleanEmail,
+    fullName,
+    passwordHash,
+    createdAtIso: new Date().toISOString(),
+  };
+  writeLocalAccounts(accounts);
+
+  const localSession: AuthSession = {
+    mode: 'local_vault',
+    userId: `local-${cleanEmail}`,
+    email: cleanEmail,
+    loggedInAtIso: new Date().toISOString(),
+  };
+  saveAuthSession(localSession);
+  saveLocalClientProfile({
+    ...createDefaultProfile(cleanEmail, localSession.userId),
+    fullName,
+  });
+
+  return {
+    ok: true,
+    session: localSession,
+    messageVi: `Đăng ký tài khoản ${cleanEmail} thành công!`,
+    messageEn: `Account ${cleanEmail} created!`,
+  };
+}
+
+export async function signInWithEmailPassword(
+  email: string,
+  password: string
+): Promise<{
+  ok: boolean;
+  session?: AuthSession;
+  messageVi: string;
+  messageEn: string;
+}> {
+  const cleanEmail = normalizeEmail(email);
+  if (!isValidEmail(cleanEmail)) {
+    return {
+      ok: false,
+      messageVi: 'Vui lòng nhập email hợp lệ.',
+      messageEn: 'Please enter a valid email address.',
+    };
+  }
+  if (!password || password.length < 6) {
+    return {
+      ok: false,
+      messageVi: 'Vui lòng nhập mật khẩu (tối thiểu 6 ký tự).',
+      messageEn: 'Please enter your password (min 6 characters).',
+    };
+  }
+
+  // 1. Real Supabase Email + Password Sign-In
+  if (isCloudRealtimeConfigured() && typeof fetch === 'function') {
+    const cfg = loadSupabaseRuntimeConfig();
+    try {
+      const res = await fetch(`${cfg.url}/auth/v1/token?grant_type=password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', apikey: cfg.anonKey },
+        body: JSON.stringify({ email: cleanEmail, password }),
+      });
+      const data = (await res.json()) as {
+        access_token?: string;
+        user?: { id: string; email: string };
+        error_description?: string;
+        msg?: string;
+      };
+      if (!res.ok || !data.access_token || !data.user?.id) {
+        return {
+          ok: false,
+          messageVi: 'Email hoặc mật khẩu chưa chính xác.',
+          messageEn: 'Invalid email or password.',
+        };
+      }
+      const session: AuthSession = {
+        mode: 'supabase_otp',
+        userId: data.user.id,
+        email: cleanEmail,
+        accessToken: data.access_token,
+        loggedInAtIso: new Date().toISOString(),
+      };
+      saveAuthSession(session);
+      return {
+        ok: true,
+        session,
+        messageVi: 'Đăng nhập thành công!',
+        messageEn: 'Signed in successfully!',
+      };
+    } catch {
+      return {
+        ok: false,
+        messageVi: 'Lỗi kết nối máy chủ đăng nhập.',
+        messageEn: 'Network error while signing in.',
+      };
+    }
+  }
+
+  // 2. Local Salted SHA-256 Account Verification
+  const accounts = readLocalAccounts();
+  const entry = accounts[cleanEmail];
+  if (!entry) {
+    return {
+      ok: false,
+      messageVi: 'Email này chưa có tài khoản trên thiết bị này. Hãy bấm "Đăng ký ngay".',
+      messageEn: 'No account found for this email yet. Click "Sign up now".',
+    };
+  }
+  const candidateHash = await hashPasswordSalted(cleanEmail, password);
+  if (candidateHash !== entry.passwordHash) {
+    return {
+      ok: false,
+      messageVi: 'Mật khẩu chưa chính xác. Thử lại hoặc chọn "Quên mật khẩu".',
+      messageEn: 'Incorrect password. Try again or use "Forgot password".',
+    };
+  }
+
+  const localSession: AuthSession = {
+    mode: 'local_vault',
+    userId: `local-${cleanEmail}`,
+    email: cleanEmail,
+    loggedInAtIso: new Date().toISOString(),
+  };
+  saveAuthSession(localSession);
+  return {
+    ok: true,
+    session: localSession,
+    messageVi: `Chào mừng quay trở lại, ${entry.fullName || cleanEmail}!`,
+    messageEn: `Welcome back, ${entry.fullName || cleanEmail}!`,
+  };
+}
+
+export async function requestPasswordReset(
+  email: string,
+  newPasswordLocal?: string
+): Promise<{ ok: boolean; messageVi: string; messageEn: string }> {
+  const cleanEmail = normalizeEmail(email);
+  if (!isValidEmail(cleanEmail)) {
+    return {
+      ok: false,
+      messageVi: 'Vui lòng nhập email hợp lệ.',
+      messageEn: 'Please enter a valid email.',
+    };
+  }
+
+  if (isCloudRealtimeConfigured() && typeof fetch === 'function') {
+    const cfg = loadSupabaseRuntimeConfig();
+    try {
+      const redirectTo =
+        typeof window !== 'undefined'
+          ? `${window.location.origin}${window.location.pathname}`
+          : undefined;
+      const res = await fetch(`${cfg.url}/auth/v1/recover`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', apikey: cfg.anonKey },
+        body: JSON.stringify({ email: cleanEmail, redirect_to: redirectTo }),
+      });
+      if (res.ok) {
+        return {
+          ok: true,
+          messageVi: `Đã gửi link đặt lại mật khẩu tới ${cleanEmail}. Vui lòng kiểm tra hộp thư.`,
+          messageEn: `Password reset link sent to ${cleanEmail}. Please check your inbox.`,
+        };
+      }
+    } catch {
+      // fall through
+    }
+  }
+
+  const accounts = readLocalAccounts();
+  if (!accounts[cleanEmail]) {
+    return {
+      ok: false,
+      messageVi: 'Không tìm thấy tài khoản với email này.',
+      messageEn: 'No account found with this email.',
+    };
+  }
+  if (!newPasswordLocal || newPasswordLocal.length < 6) {
+    return {
+      ok: false,
+      messageVi: 'Nhập mật khẩu mới tối thiểu 6 ký tự.',
+      messageEn: 'Enter a new password (at least 6 characters).',
+    };
+  }
+  accounts[cleanEmail].passwordHash = await hashPasswordSalted(cleanEmail, newPasswordLocal);
+  writeLocalAccounts(accounts);
+  return {
+    ok: true,
+    messageVi: 'Đã cập nhật mật khẩu mới thành công! Bạn có thể đăng nhập ngay.',
+    messageEn: 'Password updated! You can sign in now.',
+  };
+}
 
 export function normalizeEmail(raw: string): string {
   return raw.trim().toLowerCase();

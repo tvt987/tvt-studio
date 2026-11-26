@@ -30,6 +30,10 @@ supabase functions deploy sepay-webhook --no-verify-jwt
 supabase functions deploy download-source --no-verify-jwt
 supabase functions deploy order-notify --no-verify-jwt
 ```
+> **Bật Đăng Nhập 1 Chạm Google / Facebook / LinkedIn Miễn Phí (`50,000` user/tháng)**:
+> - Trong **Supabase -> Authentication -> Providers**: bật `Email` (Email + Password) và bật thêm `Google`, `Facebook`, `LinkedIn (OIDC)` với Client ID/Secret miễn phí của từng nền tảng.
+> - Thêm `https://tvt987.github.io/tvt-studio/` vào **Authentication -> URL Configuration -> Redirect URLs**.
+>
 > **Bật Kho Tải Lại Source Code Vĩnh Viễn (Miễn phí 1GB Private Storage trên Supabase)**:
 > 1. Vào **Supabase -> Storage -> New bucket** tên `source-packages` (chọn **Private**, tuyệt đối KHÔNG chọn Public).
 > 2. Upload file `.zip` source code từng mẫu (VD: `lumina-medspa-v1.zip`), sau đó thêm 1 dòng vào bảng `tvt_product_deliverables`.

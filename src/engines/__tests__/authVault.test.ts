@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
+  buildOAuthAuthorizeUrl,
   filterOrdersForAccount,
   generateHandoverKitMarkdown,
   generateLicenseKey,
+  hashPasswordSalted,
   isOrderSourceUnlocked,
   isValidEmail,
   mergeCloudAndLocalOrders,
@@ -95,5 +97,22 @@ describe('Email Auth Vault & Permanent Source Recovery Engine', () => {
     expect(md).toContain(generateLicenseKey('TVT-ORD-7741'));
     expect(md).toContain('Lumina MedSpa');
     expect(md).toContain('ceo@medspa.vn');
+  });
+
+  it('builds valid Supabase OAuth authorize URLs for Google, Facebook & LinkedIn and salts password hashes', async () => {
+    const gUrl = buildOAuthAuthorizeUrl('https://demo.supabase.co/', 'google', 'https://tvt987.github.io/tvt-studio/');
+    const fbUrl = buildOAuthAuthorizeUrl('https://demo.supabase.co', 'facebook', 'https://tvt987.github.io/tvt-studio/');
+    const liUrl = buildOAuthAuthorizeUrl('https://demo.supabase.co', 'linkedin_oidc', 'https://tvt987.github.io/tvt-studio/');
+
+    expect(gUrl).toContain('/auth/v1/authorize?provider=google&redirect_to=');
+    expect(fbUrl).toContain('/auth/v1/authorize?provider=facebook&redirect_to=');
+    expect(liUrl).toContain('/auth/v1/authorize?provider=linkedin_oidc&redirect_to=');
+
+    const h1 = await hashPasswordSalted('User@Shop.VN', 'Secret123');
+    const h2 = await hashPasswordSalted('user@shop.vn', 'Secret123');
+    const h3 = await hashPasswordSalted('user@shop.vn', 'OtherPass');
+    expect(h1).toBe(h2);
+    expect(h1).not.toBe(h3);
+    expect(h1).not.toContain('Secret123');
   });
 });
