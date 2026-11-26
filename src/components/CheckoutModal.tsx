@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { generateOrderCode } from '../engines/cart';
 import { formatMoney, STUDIO_CONTACT } from '../engines/catalog';
 import {
@@ -8,7 +8,10 @@ import {
   generateOrderInvoiceMarkdown,
   getPaymentChannelLabel,
 } from '../engines/invoice';
+import { dispatchOrderToCloud } from '../engines/orderLedger';
+import { buildVietQrImageUrl, isValidBankVietQrConfig } from '../engines/vietqr';
 import type {
+  BankVietQrConfig,
   CartItem,
   CartTotals,
   ClientOrderForm,
@@ -21,6 +24,7 @@ import { copyToClipboard, downloadTextFile } from '../utils/download';
 import {
   IconArrowUpRight,
   IconCheck,
+  IconClock,
   IconClose,
   IconCopy,
   IconCreditCard,
@@ -29,6 +33,7 @@ import {
   IconMail,
   IconPhone,
   IconQrCode,
+  IconSearch,
   IconShield,
 } from './Icons';
 
@@ -38,8 +43,10 @@ interface CheckoutModalProps {
   totals: CartTotals;
   locale: Locale;
   currency: Currency;
+  bankConfig: BankVietQrConfig | null;
   onClose: () => void;
   onOrderCompleted: (order: OrderSnapshot) => void;
+  onOpenTracker: (orderCode: string) => void;
 }
 
 export const CheckoutModal: React.FC<CheckoutModalProps> = ({
@@ -48,12 +55,16 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   totals,
   locale,
   currency,
+  bankConfig,
   onClose,
   onOrderCompleted,
+  onOpenTracker,
 }) => {
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [orderCode, setOrderCode] = useState(() => generateOrderCode());
-  const [paymentChannel, setPaymentChannel] = useState<PaymentChannel>('zalopay');
+  const [paymentChannel, setPaymentChannel] = useState<PaymentChannel>('consult-first');
+  const [paymentRef, setPaymentRef] = useState('');
+  const [submitting, setSubmitting] = useState(false);
   const [client, setClient] = useState<ClientOrderForm>({
     fullName: '',
     phoneOrZalo: '',
@@ -64,10 +75,18 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   const [formError, setFormError] = useState<string | null>(null);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [confirmedOrder, setConfirmedOrder] = useState<OrderSnapshot | null>(null);
+  const scrollShellRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (isOpen && scrollShellRef.current) {
+      scrollShellRef.current.scrollTo({ top: 0 });
+    }
+  }, [isOpen, step]);
 
   useEffect(() => {
     if (isOpen && step !== 3) {
       setOrderCode(generateOrderCode());
+      setPaymentRef('');
       setFormError(null);
     }
   }, [isOpen]);
@@ -85,6 +104,12 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
     () => formatMoney(currency === 'VND' ? totals.payableNowVnd : totals.payableNowUsd, currency),
     [currency, totals.payableNowUsd, totals.payableNowVnd]
   );
+
+  const hasLiveBankQr = isValidBankVietQrConfig(bankConfig);
+  const liveVietQrUrl = useMemo(() => {
+    if (!hasLiveBankQr || !bankConfig) return null;
+    return buildVietQrImageUrl(bankConfig, totals.payableNowVnd, orderCode);
+  }, [bankConfig, hasLiveBankQr, orderCode, totals.payableNowVnd]);
 
   if (!isOpen) return null;
 
@@ -116,7 +141,9 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
     setStep(2);
   };
 
-  const handleConfirmOrder = () => {
+  const handleConfirmOrder = async () => {
+    if (submitting) return;
+    setSubmitting(true);
     const snapshot = createOrderSnapshot({
       orderCode,
       currency,
@@ -124,10 +151,14 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
       client,
       items,
       totals,
+      paymentRef: paymentChannel === 'consult-first' ? undefined : paymentRef.trim() || undefined,
     });
-    setConfirmedOrder(snapshot);
+    const syncState = await dispatchOrderToCloud(snapshot, locale);
+    const persistedSnapshot: OrderSnapshot = { ...snapshot, syncState };
+    setConfirmedOrder(persistedSnapshot);
     setStep(3);
-    onOrderCompleted(snapshot);
+    setSubmitting(false);
+    onOrderCompleted(persistedSnapshot);
   };
 
   const handleCloseAll = () => {
@@ -140,8 +171,72 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 
   const stepLabels = [
     locale === 'vi' ? '1. Thông Tin & Brief' : '1. Client Brief',
-    locale === 'vi' ? '2. Kênh Thanh Toán' : '2. Payment Channel',
-    locale === 'vi' ? '3. Hợp Đồng Số' : '3. Digital Receipt',
+    locale === 'vi' ? '2. Chọn Cách Thanh Toán' : '2. Payment Channel',
+    locale === 'vi' ? '3. Lưu Đơn & Hợp Đồng' : '3. Receipt & Tracking',
+  ];
+
+  const channelOptions = [
+    {
+      id: 'consult-first' as PaymentChannel,
+      Icon: IconShield,
+      title: locale === 'vi' ? 'Tư Vấn Trước' : 'Consult First',
+      sub: locale === 'vi' ? '0₫ cọc trước' : '$0 upfront',
+    },
+    {
+      id: 'vietqr' as PaymentChannel,
+      Icon: IconQrCode,
+      title: 'VietQR 24/7',
+      sub: hasLiveBankQr && bankConfig ? bankConfig.bankShortName : locale === 'vi' ? 'Ngân hàng VN' : 'VN Bank QR',
+    },
+    {
+      id: 'zalopay' as PaymentChannel,
+      Icon: IconPhone,
+      title: 'ZaloPay / QR',
+      sub: STUDIO_CONTACT.phoneDisplay,
+    },
+    {
+      id: 'momo' as PaymentChannel,
+      Icon: IconCreditCard,
+      title: locale === 'vi' ? 'Ví MoMo' : 'MoMo Wallet',
+      sub: STUDIO_CONTACT.phoneDisplay,
+    },
+    {
+      id: 'b2b-wire' as PaymentChannel,
+      Icon: IconGlobe,
+      title: 'B2B USD',
+      sub: 'Deel / Wise',
+    },
+  ];
+
+  const postPaymentSteps = [
+    {
+      time: 'T+0',
+      text:
+        locale === 'vi'
+          ? 'Đơn hàng đã lưu bền vững vào Tra Cứu Đơn Hàng (IndexedDB) & sẵn sàng in PDF A4.'
+          : 'Order persisted in Order Tracker (IndexedDB) with printable A4 PDF invoice.',
+    },
+    {
+      time: 'T+15m',
+      text:
+        locale === 'vi'
+          ? 'Trương Văn Tình xác nhận trực tiếp qua Zalo 0931 467 024 / Email & khóa lịch làm việc.'
+          : 'Truong Van Tinh confirms directly via Zalo 0931 467 024 / Email and locks kickoff.',
+    },
+    {
+      time: locale === 'vi' ? 'Ngày 1–5' : 'Days 1–5',
+      text:
+        locale === 'vi'
+          ? 'Gửi link Staging chạy thật để bạn kiểm tra & yêu cầu tinh chỉnh cho đúng ý.'
+          : 'Live Staging link delivered for interactive QA and custom brand refinements.',
+    },
+    {
+      time: 'Go-Live+',
+      text:
+        locale === 'vi'
+          ? 'Gắn tên miền riêng + SSL, bàn giao source sạch & hỗ trợ xuyên suốt khi sử dụng.'
+          : 'Custom domain + SSL launch, clean source handover, and ongoing usage support.',
+    },
   ];
 
   return (
@@ -155,7 +250,8 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
       }}
     >
       <div
-        className="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-2xl border"
+        ref={scrollShellRef}
+        className="printable-invoice-shell max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-2xl border"
         style={{
           backgroundColor: 'var(--bg-surface)',
           borderColor: 'var(--border-strong)',
@@ -164,7 +260,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
       >
         {/* Top Modal Header + Stepper */}
         <div
-          className="sticky top-0 z-10 border-b px-6 py-4 backdrop-blur-md"
+          className="no-print sticky top-0 z-10 border-b px-6 py-4 backdrop-blur-md"
           style={{
             backgroundColor: 'var(--bg-surface)',
             borderColor: 'var(--border-hairline)',
@@ -182,11 +278,11 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                     : 'Client Contact & Project Brief'
                   : step === 2
                     ? locale === 'vi'
-                      ? 'Chọn Kênh Thanh Toán Trực Tiếp'
-                      : 'Select Verified Payment Channel'
+                      ? 'Chọn Hình Thức Thanh Toán Hoặc Tư Vấn Trước'
+                      : 'Choose Payment Channel Or Consult First'
                     : locale === 'vi'
-                      ? 'Đơn Hàng & Hợp Đồng Số Đã Sẵn Sàng'
-                      : 'Order Confirmed & Digital Contract Ready'}
+                      ? 'Đã Lưu Đơn Hàng & Hợp Đồng Số'
+                      : 'Order Saved & Digital Contract Issued'}
               </h2>
             </div>
 
@@ -209,7 +305,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
               return (
                 <div
                   key={label}
-                  className="rounded-lg border px-3 py-1.5 text-center text-[11px] font-semibold"
+                  className="rounded-lg border px-2.5 py-1.5 text-center text-[11px] font-semibold"
                   style={{
                     backgroundColor: active
                       ? 'var(--accent-soft)'
@@ -305,7 +401,9 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 
               <div>
                 <label htmlFor="chk-notes" className="block text-xs font-semibold">
-                  {locale === 'vi' ? 'Ghi chú yêu cầu kỹ thuật / Thời hạn mong muốn' : 'Project Notes / Target Launch Window'}
+                  {locale === 'vi'
+                    ? 'Yêu cầu tinh chỉnh / Ngôn ngữ lập trình / Thời hạn mong muốn'
+                    : 'Custom Refinements / Preferred Tech Stack / Target Launch'}
                 </label>
                 <textarea
                   id="chk-notes"
@@ -314,15 +412,22 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                   onChange={(e) => setClient({ ...client, notes: e.target.value })}
                   placeholder={
                     locale === 'vi'
-                      ? 'Mô tả ngắn màu sắc thương hiệu, tích hợp thanh toán hoặc yêu cầu riêng...'
-                      : 'Share brand palette, integrations, domain status, or target launch date...'
+                      ? 'Mô tả màu sắc thương hiệu, tính năng cần tinh chỉnh thêm, hoặc ngôn ngữ bạn muốn code...'
+                      : 'Share brand palette, desired refinements, preferred tech stack, or target launch date...'
                   }
                   className="input-studio mt-1.5 w-full rounded-xl p-3.5 text-sm"
                 />
               </div>
 
               {formError && (
-                <p className="rounded-lg border px-3 py-2 text-xs font-semibold" style={{ borderColor: 'var(--accent)', color: 'var(--accent)', backgroundColor: 'var(--accent-soft)' }}>
+                <p
+                  className="rounded-lg border px-3 py-2 text-xs font-semibold"
+                  style={{
+                    borderColor: 'var(--accent)',
+                    color: 'var(--accent)',
+                    backgroundColor: 'var(--accent-soft)',
+                  }}
+                >
                   {formError}
                 </p>
               )}
@@ -340,8 +445,8 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                     {totals.itemCount} {locale === 'vi' ? 'hạng mục' : 'items'} ·{' '}
                     {totals.paymentMode === 'deposit-30'
                       ? locale === 'vi'
-                        ? 'Cọc khởi tạo 30%'
-                        : '30% Kickoff Deposit'
+                        ? 'Cọc khởi tạo 30% (Hoặc 0₫ tư vấn trước)'
+                        : '30% Kickoff Deposit (Or $0 Consult First)'
                       : locale === 'vi'
                         ? 'Thanh toán 100%'
                         : '100% Settlement'}
@@ -363,49 +468,32 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
             </form>
           )}
 
-          {/* STEP 2: 3 Real Payment Channels */}
+          {/* STEP 2: 5 Payment Channels (Incl. Consult-First $0 & Dynamic VietQR) */}
           {step === 2 && (
             <div className="space-y-5">
-              {/* Channel Selector Tabs */}
-              <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
-                {(
-                  [
-                    {
-                      id: 'zalopay' as PaymentChannel,
-                      Icon: IconQrCode,
-                      title: 'ZaloPay / QR',
-                      sub: STUDIO_CONTACT.phoneDisplay,
-                    },
-                    {
-                      id: 'momo' as PaymentChannel,
-                      Icon: IconCreditCard,
-                      title: locale === 'vi' ? 'Ví MoMo' : 'MoMo Wallet',
-                      sub: STUDIO_CONTACT.phoneDisplay,
-                    },
-                    {
-                      id: 'b2b-wire' as PaymentChannel,
-                      Icon: IconGlobe,
-                      title: 'B2B USD Invoice',
-                      sub: 'Deel / Wise / Wire',
-                    },
-                  ] as const
-                ).map(({ id, Icon, title, sub }) => {
+              {/* 5 Channel Selector Tabs */}
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
+                {channelOptions.map(({ id, Icon, title, sub }) => {
                   const active = paymentChannel === id;
                   return (
                     <button
                       key={id}
                       type="button"
                       onClick={() => setPaymentChannel(id)}
-                      className="flex items-center gap-3 rounded-xl border p-3.5 text-left transition-all"
+                      data-testid={`channel-${id}`}
+                      className="flex flex-col items-start gap-1.5 rounded-xl border p-3 text-left transition-all"
                       style={{
                         backgroundColor: active ? 'var(--accent-soft)' : 'var(--bg-elevated)',
                         borderColor: active ? 'var(--accent)' : 'var(--border-hairline)',
                       }}
                     >
-                      <Icon className="h-5 w-5 shrink-0" style={{ color: active ? 'var(--accent)' : 'var(--ink-secondary)' }} />
-                      <div>
-                        <div className="text-xs font-bold">{title}</div>
-                        <div className="font-mono-num text-[11px]" style={{ color: 'var(--ink-muted)' }}>
+                      <Icon
+                        className="h-4 w-4 shrink-0"
+                        style={{ color: active ? 'var(--accent)' : 'var(--ink-secondary)' }}
+                      />
+                      <div className="min-w-0">
+                        <div className="truncate text-xs font-bold">{title}</div>
+                        <div className="font-mono-num truncate text-[10px]" style={{ color: 'var(--ink-muted)' }}>
                           {sub}
                         </div>
                       </div>
@@ -422,6 +510,149 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                   borderColor: 'var(--border-hairline)',
                 }}
               >
+                {paymentChannel === 'consult-first' && (
+                  <div className="space-y-4">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div>
+                        <span className="font-mono-num text-[10px] font-bold uppercase" style={{ color: 'var(--emerald)' }}>
+                          {locale === 'vi' ? 'AN TOÀN TUYỆT ĐỐI · 0₫ CỌC TRƯỚC' : 'ZERO RISK · $0 UPFRONT'}
+                        </span>
+                        <h3 className="mt-0.5 text-base font-bold">
+                          {locale === 'vi'
+                            ? 'Chốt Lịch Tư Vấn & Thương Lượng Trước Khi Thanh Toán'
+                            : 'Lock Consultation & Scope Agreement Before Paying'}
+                        </h3>
+                      </div>
+                      <span
+                        className="font-mono-num rounded-lg px-2.5 py-1 text-xs font-bold"
+                        style={{ backgroundColor: 'var(--emerald-soft)', color: 'var(--emerald)' }}
+                      >
+                        0₫ TODAY
+                      </span>
+                    </div>
+
+                    <p className="text-xs leading-relaxed sm:text-sm" style={{ color: 'var(--ink-secondary)' }}>
+                      {locale === 'vi'
+                        ? 'Bạn chưa cần chuyển khoản ngay. Hệ thống sẽ tạo mã đơn hàng TVT-ORD-XXXX, lưu lại toàn bộ cấu hình đã chọn, xuất hợp đồng nháp A4 và gửi thông báo về cho Trương Văn Tình. Hai bên trao đổi thống nhất 100% tính năng, ngôn ngữ lập trình và giá thương lượng qua Zalo trước khi đặt cọc 30%.'
+                        : 'No upfront payment needed today. Your order code TVT-ORD-XXXX is saved with your selected items and printable draft brief. We align 100% on scope, stack, and pricing via Zalo before starting the 30% deposit.'}
+                    </p>
+
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                      <div className="rounded-xl border p-3.5 text-xs" style={{ borderColor: 'var(--border-hairline)', backgroundColor: 'var(--bg-surface)' }}>
+                        <div style={{ color: 'var(--ink-muted)' }}>{locale === 'vi' ? 'Mã đơn lưu giữ' : 'Reserved Order Code'}</div>
+                        <div className="font-mono-num mt-1 text-sm font-bold" style={{ color: 'var(--accent)' }}>
+                          {orderCode}
+                        </div>
+                      </div>
+                      <div className="rounded-xl border p-3.5 text-xs" style={{ borderColor: 'var(--border-hairline)', backgroundColor: 'var(--bg-surface)' }}>
+                        <div style={{ color: 'var(--ink-muted)' }}>{locale === 'vi' ? 'Thời gian phản hồi Zalo' : 'Direct Zalo Response'}</div>
+                        <div className="font-mono-num mt-1 text-sm font-bold" style={{ color: 'var(--emerald)' }}>
+                          {locale === 'vi' ? 'Trong 15 phút (08:00–22:00)' : 'Within 15 min (08:00–22:00 ICT)'}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {paymentChannel === 'vietqr' && (
+                  <div className="grid grid-cols-1 items-center gap-6 sm:grid-cols-12">
+                    <div className="flex flex-col items-center sm:col-span-5">
+                      <div className="rounded-2xl bg-white p-3 shadow-md">
+                        <img
+                          src={liveVietQrUrl ?? './media/zalo_qr.jpg'}
+                          alt={
+                            liveVietQrUrl
+                              ? `VietQR ${orderCode}`
+                              : 'Zalo QR Trương Văn Tình 0931 467 024'
+                          }
+                          className="h-48 w-48 rounded-lg object-contain"
+                        />
+                      </div>
+                      <span className="font-mono-num mt-2 text-center text-[11px]" style={{ color: liveVietQrUrl ? 'var(--emerald)' : 'var(--ink-muted)' }}>
+                        {liveVietQrUrl
+                          ? locale === 'vi'
+                            ? 'Quét bằng App Ngân Hàng (Tự điền tiền & mã đơn)'
+                            : 'Scan with any VN Banking App (Auto-filled)'
+                          : locale === 'vi'
+                            ? 'Quét Zalo nhận STK Ngân Hàng chính chủ'
+                            : 'Scan Zalo to receive verified Bank VietQR'}
+                      </span>
+                    </div>
+
+                    <div className="space-y-3 sm:col-span-7">
+                      <div>
+                        <span className="font-mono-num text-[10px] uppercase" style={{ color: 'var(--accent)' }}>
+                          {hasLiveBankQr ? 'NAPAS VIETQR 24/7 AUTO-FILLED' : 'VERIFIED BANK TRANSFER VIA ARCHITECT'}
+                        </span>
+                        <h3 className="text-sm font-bold sm:text-base">
+                          {hasLiveBankQr && bankConfig
+                            ? `${bankConfig.bankShortName} · ${bankConfig.accountName}`
+                            : `${locale === 'vi' ? 'Chuyển Khoản Ngân Hàng 24/7' : '24/7 Bank Transfer'} · ${STUDIO_CONTACT.architectName}`}
+                        </h3>
+                      </div>
+
+                      {!hasLiveBankQr && (
+                        <p className="rounded-lg border p-2.5 text-xs leading-relaxed" style={{ borderColor: 'var(--border-hairline)', backgroundColor: 'var(--bg-surface)', color: 'var(--ink-secondary)' }}>
+                          {locale === 'vi'
+                            ? 'Để bảo mật STK cá nhân khỏi spam công khai, bấm "Xác Nhận & Lưu Đơn" bên dưới rồi nhắn mã đơn qua Zalo 0931 467 024 — Tình gửi ngay ảnh VietQR ngân hàng chính chủ tự điền đúng số tiền trong 2 phút (hoặc chuyển trực tiếp qua tab ZaloPay / MoMo).'
+                            : 'To protect personal bank details from public scrapers, confirm your order below and message your code on Zalo 0931 467 024 to receive the exact VietQR image within 2 minutes.'}
+                        </p>
+                      )}
+
+                      <div className="space-y-2 text-xs">
+                        {hasLiveBankQr && bankConfig && (
+                          <div className="flex items-center justify-between rounded-lg border px-3 py-2" style={{ borderColor: 'var(--border-hairline)', backgroundColor: 'var(--bg-surface)' }}>
+                            <div>
+                              <div style={{ color: 'var(--ink-muted)' }}>{bankConfig.bankShortName}</div>
+                              <div className="font-mono-num font-bold">{bankConfig.accountNumber}</div>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handleCopy('bank-acct', bankConfig.accountNumber)}
+                              className="btn-ghost inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-[11px] font-semibold"
+                            >
+                              {copiedKey === 'bank-acct' ? <IconCheck className="h-3.5 w-3.5" /> : <IconCopy className="h-3.5 w-3.5" />}
+                              <span>{copiedKey === 'bank-acct' ? 'Đã copy' : 'Copy'}</span>
+                            </button>
+                          </div>
+                        )}
+
+                        <div className="flex items-center justify-between rounded-lg border px-3 py-2" style={{ borderColor: 'var(--border-hairline)', backgroundColor: 'var(--bg-surface)' }}>
+                          <div>
+                            <div style={{ color: 'var(--ink-muted)' }}>{locale === 'vi' ? 'Nội dung chuyển khoản' : 'Transfer Memo'}</div>
+                            <div className="font-mono-num font-bold" style={{ color: 'var(--accent)' }}>{orderCode}</div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleCopy('vqr-memo', orderCode)}
+                            className="btn-ghost inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-[11px] font-semibold"
+                          >
+                            {copiedKey === 'vqr-memo' ? <IconCheck className="h-3.5 w-3.5" /> : <IconCopy className="h-3.5 w-3.5" />}
+                            <span>{copiedKey === 'vqr-memo' ? 'Đã copy' : 'Copy'}</span>
+                          </button>
+                        </div>
+
+                        <div className="flex items-center justify-between rounded-lg border px-3 py-2" style={{ borderColor: 'var(--border-hairline)', backgroundColor: 'var(--bg-surface)' }}>
+                          <div>
+                            <div style={{ color: 'var(--ink-muted)' }}>{locale === 'vi' ? 'Số tiền chính xác' : 'Exact Amount'}</div>
+                            <div className="font-mono-num text-sm font-extrabold">
+                              {formatMoney(totals.payableNowVnd, 'VND')} ({formatMoney(totals.payableNowUsd, 'USD')})
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleCopy('vqr-amt', String(totals.payableNowVnd))}
+                            className="btn-ghost inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-[11px] font-semibold"
+                          >
+                            {copiedKey === 'vqr-amt' ? <IconCheck className="h-3.5 w-3.5" /> : <IconCopy className="h-3.5 w-3.5" />}
+                            <span>{copiedKey === 'vqr-amt' ? 'Đã copy' : 'Copy'}</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {paymentChannel === 'zalopay' && (
                   <div className="grid grid-cols-1 items-center gap-6 sm:grid-cols-12">
                     <div className="flex flex-col items-center sm:col-span-5">
@@ -558,12 +789,6 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                         </button>
                       </div>
                     </div>
-
-                    <p className="text-xs leading-relaxed" style={{ color: 'var(--ink-secondary)' }}>
-                      {locale === 'vi'
-                        ? 'Sau khi chuyển khoản MoMo kèm nội dung trên, bấm "Xác Nhận Đã Tạo Đơn" để nhận Biên Nhận & Hợp Đồng Số và gửi xác nhận 1 chạm qua Zalo.'
-                        : 'After sending via MoMo with the reference memo above, click Confirm Order below to download your digital contract receipt and notify via Zalo.'}
-                    </p>
                   </div>
                 )}
 
@@ -582,7 +807,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 
                     <p className="text-xs leading-relaxed sm:text-sm" style={{ color: 'var(--ink-secondary)' }}>
                       {locale === 'vi'
-                        ? 'Hỗ trợ ký hợp đồng dịch vụ B2B / Freelance Contractor quốc tế qua Deel, Wise Business hoặc chuyển khoản Wire USD — không phát sinh chi phí payroll hay thủ tục thuế phức tạp cho doanh nghiệp.'
+                        ? 'Hỗ trợ ký hợp đồng dịch vụ B2B / Freelance Contractor quốc tế qua Deel, Wise Business hoặc chuyển khoản Wire USD — không phát sinh thủ tục thuế phức tạp cho doanh nghiệp.'
                         : 'Formal B2B contractor invoicing via Deel, Wise Business, or USD Wire Transfer — zero payroll or tax compliance overhead for US/EU/APAC engineering teams.'}
                     </p>
 
@@ -600,14 +825,41 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                     </div>
                   </div>
                 )}
+
+                {/* Optional Transfer Proof Input for Direct Payment Channels */}
+                {paymentChannel !== 'consult-first' && (
+                  <div className="mt-4 border-t pt-4" style={{ borderColor: 'var(--border-hairline)' }}>
+                    <label htmlFor="chk-payment-ref" className="block text-xs font-semibold">
+                      {locale === 'vi'
+                        ? 'Mã giao dịch ngân hàng / MoMo / ZaloPay (Tùy chọn — có thể điền sau trong Tra Cứu Đơn Hàng)'
+                        : 'Transfer Reference ID (Optional — or attach later in Order Tracker)'}
+                    </label>
+                    <input
+                      id="chk-payment-ref"
+                      type="text"
+                      value={paymentRef}
+                      onChange={(e) => setPaymentRef(e.target.value)}
+                      placeholder="VD: FT2633012984 hoặc MOMO-88412"
+                      className="input-studio mt-1.5 h-10 w-full rounded-xl px-3.5 font-mono-num text-xs"
+                      data-testid="checkout-payment-ref"
+                    />
+                  </div>
+                )}
               </div>
 
-              <div className="flex items-start gap-2.5 rounded-xl border p-3.5 text-xs" style={{ borderColor: 'var(--border-hairline)', backgroundColor: 'var(--bg-elevated)', color: 'var(--ink-secondary)' }}>
+              <div
+                className="flex items-start gap-2.5 rounded-xl border p-3.5 text-xs"
+                style={{
+                  borderColor: 'var(--border-hairline)',
+                  backgroundColor: 'var(--bg-elevated)',
+                  color: 'var(--ink-secondary)',
+                }}
+              >
                 <IconShield className="mt-0.5 h-4 w-4 shrink-0" style={{ color: 'var(--emerald)' }} />
                 <span>
                   {locale === 'vi'
-                    ? 'Cam kết minh bạch: Đơn hàng chỉ khóa lịch triển khai sau khi Trương Văn Tình xác nhận trực tiếp qua Zalo/Email trong vòng 15 phút giờ làm việc.'
-                    : 'Transparency pledge: Project kickoff begins immediately once Truong Van Tinh confirms receipt directly via Zalo or Email (typically within 15 minutes).'}
+                    ? 'Đơn hàng được lưu bền vững vào Tra Cứu Đơn Hàng (IndexedDB) + gửi thông báo tức thì về hệ thống của Trương Văn Tình. Mọi điều chỉnh & hỗ trợ sử dụng đều được xác nhận trực tiếp.'
+                    : 'Your order persists immediately in Order Tracker (IndexedDB) and dispatches a live alert to Truong Van Tinh.'}
                 </span>
               </div>
 
@@ -621,45 +873,74 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 </button>
                 <button
                   type="button"
+                  disabled={submitting}
                   onClick={handleConfirmOrder}
-                  className="btn-primary inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold"
+                  className="btn-primary inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold disabled:opacity-60"
                   data-testid="checkout-confirm-order"
                 >
                   <IconCheck className="h-4 w-4" />
-                  <span>{locale === 'vi' ? 'Xác Nhận & Tạo Hợp Đồng Số' : 'Confirm & Issue Receipt'}</span>
+                  <span>
+                    {submitting
+                      ? locale === 'vi'
+                        ? 'Đang Lưu Đơn...'
+                        : 'Saving Order...'
+                      : paymentChannel === 'consult-first'
+                        ? locale === 'vi'
+                          ? 'Xác Nhận Đặt Lịch Tư Vấn (0₫)'
+                          : 'Confirm $0 Consultation Booking'
+                        : locale === 'vi'
+                          ? 'Xác Nhận & Lưu Hợp Đồng Số'
+                          : 'Confirm & Save Contract'}
+                  </span>
                 </button>
               </div>
             </div>
           )}
 
-          {/* STEP 3: Order Confirmation & Digital Contract Receipt */}
+          {/* STEP 3: Persisted Order Confirmation, Printable A4 Receipt & Post-Payment Journey */}
           {step === 3 && confirmedOrder && (
             <div className="space-y-5">
               <div
-                className="flex items-start gap-3.5 rounded-2xl border p-4"
+                className="no-print flex flex-wrap items-start justify-between gap-3 rounded-2xl border p-4"
                 style={{
                   backgroundColor: 'var(--emerald-soft)',
                   borderColor: 'var(--emerald)',
                 }}
               >
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-black/20" style={{ color: 'var(--emerald)' }}>
-                  <IconCheck className="h-5 w-5" />
+                <div className="flex items-start gap-3">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-black/20" style={{ color: 'var(--emerald)' }}>
+                    <IconCheck className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold sm:text-base" style={{ color: 'var(--ink-primary)' }}>
+                      {locale === 'vi'
+                        ? `Đã Lưu Đơn Hàng ${confirmedOrder.orderCode}`
+                        : `Order ${confirmedOrder.orderCode} Saved Successfully`}
+                    </h3>
+                    <p className="mt-0.5 text-xs" style={{ color: 'var(--ink-secondary)' }}>
+                      {getPaymentChannelLabel(confirmedOrder.paymentChannel, locale)}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-sm font-bold sm:text-base" style={{ color: 'var(--ink-primary)' }}>
-                    {locale === 'vi'
-                      ? `Đã Khởi Tạo Đơn Hàng ${confirmedOrder.orderCode}`
-                      : `Order ${confirmedOrder.orderCode} Created Successfully`}
-                  </h3>
-                  <p className="mt-0.5 text-xs" style={{ color: 'var(--ink-secondary)' }}>
-                    {getPaymentChannelLabel(confirmedOrder.paymentChannel, locale)}
-                  </p>
-                </div>
+                <span
+                  className="font-mono-num rounded-lg border px-2.5 py-1 text-[10px] font-bold"
+                  style={{
+                    backgroundColor: 'var(--bg-surface)',
+                    borderColor: 'var(--emerald)',
+                    color: 'var(--emerald)',
+                  }}
+                >
+                  {confirmedOrder.syncState === 'supabase_synced'
+                    ? 'DB: SUPABASE + IDB'
+                    : confirmedOrder.syncState === 'email_webhook_sent'
+                      ? 'EMAIL ALERT + IDB SAVED'
+                      : 'INDEXEDDB SAVED'}
+                </span>
               </div>
 
-              {/* Itemized Receipt Card */}
+              {/* Printable A4 Itemized Receipt Card */}
               <div
-                className="rounded-2xl border p-5"
+                className="printable-invoice-card rounded-2xl border p-5"
                 style={{
                   backgroundColor: 'var(--bg-canvas)',
                   borderColor: 'var(--border-hairline)',
@@ -667,14 +948,24 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
               >
                 <div className="flex flex-wrap items-center justify-between gap-2 border-b pb-3" style={{ borderColor: 'var(--border-hairline)' }}>
                   <div>
-                    <div className="text-xs font-bold">{confirmedOrder.client.fullName}</div>
+                    <div className="font-mono-num text-[10px] font-bold uppercase" style={{ color: 'var(--accent)' }}>
+                      TVT STUDIO · COMMERCIAL ORDER RECEIPT
+                    </div>
+                    <div className="mt-0.5 text-sm font-bold">{confirmedOrder.client.fullName}</div>
                     <div className="font-mono-num text-[11px]" style={{ color: 'var(--ink-muted)' }}>
                       {confirmedOrder.client.phoneOrZalo} · {confirmedOrder.client.email}
                     </div>
                   </div>
-                  <span className="font-mono-num rounded-md px-2.5 py-1 text-xs font-bold" style={{ backgroundColor: 'var(--accent-soft)', color: 'var(--accent)' }}>
-                    {confirmedOrder.orderCode}
-                  </span>
+                  <div className="text-right">
+                    <span className="font-mono-num rounded-md px-2.5 py-1 text-xs font-bold" style={{ backgroundColor: 'var(--accent-soft)', color: 'var(--accent)' }}>
+                      {confirmedOrder.orderCode}
+                    </span>
+                    {confirmedOrder.paymentRef && (
+                      <div className="font-mono-num mt-1 text-[10px]" style={{ color: 'var(--cyan)' }}>
+                        Ref: {confirmedOrder.paymentRef}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <ul className="mt-3 divide-y" style={{ borderColor: 'var(--border-hairline)' }}>
@@ -707,14 +998,24 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                     </span>
                   </div>
                   <div className="flex justify-between text-sm font-extrabold" style={{ color: 'var(--accent)' }}>
-                    <span>{locale === 'vi' ? 'Số tiền thanh toán đợt này' : 'Amount Due Now'}</span>
+                    <span>
+                      {confirmedOrder.paymentChannel === 'consult-first'
+                        ? locale === 'vi'
+                          ? 'Cần chuyển hôm nay (Tư vấn trước)'
+                          : 'Due today (Consult first)'
+                        : locale === 'vi'
+                          ? 'Số tiền thanh toán đợt này'
+                          : 'Amount Due Now'}
+                    </span>
                     <span className="font-mono-num">
-                      {formatMoney(
-                        currency === 'VND'
-                          ? confirmedOrder.totals.payableNowVnd
-                          : confirmedOrder.totals.payableNowUsd,
-                        currency
-                      )}
+                      {confirmedOrder.paymentChannel === 'consult-first'
+                        ? formatMoney(0, currency)
+                        : formatMoney(
+                            currency === 'VND'
+                              ? confirmedOrder.totals.payableNowVnd
+                              : confirmedOrder.totals.payableNowUsd,
+                            currency
+                          )}
                     </span>
                   </div>
                 </div>
@@ -722,7 +1023,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 {/* Milestone Checklist */}
                 <div className="mt-4 border-t pt-3" style={{ borderColor: 'var(--border-hairline)' }}>
                   <div className="text-[11px] font-bold uppercase" style={{ color: 'var(--ink-muted)' }}>
-                    {locale === 'vi' ? 'Lộ Trình Nghiệm Thu' : 'Milestone Schedule'}
+                    {locale === 'vi' ? 'Lộ Trình Nghiệm Thu (30% / 40% / 30%)' : 'Milestone Schedule (30% / 40% / 30%)'}
                   </div>
                   <div className="mt-2 space-y-1.5">
                     {confirmedOrder.milestones.map((m) => (
@@ -737,37 +1038,97 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 </div>
               </div>
 
-              {/* 3 Real Export & Confirmation Channels */}
-              <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
+              {/* Post-Payment Next Steps Box */}
+              <div
+                className="no-print rounded-2xl border p-4"
+                style={{
+                  backgroundColor: 'var(--bg-elevated)',
+                  borderColor: 'var(--border-hairline)',
+                }}
+              >
+                <div className="flex items-center gap-2 text-xs font-bold uppercase" style={{ color: 'var(--cyan)' }}>
+                  <IconClock className="h-3.5 w-3.5" />
+                  <span>{locale === 'vi' ? 'Điều Gì Xảy Ra Tiếp Theo?' : 'What Happens Next?'}</span>
+                </div>
+                <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  {postPaymentSteps.map((st) => (
+                    <div
+                      key={st.time}
+                      className="flex items-start gap-2.5 rounded-xl border p-2.5 text-xs"
+                      style={{ backgroundColor: 'var(--bg-surface)', borderColor: 'var(--border-hairline)' }}
+                    >
+                      <span className="font-mono-num shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold" style={{ backgroundColor: 'var(--accent-soft)', color: 'var(--accent)' }}>
+                        {st.time}
+                      </span>
+                      <span className="leading-snug" style={{ color: 'var(--ink-secondary)' }}>
+                        {st.text}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 4 Action Buttons: Print A4 PDF, Download MD, Open Order Tracker, Zalo Direct */}
+              <div className="no-print grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+                <button
+                  type="button"
+                  onClick={() => window.print()}
+                  className="btn-secondary inline-flex items-center justify-center gap-1.5 rounded-xl px-3 py-3 text-xs font-semibold"
+                >
+                  <IconDownload className="h-3.5 w-3.5" />
+                  <span>{locale === 'vi' ? 'In PDF A4' : 'Print A4 PDF'}</span>
+                </button>
+
                 <button
                   type="button"
                   onClick={() => {
                     const md = generateOrderInvoiceMarkdown(confirmedOrder, locale);
                     downloadTextFile(`${confirmedOrder.orderCode}-TVT-Studio-Receipt.md`, md);
                   }}
-                  className="btn-secondary inline-flex items-center justify-center gap-2 rounded-xl px-3.5 py-3 text-xs font-semibold"
+                  className="btn-secondary inline-flex items-center justify-center gap-1.5 rounded-xl px-3 py-3 text-xs font-semibold"
                   data-testid="export-invoice-md-btn"
                 >
-                  <IconDownload className="h-4 w-4" />
-                  <span>{locale === 'vi' ? 'Tải Hợp Đồng (.md)' : 'Export Receipt (.md)'}</span>
+                  <IconDownload className="h-3.5 w-3.5" />
+                  <span>{locale === 'vi' ? 'Tải File (.md)' : 'Export (.md)'}</span>
                 </button>
 
-                <a
-                  href={buildMailtoOrderUrl(confirmedOrder, locale)}
-                  className="btn-secondary inline-flex items-center justify-center gap-2 rounded-xl px-3.5 py-3 text-xs font-semibold"
+                <button
+                  type="button"
+                  onClick={() => {
+                    const code = confirmedOrder.orderCode;
+                    handleCloseAll();
+                    onOpenTracker(code);
+                  }}
+                  className="btn-secondary inline-flex items-center justify-center gap-1.5 rounded-xl px-3 py-3 text-xs font-semibold"
+                  data-testid="checkout-open-tracker-btn"
                 >
-                  <IconMail className="h-4 w-4" />
-                  <span>{locale === 'vi' ? 'Gửi Đơn Qua Email' : 'Send Via Email'}</span>
-                </a>
+                  <IconSearch className="h-3.5 w-3.5" />
+                  <span>{locale === 'vi' ? 'Tra Cứu Đơn' : 'Track Order'}</span>
+                </button>
 
                 <a
                   href={buildZaloDirectUrl()}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="btn-primary inline-flex items-center justify-center gap-2 rounded-xl px-3.5 py-3 text-xs font-semibold"
+                  className="btn-primary inline-flex items-center justify-center gap-1.5 rounded-xl px-3 py-3 text-xs font-semibold"
                 >
-                  <IconPhone className="h-4 w-4" />
-                  <span>{locale === 'vi' ? 'Xác Nhận Qua Zalo' : 'Confirm On Zalo'}</span>
+                  <IconPhone className="h-3.5 w-3.5" />
+                  <span>{locale === 'vi' ? 'Gửi Zalo Ngay' : 'Send On Zalo'}</span>
+                </a>
+              </div>
+
+              <div className="no-print text-center">
+                <a
+                  href={buildMailtoOrderUrl(confirmedOrder, locale)}
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold transition-colors hover:text-[var(--accent)]"
+                  style={{ color: 'var(--ink-secondary)' }}
+                >
+                  <IconMail className="h-3.5 w-3.5" />
+                  <span>
+                    {locale === 'vi'
+                      ? 'Hoặc mở sẵn email gửi trực tiếp tới tinhkun102@gmail.com'
+                      : 'Or open pre-filled email draft to tinhkun102@gmail.com'}
+                  </span>
                 </a>
               </div>
             </div>

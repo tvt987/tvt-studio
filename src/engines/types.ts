@@ -15,7 +15,49 @@ export type LicenseTier = 'standard' | 'full-source';
 
 export type PaymentMode = 'full' | 'deposit-30';
 
-export type PaymentChannel = 'zalopay' | 'momo' | 'b2b-wire';
+export type PaymentChannel = 'consult-first' | 'vietqr' | 'zalopay' | 'momo' | 'b2b-wire';
+
+export type OrderLifecycleStatus =
+  | 'PENDING_CONSULTATION'
+  | 'AWAITING_PAYMENT'
+  | 'PROOF_SUBMITTED'
+  | 'DEPOSIT_VERIFIED'
+  | 'IN_DEVELOPMENT'
+  | 'UAT_STAGING'
+  | 'DELIVERED';
+
+export type CloudSyncState =
+  | 'local_idb_only'
+  | 'email_webhook_sent'
+  | 'supabase_synced';
+
+export interface OrderTimelineEvent {
+  atIso: string;
+  status: OrderLifecycleStatus;
+  noteVi: string;
+  noteEn: string;
+}
+
+export interface BankVietQrConfig {
+  bankBin: string;
+  bankShortName: string;
+  accountNumber: string;
+  accountName: string;
+}
+
+export interface QuickInquiryRecord {
+  inquiryCode: string;
+  createdAtIso: string;
+  productId?: string;
+  productName?: string;
+  fullName: string;
+  phoneOrZalo: string;
+  email: string;
+  preferredLanguage: string;
+  budgetNote: string;
+  message: string;
+  syncState: CloudSyncState;
+}
 
 export interface LocalizedText {
   vi: string;
@@ -208,4 +250,8 @@ export interface OrderSnapshot {
   items: CartItem[];
   totals: CartTotals;
   milestones: MilestoneStage[];
+  status?: OrderLifecycleStatus;
+  paymentRef?: string;
+  syncState?: CloudSyncState;
+  events?: OrderTimelineEvent[];
 }

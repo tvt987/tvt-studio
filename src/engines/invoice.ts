@@ -10,6 +10,16 @@ import type {
 } from './types';
 
 export function getPaymentChannelLabel(channel: PaymentChannel, locale: Locale): string {
+  if (channel === 'consult-first') {
+    return locale === 'vi'
+      ? `Chốt Lịch & Tư Vấn Trước (0₫ Cọc Trước · Zalo ${STUDIO_CONTACT.phoneDisplay})`
+      : `Reserve & Consult First ($0 Upfront · Zalo ${STUDIO_CONTACT.phoneDisplay})`;
+  }
+  if (channel === 'vietqr') {
+    return locale === 'vi'
+      ? `Chuyển Khoản Ngân Hàng / VietQR 24/7 (${STUDIO_CONTACT.architectName})`
+      : `Vietnam Bank Transfer / VietQR 24/7 (${STUDIO_CONTACT.architectName})`;
+  }
   if (channel === 'zalopay') {
     return locale === 'vi'
       ? `ZaloPay / Chuyển khoản QR (${STUDIO_CONTACT.phoneDisplay} · ${STUDIO_CONTACT.architectName})`
@@ -33,11 +43,22 @@ export function createOrderSnapshot(params: {
   items: CartItem[];
   totals: OrderSnapshot['totals'];
   createdAtIso?: string;
+  paymentRef?: string;
+  status?: OrderSnapshot['status'];
+  syncState?: OrderSnapshot['syncState'];
 }): OrderSnapshot {
   const milestones = buildMilestones(params.totals.netTotalVnd, params.totals.netTotalUsd);
+  const createdAt = params.createdAtIso ?? new Date().toISOString();
+  const resolvedStatus =
+    params.status ??
+    (params.paymentChannel === 'consult-first'
+      ? 'PENDING_CONSULTATION'
+      : params.paymentRef && params.paymentRef.trim().length >= 4
+        ? 'PROOF_SUBMITTED'
+        : 'AWAITING_PAYMENT');
   return {
     orderCode: params.orderCode,
-    createdAtIso: params.createdAtIso ?? new Date().toISOString(),
+    createdAtIso: createdAt,
     currency: params.currency,
     paymentChannel: params.paymentChannel,
     paymentMode: params.totals.paymentMode,
@@ -45,6 +66,27 @@ export function createOrderSnapshot(params: {
     items: params.items.map((item) => ({ ...item })),
     totals: { ...params.totals },
     milestones,
+    status: resolvedStatus,
+    paymentRef: params.paymentRef?.trim() || undefined,
+    syncState: params.syncState ?? 'local_idb_only',
+    events: [
+      {
+        atIso: createdAt,
+        status: resolvedStatus,
+        noteVi:
+          resolvedStatus === 'PENDING_CONSULTATION'
+            ? 'Đã tạo đơn tư vấn trước (0₫ cọc) — Chờ Trương Văn Tình liên hệ trong 15 phút.'
+            : resolvedStatus === 'PROOF_SUBMITTED'
+              ? `Đã ghi nhận đơn cùng mã giao dịch ${params.paymentRef?.trim()} — Chờ đối soát.`
+              : 'Đã khởi tạo đơn hàng & hợp đồng số — Chờ xác nhận thanh toán.',
+        noteEn:
+          resolvedStatus === 'PENDING_CONSULTATION'
+            ? 'Consultation booking created ($0 upfront) — Principal Architect will reach out within 15 min.'
+            : resolvedStatus === 'PROOF_SUBMITTED'
+              ? `Order created with transfer ref ${params.paymentRef?.trim()} — Pending verification.`
+              : 'Order & digital contract initialized — Awaiting payment verification.',
+      },
+    ],
   };
 }
 

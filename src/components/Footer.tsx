@@ -5,9 +5,11 @@ import { IconArrowUpRight, IconGlobe, IconMail, IconPhone } from './Icons';
 
 interface FooterProps {
   locale: Locale;
+  onOpenTracker: () => void;
+  onOpenOwnerConsole: () => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ locale }) => {
+export const Footer: React.FC<FooterProps> = ({ locale, onOpenTracker, onOpenOwnerConsole }) => {
   return (
     <footer
       className="border-t"
@@ -126,6 +128,20 @@ export const Footer: React.FC<FooterProps> = ({ locale }) => {
                 </a>
               </li>
               <li>
+                <a href="#payment-flow" className="transition-colors hover:text-[var(--ink-primary)]">
+                  {locale === 'vi' ? 'Thanh Toán & Bàn Giao' : 'Payment & Delivery Flow'}
+                </a>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  onClick={onOpenTracker}
+                  className="transition-colors hover:text-[var(--accent)]"
+                >
+                  {locale === 'vi' ? 'Tra Cứu Đơn Hàng (IndexedDB)' : 'Order Tracker (IndexedDB)'}
+                </button>
+              </li>
+              <li>
                 <a href="#faq" className="transition-colors hover:text-[var(--ink-primary)]">
                   {locale === 'vi' ? 'Câu Hỏi Thường Gặp (FAQ)' : 'Commercial FAQ'}
                 </a>
@@ -147,9 +163,20 @@ export const Footer: React.FC<FooterProps> = ({ locale }) => {
             © {new Date().getFullYear()} TVT Studio — {STUDIO_CONTACT.architectName}.{' '}
             {locale === 'vi' ? 'Bảo lưu mọi quyền.' : 'All rights reserved.'}
           </p>
-          <p className="font-mono-num text-[11px]">
-            React 19 · TypeScript Strict · Tailwind v4 · Vitest Verified
-          </p>
+          <div className="flex items-center gap-4">
+            <p className="font-mono-num text-[11px]">
+              React 19 · TypeScript Strict · IndexedDB + Cloud DB Ready
+            </p>
+            <button
+              type="button"
+              onClick={onOpenOwnerConsole}
+              className="font-mono-num rounded-md border px-2.5 py-1 text-[10px] font-semibold transition-colors hover:border-[var(--accent)] hover:text-[var(--accent)]"
+              style={{ borderColor: 'var(--border-hairline)', color: 'var(--ink-muted)' }}
+              data-testid="footer-owner-console-btn"
+            >
+              Owner Console
+            </button>
+          </div>
         </div>
       </div>
     </footer>

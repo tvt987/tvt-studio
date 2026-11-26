@@ -8,28 +8,44 @@ import {
   updateCartQuantity,
 } from './engines/cart';
 import { CATALOG_PRODUCTS } from './engines/catalog';
+import {
+  appendStatusTransition,
+  loadPersistedInquiries,
+  loadPersistedOrders,
+  savePersistedInquiry,
+  savePersistedOrder,
+} from './engines/orderLedger';
+import { loadBankVietQrConfig } from './engines/vietqr';
 import type {
+  BankVietQrConfig,
   CartItem,
   Currency,
   CustomScopeConfig,
   LicenseTier,
   Locale,
+  OrderLifecycleStatus,
   OrderSnapshot,
   PaymentMode,
+  QuickInquiryRecord,
   TemplateProduct,
   ThemeMode,
 } from './engines/types';
 import { CartDrawer } from './components/CartDrawer';
 import { CatalogSection } from './components/CatalogSection';
 import { CheckoutModal } from './components/CheckoutModal';
+import { CompareDrawer } from './components/CompareDrawer';
 import { CustomEstimatorSection } from './components/CustomEstimatorSection';
 import { Footer } from './components/Footer';
 import { HeroSection } from './components/HeroSection';
 import { IconCart, IconCheck } from './components/Icons';
 import { LiveSandboxModal } from './components/LiveSandboxModal';
 import { Navbar } from './components/Navbar';
+import { OrderTrackerModal } from './components/OrderTrackerModal';
+import { OwnerConsoleModal } from './components/OwnerConsoleModal';
+import { PaymentJourneySection } from './components/PaymentJourneySection';
 import { ProcessSlaSection } from './components/ProcessSlaSection';
 import { ProductDetailModal } from './components/ProductDetailModal';
+import { QuickInquiryModal } from './components/QuickInquiryModal';
 
 const CART_STORAGE_KEY = 'tvt_studio_cart_v1';
 
@@ -53,8 +69,21 @@ export const App: React.FC = () => {
   const [activeVoucherCode, setActiveVoucherCode] = useState<string | null>(null);
   const [paymentMode, setPaymentMode] = useState<PaymentMode>('deposit-30');
 
+  const [persistedOrders, setPersistedOrders] = useState<OrderSnapshot[]>([]);
+  const [persistedInquiries, setPersistedInquiries] = useState<QuickInquiryRecord[]>([]);
+  const [bankConfig, setBankConfig] = useState<BankVietQrConfig | null>(() => loadBankVietQrConfig());
+
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [isTrackerOpen, setIsTrackerOpen] = useState(false);
+  const [trackerInitialCode, setTrackerInitialCode] = useState<string | null>(null);
+  const [isOwnerConsoleOpen, setIsOwnerConsoleOpen] = useState(false);
+
+  const [compareIds, setCompareIds] = useState<string[]>([]);
+  const [isCompareOpen, setIsCompareOpen] = useState(false);
+  const [inquiryOpen, setInquiryOpen] = useState(false);
+  const [inquiryProduct, setInquiryProduct] = useState<TemplateProduct | null>(null);
+
   const [sandboxProduct, setSandboxProduct] = useState<TemplateProduct | null>(null);
   const [detailTarget, setDetailTarget] = useState<{
     product: TemplateProduct;
@@ -78,28 +107,50 @@ export const App: React.FC = () => {
     }
   }, [cartItems]);
 
+  // Hydrate persistent IndexedDB order & inquiry ledger on mount
+  useEffect(() => {
+    let active = true;
+    void loadPersistedOrders().then((rows) => {
+      if (active) setPersistedOrders(rows);
+    });
+    void loadPersistedInquiries().then((rows) => {
+      if (active) setPersistedInquiries(rows);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  // Keyboard shortcut Ctrl+Shift+A to open Owner Console
+  useEffect(() => {
+    const handleShortcut = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.shiftKey && e.key.toUpperCase() === 'A') {
+        e.preventDefault();
+        setIsOwnerConsoleOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleShortcut);
+    return () => window.removeEventListener('keydown', handleShortcut);
+  }, []);
+
   const totals = useMemo(
     () => calculateCartTotals(cartItems, activeVoucherCode, paymentMode),
     [cartItems, activeVoucherCode, paymentMode]
+  );
+
+  const comparedProducts = useMemo(
+    () =>
+      compareIds
+        .map((id) => CATALOG_PRODUCTS.find((p) => p.id === id))
+        .filter((p): p is TemplateProduct => Boolean(p)),
+    [compareIds]
   );
 
   const showToast = (message: string) => {
     setToastText(message);
     window.setTimeout(() => {
       setToastText((curr) => (curr === message ? null : curr));
-    }, 3200);
-  };
-
-  const handleToggleLocale = (next: Locale) => {
-    setLocale(next);
-  };
-
-  const handleToggleCurrency = (next: Currency) => {
-    setCurrency(next);
-  };
-
-  const handleToggleTheme = () => {
-    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+    }, 3400);
   };
 
   const handleAddTemplate = (product: TemplateProduct, license: LicenseTier) => {
@@ -134,52 +185,140 @@ export const App: React.FC = () => {
     );
   };
 
+  const handleToggleCompare = (productId: string) => {
+    setCompareIds((prev) => {
+      if (prev.includes(productId)) {
+        return prev.filter((id) => id !== productId);
+      }
+      if (prev.length >= 3) {
+        showToast(
+          locale === 'vi'
+            ? 'Tối đa so sánh cùng lúc 3 mẫu website.'
+            : 'You can compare up to 3 templates at once.'
+        );
+        return prev;
+      }
+      return [...prev, productId];
+    });
+  };
+
   const handleOrderCompleted = (order: OrderSnapshot) => {
     setCartItems([]);
     setActiveVoucherCode(null);
+    void savePersistedOrder(order).then((updated) => {
+      setPersistedOrders(updated);
+    });
     showToast(
       locale === 'vi'
-        ? `Đơn hàng ${order.orderCode} đã sẵn sàng — hãy tải hợp đồng hoặc xác nhận Zalo`
-        : `Order ${order.orderCode} created — download receipt or confirm via Zalo`
+        ? `Đã lưu đơn ${order.orderCode} vào Tra Cứu Đơn Hàng (IndexedDB)`
+        : `Order ${order.orderCode} saved to Order Tracker (IndexedDB)`
+    );
+  };
+
+  const handleSubmitPaymentProof = (orderCode: string, paymentRef: string) => {
+    const target = persistedOrders.find((o) => o.orderCode === orderCode);
+    if (!target) return;
+    const updated = appendStatusTransition(
+      target,
+      'PROOF_SUBMITTED',
+      `Khách đã gửi mã giao dịch đối soát: ${paymentRef}`,
+      `Client submitted transfer reference: ${paymentRef}`,
+      paymentRef
+    );
+    void savePersistedOrder(updated).then((rows) => setPersistedOrders(rows));
+    showToast(
+      locale === 'vi'
+        ? `Đã gắn mã giao dịch ${paymentRef} vào đơn ${orderCode}`
+        : `Attached ref ${paymentRef} to ${orderCode}`
+    );
+  };
+
+  const handleUpdateOrderStatus = (orderCode: string, nextStatus: OrderLifecycleStatus) => {
+    const target = persistedOrders.find((o) => o.orderCode === orderCode);
+    if (!target) return;
+    const updated = appendStatusTransition(target, nextStatus);
+    void savePersistedOrder(updated).then((rows) => setPersistedOrders(rows));
+  };
+
+  const handleInquirySaved = (record: QuickInquiryRecord) => {
+    void savePersistedInquiry(record).then((rows) => setPersistedInquiries(rows));
+    showToast(
+      locale === 'vi'
+        ? `Đã lưu yêu cầu tư vấn ${record.inquiryCode} — Tình sẽ phản hồi trong 15 phút`
+        : `Consultation request ${record.inquiryCode} saved`
     );
   };
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-canvas)', color: 'var(--ink-primary)' }}>
-      <Navbar
-        locale={locale}
-        currency={currency}
-        theme={theme}
-        cartItemCount={totals.itemCount}
-        cartPayableNow={currency === 'VND' ? totals.payableNowVnd : totals.payableNowUsd}
-        onToggleLocale={handleToggleLocale}
-        onToggleCurrency={handleToggleCurrency}
-        onToggleTheme={handleToggleTheme}
-        onOpenCart={() => setIsCartOpen(true)}
-      />
-
-      <main>
-        <HeroSection locale={locale} />
-
-        <CatalogSection
-          products={CATALOG_PRODUCTS}
+      <div className="no-print">
+        <Navbar
           locale={locale}
           currency={currency}
-          onPreviewLive={(product) => setSandboxProduct(product)}
-          onInspectDetails={(product, license) => setDetailTarget({ product, license })}
-          onAddToCart={handleAddTemplate}
+          theme={theme}
+          cartItemCount={totals.itemCount}
+          cartPayableNow={currency === 'VND' ? totals.payableNowVnd : totals.payableNowUsd}
+          savedOrderCount={persistedOrders.length}
+          onToggleLocale={setLocale}
+          onToggleCurrency={setCurrency}
+          onToggleTheme={() => setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))}
+          onOpenCart={() => setIsCartOpen(true)}
+          onOpenTracker={() => {
+            setTrackerInitialCode(null);
+            setIsTrackerOpen(true);
+          }}
         />
 
-        <CustomEstimatorSection
+        <main>
+          <HeroSection locale={locale} />
+
+          <CatalogSection
+            products={CATALOG_PRODUCTS}
+            locale={locale}
+            currency={currency}
+            compareIds={compareIds}
+            onPreviewLive={(product) => setSandboxProduct(product)}
+            onInspectDetails={(product, license) => setDetailTarget({ product, license })}
+            onAddToCart={handleAddTemplate}
+            onToggleCompare={handleToggleCompare}
+            onOpenCompare={() => setIsCompareOpen(true)}
+            onOpenInquiry={(product) => {
+              setInquiryProduct(product);
+              setInquiryOpen(true);
+            }}
+          />
+
+          <CustomEstimatorSection
+            locale={locale}
+            currency={currency}
+            onAddCustomToCart={handleAddCustomScope}
+          />
+
+          <PaymentJourneySection
+            locale={locale}
+            savedOrderCount={persistedOrders.length}
+            onOpenTracker={() => {
+              setTrackerInitialCode(null);
+              setIsTrackerOpen(true);
+            }}
+            onOpenInquiry={() => {
+              setInquiryProduct(null);
+              setInquiryOpen(true);
+            }}
+          />
+
+          <ProcessSlaSection locale={locale} />
+        </main>
+
+        <Footer
           locale={locale}
-          currency={currency}
-          onAddCustomToCart={handleAddCustomScope}
+          onOpenTracker={() => {
+            setTrackerInitialCode(null);
+            setIsTrackerOpen(true);
+          }}
+          onOpenOwnerConsole={() => setIsOwnerConsoleOpen(true)}
         />
-
-        <ProcessSlaSection locale={locale} />
-      </main>
-
-      <Footer locale={locale} />
+      </div>
 
       {/* Live Sandbox Modal */}
       <LiveSandboxModal
@@ -199,6 +338,27 @@ export const App: React.FC = () => {
         onClose={() => setDetailTarget(null)}
         onOpenSandbox={(product) => setSandboxProduct(product)}
         onAddToCart={handleAddTemplate}
+      />
+
+      {/* Side-by-Side Template Comparison Modal */}
+      <CompareDrawer
+        isOpen={isCompareOpen}
+        products={comparedProducts}
+        locale={locale}
+        currency={currency}
+        onClose={() => setIsCompareOpen(false)}
+        onRemoveProduct={(id) => setCompareIds((prev) => prev.filter((item) => item !== id))}
+        onPreviewLive={(product) => setSandboxProduct(product)}
+        onAddToCart={handleAddTemplate}
+      />
+
+      {/* Quick Consultation / Negotiation Modal */}
+      <QuickInquiryModal
+        isOpen={inquiryOpen}
+        targetProduct={inquiryProduct}
+        locale={locale}
+        onClose={() => setInquiryOpen(false)}
+        onInquirySaved={handleInquirySaved}
       />
 
       {/* Slide-Over Cart Drawer */}
@@ -221,21 +381,49 @@ export const App: React.FC = () => {
         }}
       />
 
-      {/* 3-Step Checkout Modal */}
+      {/* 3-Step Hybrid Payment Checkout Modal */}
       <CheckoutModal
         isOpen={isCheckoutOpen}
         items={cartItems}
         totals={totals}
         locale={locale}
         currency={currency}
+        bankConfig={bankConfig}
         onClose={() => setIsCheckoutOpen(false)}
         onOrderCompleted={handleOrderCompleted}
+        onOpenTracker={(orderCode) => {
+          setTrackerInitialCode(orderCode);
+          setIsTrackerOpen(true);
+        }}
       />
 
-      {/* Subtle Bottom-Left Confirmation Toast (never collides with right-docked Cart Drawer) */}
-      {toastText && !isCartOpen && (
+      {/* Persistent Order Tracker Modal (IndexedDB) */}
+      <OrderTrackerModal
+        isOpen={isTrackerOpen}
+        orders={persistedOrders}
+        locale={locale}
+        currency={currency}
+        initialOrderCode={trackerInitialCode}
+        onClose={() => setIsTrackerOpen(false)}
+        onSubmitPaymentProof={handleSubmitPaymentProof}
+      />
+
+      {/* Owner Admin Console (Orders, Live Bank VietQR, Supabase Cloud DB) */}
+      <OwnerConsoleModal
+        isOpen={isOwnerConsoleOpen}
+        locale={locale}
+        orders={persistedOrders}
+        inquiries={persistedInquiries}
+        bankConfig={bankConfig}
+        onClose={() => setIsOwnerConsoleOpen(false)}
+        onUpdateOrderStatus={handleUpdateOrderStatus}
+        onBankConfigChange={setBankConfig}
+      />
+
+      {/* Subtle Bottom-Left Confirmation Toast (never collides with open modals/drawers) */}
+      {toastText && !isCartOpen && !isCheckoutOpen && !isTrackerOpen && !isOwnerConsoleOpen && (
         <div
-          className="fixed bottom-4 left-4 z-50 flex max-w-md items-center gap-3 rounded-xl border px-4 py-3 text-xs font-semibold shadow-2xl sm:bottom-6 sm:left-6"
+          className="no-print fixed bottom-4 left-4 z-50 flex max-w-md items-center gap-3 rounded-xl border px-4 py-3 text-xs font-semibold shadow-2xl sm:bottom-6 sm:left-6"
           style={{
             backgroundColor: 'var(--bg-surface)',
             borderColor: 'var(--accent)',

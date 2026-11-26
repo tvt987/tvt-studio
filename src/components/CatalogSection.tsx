@@ -30,18 +30,39 @@ interface CatalogSectionProps {
   products: TemplateProduct[];
   locale: Locale;
   currency: Currency;
+  compareIds: string[];
   onPreviewLive: (product: TemplateProduct) => void;
   onInspectDetails: (product: TemplateProduct, license: LicenseTier) => void;
   onAddToCart: (product: TemplateProduct, license: LicenseTier) => void;
+  onToggleCompare: (productId: string) => void;
+  onOpenCompare: () => void;
+  onOpenInquiry: (product: TemplateProduct) => void;
+}
+
+function getComplexityBadge(priceVnd: number, locale: Locale): { label: string; colorVar: string } {
+  if (priceVnd <= 2_990_000) {
+    return { label: locale === 'vi' ? 'Mức Tiêu Chuẩn' : 'Standard Tier', colorVar: 'var(--emerald)' };
+  }
+  if (priceVnd <= 4_490_000) {
+    return { label: locale === 'vi' ? 'Mức Trung - Cao' : 'Mid-High Tier', colorVar: 'var(--cyan)' };
+  }
+  if (priceVnd <= 5_990_000) {
+    return { label: locale === 'vi' ? 'Mức Chuyên Sâu' : 'Advanced Tier', colorVar: 'var(--accent)' };
+  }
+  return { label: 'Enterprise', colorVar: 'var(--accent)' };
 }
 
 export const CatalogSection: React.FC<CatalogSectionProps> = ({
   products,
   locale,
   currency,
+  compareIds,
   onPreviewLive,
   onInspectDetails,
   onAddToCart,
+  onToggleCompare,
+  onOpenCompare,
+  onOpenInquiry,
 }) => {
   const [category, setCategory] = useState<ProductCategory>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -187,6 +208,31 @@ export const CatalogSection: React.FC<CatalogSectionProps> = ({
         </div>
       </div>
 
+      {/* Active Compare Strip */}
+      {compareIds.length > 0 && (
+        <div
+          className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border px-4 py-3"
+          style={{
+            backgroundColor: 'var(--accent-soft)',
+            borderColor: 'var(--accent-border)',
+          }}
+        >
+          <div className="text-xs font-semibold sm:text-sm">
+            {locale === 'vi'
+              ? `Đang chọn so sánh ${compareIds.length}/3 mẫu website theo độ phức tạp & chi phí.`
+              : `Comparing ${compareIds.length}/3 templates side-by-side.`}
+          </div>
+          <button
+            type="button"
+            onClick={onOpenCompare}
+            className="btn-primary rounded-lg px-3.5 py-2 text-xs font-semibold"
+            data-testid="open-compare-drawer-btn"
+          >
+            {locale === 'vi' ? `Mở Bảng So Sánh (${compareIds.length})` : `Open Comparison (${compareIds.length})`}
+          </button>
+        </div>
+      )}
+
       {/* Product Grid */}
       {visibleProducts.length === 0 ? (
         <div className="surface-card mt-8 rounded-2xl p-12 text-center">
@@ -212,6 +258,8 @@ export const CatalogSection: React.FC<CatalogSectionProps> = ({
             const originalPrice = getOriginalLicensePrice(product, selectedLicense, currency);
             const savingsPct = getSavingsPercent(product, currency);
             const isJustAdded = recentlyAddedId === product.id;
+            const complexity = getComplexityBadge(product.priceVnd, locale);
+            const isCompared = compareIds.includes(product.id);
 
             return (
               <article
@@ -265,19 +313,52 @@ export const CatalogSection: React.FC<CatalogSectionProps> = ({
                 {/* Card Body */}
                 <div className="flex flex-1 flex-col p-5">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="font-mono-num text-[11px] font-semibold" style={{ color: 'var(--ink-muted)' }}>
-                      {product.sku}
-                    </span>
-                    <a
-                      href={product.liveUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-[11px] font-medium transition-colors hover:text-[var(--accent)]"
-                      style={{ color: 'var(--ink-muted)' }}
-                    >
-                      <span>{locale === 'vi' ? 'Mở tab mới' : 'Open tab'}</span>
-                      <IconExternal className="h-3 w-3" />
-                    </a>
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono-num text-[11px] font-semibold" style={{ color: 'var(--ink-muted)' }}>
+                        {product.sku}
+                      </span>
+                      <span
+                        className="font-mono-num rounded border px-1.5 py-0.5 text-[10px] font-semibold"
+                        style={{
+                          borderColor: 'var(--border-hairline)',
+                          backgroundColor: 'var(--bg-elevated)',
+                          color: complexity.colorVar,
+                        }}
+                      >
+                        {complexity.label}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => onToggleCompare(product.id)}
+                        data-testid={`compare-toggle-${product.id}`}
+                        className="rounded-md border px-2 py-0.5 text-[10px] font-semibold transition-colors"
+                        style={{
+                          backgroundColor: isCompared ? 'var(--accent)' : 'var(--bg-elevated)',
+                          borderColor: isCompared ? 'var(--accent)' : 'var(--border-hairline)',
+                          color: isCompared ? '#ffffff' : 'var(--ink-secondary)',
+                        }}
+                      >
+                        {isCompared
+                          ? locale === 'vi'
+                            ? '✓ Đã chọn'
+                            : '✓ Selected'
+                          : locale === 'vi'
+                            ? '+ So sánh'
+                            : '+ Compare'}
+                      </button>
+                      <a
+                        href={product.liveUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-[11px] font-medium transition-colors hover:text-[var(--accent)]"
+                        style={{ color: 'var(--ink-muted)' }}
+                        aria-label={`Open ${product.name} in new tab`}
+                      >
+                        <IconExternal className="h-3.5 w-3.5" />
+                      </a>
+                    </div>
                   </div>
 
                   <h3 className="font-display mt-1.5 text-lg font-bold tracking-tight">
@@ -420,6 +501,17 @@ export const CatalogSection: React.FC<CatalogSectionProps> = ({
                       )}
                     </button>
                   </div>
+
+                  <button
+                    type="button"
+                    onClick={() => onOpenInquiry(product)}
+                    data-testid={`inquire-${product.id}`}
+                    className="btn-ghost mt-2 w-full rounded-xl py-2 text-[11px] font-semibold transition-colors hover:text-[var(--accent)]"
+                  >
+                    {locale === 'vi'
+                      ? 'Tư vấn tinh chỉnh / Thương lượng giá riêng →'
+                      : 'Request custom tuning / Direct negotiation →'}
+                  </button>
                 </div>
               </article>
             );

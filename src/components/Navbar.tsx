@@ -7,6 +7,7 @@ import {
   IconClose,
   IconMenu,
   IconMoon,
+  IconSearch,
   IconSun,
 } from './Icons';
 
@@ -16,10 +17,12 @@ interface NavbarProps {
   theme: ThemeMode;
   cartItemCount: number;
   cartPayableNow: number;
+  savedOrderCount: number;
   onToggleLocale: (next: Locale) => void;
   onToggleCurrency: (next: Currency) => void;
   onToggleTheme: () => void;
   onOpenCart: () => void;
+  onOpenTracker: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -28,17 +31,20 @@ export const Navbar: React.FC<NavbarProps> = ({
   theme,
   cartItemCount,
   cartPayableNow,
+  savedOrderCount,
   onToggleLocale,
   onToggleCurrency,
   onToggleTheme,
   onOpenCart,
+  onOpenTracker,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navLinks = [
-    { href: '#catalog', label: locale === 'vi' ? 'Kho Website Mẫu' : 'Templates' },
-    { href: '#estimator', label: locale === 'vi' ? 'Code Theo Yêu Cầu' : 'Custom Build' },
-    { href: '#process', label: locale === 'vi' ? 'Quy Trình & SLA' : 'Process & SLA' },
+    { href: '#catalog', label: locale === 'vi' ? 'Kho Web Mẫu' : 'Templates' },
+    { href: '#estimator', label: locale === 'vi' ? 'Code Riêng' : 'Custom Build' },
+    { href: '#payment-flow', label: locale === 'vi' ? 'Thanh Toán' : 'Payment' },
+    { href: '#process', label: locale === 'vi' ? 'Quy Trình' : 'Process' },
     { href: '#faq', label: 'FAQ' },
   ];
 
@@ -173,6 +179,26 @@ export const Navbar: React.FC<NavbarProps> = ({
             {theme === 'dark' ? <IconSun className="h-4 w-4" /> : <IconMoon className="h-4 w-4" />}
           </button>
 
+          {/* Order Tracker Trigger */}
+          <button
+            type="button"
+            onClick={onOpenTracker}
+            className="btn-ghost hidden h-9 shrink-0 items-center gap-1.5 rounded-lg px-2.5 text-xs font-semibold md:flex"
+            aria-label={locale === 'vi' ? 'Tra cứu đơn hàng' : 'Track orders'}
+            data-testid="navbar-tracker-btn"
+          >
+            <IconSearch className="h-3.5 w-3.5" />
+            <span className="hidden xl:inline">{locale === 'vi' ? 'Tra cứu đơn' : 'Orders'}</span>
+            {savedOrderCount > 0 && (
+              <span
+                className="font-mono-num flex h-4.5 min-w-4.5 items-center justify-center rounded px-1 text-[10px] font-bold"
+                style={{ backgroundColor: 'var(--cyan-soft)', color: 'var(--cyan)' }}
+              >
+                {savedOrderCount}
+              </span>
+            )}
+          </button>
+
           {/* Cart Trigger */}
           <button
             type="button"
@@ -227,6 +253,18 @@ export const Navbar: React.FC<NavbarProps> = ({
                 {link.label}
               </a>
             ))}
+            <button
+              type="button"
+              onClick={() => {
+                setMobileMenuOpen(false);
+                onOpenTracker();
+              }}
+              className="flex items-center justify-between rounded-lg px-3 py-2 text-left text-sm font-semibold"
+              style={{ color: 'var(--cyan)', backgroundColor: 'var(--bg-elevated)' }}
+            >
+              <span>{locale === 'vi' ? 'Tra Cứu Đơn Hàng Đã Lưu' : 'Track Saved Orders'}</span>
+              <span className="font-mono-num text-xs">{savedOrderCount}</span>
+            </button>
             <div className="flex items-center justify-between pt-2">
               <div
                 className="flex items-center rounded-lg border p-0.5 text-xs font-semibold"
