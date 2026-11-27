@@ -26,14 +26,14 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
   {
     id: 'maison-vera',
     sku: 'TVT-3D-01',
-    name: 'Maison Véra v3.0',
+    name: 'Maison Véra v4.0',
     subtitle: {
-      vi: 'Website Thời Trang & Kính Mắt 3D Xa Xỉ',
-      en: 'Luxury 3D Eyewear & Couture Commerce',
+      vi: 'Website Thời Trang & Kính Mắt 3D HDRI, Tròng UV & Đo Khuôn Mặt',
+      en: 'Luxury 3D HDRI Eyewear, UV Polarized Lens Lab & Bespoke Fit',
     },
     tagline: {
-      vi: 'Trình diễn sản phẩm 3D WebGL PBR trực quan, giỏ hàng sang trọng và trải nghiệm editorial đẳng cấp flagship boutique.',
-      en: 'Interactive WebGL PBR 3D product showcase, luxury atelier checkout flow, and editorial flagship storytelling.',
+      vi: 'Trình diễn gọng titan 3D phản chiếu HDRI studio, mô phỏng tròng đổi màu UV/phân cực trực tiếp, phân tích dáng khuôn mặt & Lookbook VIP.',
+      en: 'PMREM Studio HDRI titanium 3D eyewear, photochromic UV & polarized lens physics simulator, face-shape fit studio & private client lookbook.',
     },
     category: 'commerce-3d',
     categoryLabel: {
@@ -68,19 +68,19 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
       vi: 'Kiến trúc tách lớp 3D Scene + Pricing Engine thuần giúp mở rộng danh mục hàng trăm SKU không giật khung hình.',
       en: 'Decoupled 3D PBR scene graph and pure pricing engine built to scale cleanly across flagship SKUs.',
     },
-    metricsBadge: '3D TITANIUM CAD · 16 STUDIO WEBP',
+    metricsBadge: '3D HDRI TITANIUM · UV LENS LAB',
   },
   {
     id: 'aether-acoustics',
     sku: 'TVT-3D-02',
-    name: 'Aether Acoustics v2.0',
+    name: 'Aether Acoustics v3.0',
     subtitle: {
-      vi: 'Website Âm Thanh 3D PBR & DSP',
-      en: '3D Acoustic Hardware & Real-Time DSP Storefront',
+      vi: 'Website Âm Thanh 3D, Radar Không Gian HRTF & Phòng RT60',
+      en: '3D Spatial Audio, Binaural HRTF Radar & Room RT60 Acoustic Lab',
     },
     tagline: {
-      vi: 'Trình diễn tai nghe & thiết bị âm thanh 3D kim loại phay xước kèm bộ cân bằng âm học DSP thời gian thực.',
-      en: 'Machined acoustic hardware showcase in WebGL PBR paired with an interactive Web Audio DSP equalizer.',
+      vi: 'Radar điểm ngọt âm thanh không gian HRTF kéo thả, mô phỏng vật liệu tiêu âm phòng nghe tính RT60, đồ thị đáp tuyến tần số & THD+N.',
+      en: 'Interactive Binaural 3D HRTF soundstage radar, room material RT60 physics simulator, live 20Hz–20kHz frequency response & THD+N.',
     },
     category: 'commerce-3d',
     categoryLabel: {
@@ -264,14 +264,14 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
   {
     id: 'atelier-canvas',
     sku: 'TVT-SAAS-06',
-    name: 'Atelier Canvas v3.0',
+    name: 'Atelier Canvas v4.0',
     subtitle: {
-      vi: 'Công Cụ Thiết Kế Vector & Prototype SaaS',
-      en: 'Browser Vector Design & Prototyping SaaS',
+      vi: 'Công Cụ Thiết Kế Vector, Design Tokens & Trình Chạy Prototype',
+      en: 'Browser Vector Studio, Design Tokens & Interactive Prototype Player',
     },
     tagline: {
-      vi: 'Ứng dụng thiết kế vector trực tiếp trên trình duyệt với undo/redo không giới hạn, quản lý layer, căn gióng thông minh và xuất SVG/PNG.',
-      en: 'Precision browser-based vector editor with command history, layer hierarchy, smart snapping, and SVG/PNG export.',
+      vi: 'Trình thiết kế vector cấp Figma: hệ thống Design Tokens đổi theme tức thì, chuyển khung hình Responsive, trình phát Prototype & xuất React/Tailwind.',
+      en: 'Figma-class browser vector editor with W3C Design Tokens, Responsive Breakpoint preview, interactive Prototype player & React/Tailwind export.',
     },
     category: 'saas-ai',
     categoryLabel: {
@@ -311,14 +311,14 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
   {
     id: 'nexus-lake',
     sku: 'TVT-DATA-07',
-    name: 'Nexus Lake v2.0',
+    name: 'Nexus Lake v3.0',
     subtitle: {
-      vi: 'Nền Tảng BI & Kho Dữ Liệu SQL DuckDB-WASM',
-      en: 'In-Browser SQL Lakehouse & BI Analytics Platform',
+      vi: 'Nền Tảng BI & Kho Dữ Liệu SQL DuckDB-WASM, Notebook Đa Ô & Pivot',
+      en: 'In-Browser DuckDB-WASM Lakehouse, SQL Notebook & Cohort Heatmap',
     },
     tagline: {
-      vi: 'Phân tích dữ liệu lớn trực tiếp ngay trên trình duyệt bằng SQL DuckDB-WASM, biểu đồ tương tác tức thì không tốn chi phí server truy vấn.',
-      en: 'Zero-server-latency BI lakehouse running analytical SQL directly in-browser via DuckDB-WASM with interactive charts.',
+      vi: 'Kéo thả file CSV/JSON thật vào trình duyệt, SQL Notebook nhiều ô, bảng Pivot kéo chiều động, Cohort Retention Heatmap & NL-to-SQL Copilot.',
+      en: 'Drag-drop local CSV/JSON ingestion into DuckDB-WASM, multi-cell SQL notebook with visual Pivot matrix, Cohort Retention heatmap & NL-to-SQL.',
     },
     category: 'saas-ai',
     categoryLabel: {
@@ -358,14 +358,14 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
   {
     id: 'verdict-graph',
     sku: 'TVT-AI-08',
-    name: 'Verdict Graph v2.0',
+    name: 'Verdict Graph v3.0',
     subtitle: {
-      vi: 'Hệ Thống Điều Phối AI Agent Doanh Nghiệp',
-      en: 'Enterprise AI Agent Orchestration & Evaluation Studio',
+      vi: 'Hệ Thống Điều Phối Multi-Agent DAG, Time-Travel Diff & FinOps',
+      en: 'Multi-Agent DAG Builder, Time-Travel Diff & LLM FinOps Router',
     },
     tagline: {
-      vi: 'Bản điều khiển đồ thị luồng AI Agent đa bước, theo dõi token budget, kiểm soát guardrail và chấm điểm độ chính xác đầu ra theo thời gian thực.',
-      en: 'Visual multi-agent DAG orchestration console with token budgeting, compliance guardrails, and live evaluation telemetry.',
+      vi: 'Trình dựng luồng AI Agent đa bước, nhân bản nhánh Time-Travel so sánh Diff, bộ định tuyến chi phí đa mô hình & kiểm thử Red-Team OWASP Top-10.',
+      en: 'Interactive multi-agent DAG builder, time-travel branch diffing, multi-model FinOps cost/latency router & OWASP LLM Top-10 Red-Team suite.',
     },
     category: 'saas-ai',
     categoryLabel: {
@@ -405,14 +405,14 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
   {
     id: 'aegispulse',
     sku: 'TVT-ENT-09',
-    name: 'AegisPulse v2.0',
+    name: 'AegisPulse v3.0',
     subtitle: {
-      vi: 'Kiến Trúc Backend .NET 10 Tải Cao & Hybrid RAG',
-      en: 'High-Concurrency .NET 10 SRE & Hybrid RAG Control Plane',
+      vi: 'Kiến Trúc SRE Phân Tán .NET 10, Chaos Raft & Flamegraph',
+      en: 'Distributed .NET 10 SRE, Raft Chaos Injector & GC Flamegraph',
     },
     tagline: {
-      vi: 'Bộ khung kiến trúc phân tán chịu tải 5.000+ RPS, Redis Distributed Lock chống double-spending, observability SRE & tìm kiếm Hybrid RAG.',
-      en: 'Distributed high-throughput architecture blueprint with 5,000+ RPS telemetry, Redis locking, SRE dashboards, and Hybrid RAG.',
+      vi: 'Bảng điều khiển SRE 5 khu vực toàn cầu: tiêm lỗi Chaos Raft Quorum, kéo tải 250K RPS trực tiếp, Flamegraph CPU/GC Pause & Hybrid RAG.',
+      en: '5-region Raft consensus Chaos Fault Injector, live 250K RPS stress slider, interactive CPU/GC Flamegraph profiler & enterprise Hybrid RAG.',
     },
     category: 'saas-ai',
     categoryLabel: {
@@ -497,14 +497,14 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
   {
     id: 'velox-ev-motors',
     sku: 'TVT-EV-11',
-    name: 'Velox EV Motors v2.0',
+    name: 'Velox EV Motors v3.0',
     subtitle: {
-      vi: 'Showroom Xe Điện 3D PBR & Mô Phỏng Quãng Đường WLTP',
-      en: '3D PBR EV Showroom, WLTP Range Physics & TCO Configurator',
+      vi: 'Showroom Hypercar Điện 3D HDRI, Cửa Cánh Chim & Launch 0–100',
+      en: '3D HDRI Hypercar Showroom, Gullwing Doors & 0–100 Launch Telemetry',
     },
     tagline: {
-      vi: 'Showroom Flagship 20 Triệu: Xe điện 3D PBR chế độ X-Ray khung pin 800V + 6 góc máy, lập lộ trình trạm sạc 350kW xuyên Việt, định giá thu cũ đổi mới & TCO 5 năm.',
-      en: '20M VND Flagship Showroom: Three.js PBR 3D EV with 800V Chassis X-Ray, 6 cinema cameras, Vietnam 350kW Supercharger route planner, instant Trade-In valuation & 5Y TCO.',
+      vi: 'Flagship 20 Triệu: Xe điện 3D PBR ánh sáng Studio HDRI, cửa cánh chim mở động, buồng lái OLED, đường hầm gió Cd 0.19, Launch Control 2.1s & lộ trình sạc 350kW xuyên Việt.',
+      en: '20M Flagship: Three.js PMREM Studio HDRI clearcoat EV, articulated gullwing doors, OLED cockpit POV, Cd 0.19 wind tunnel aero, 2.1s Web Audio launch control & VN 350kW routing.',
     },
     category: 'commerce-3d',
     categoryLabel: { vi: 'Bán Hàng 3D & Nội Thất', en: '3D Commerce & Interior' },
@@ -516,9 +516,9 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
     deliveryDaysMax: 6,
     liveUrl: 'https://tvt987.github.io/velox-ev-motors/',
     previewImage: './media/velox-ev-motors.webp',
-    previewBadge: '3D PBR EV · X-RAY 800V · 20M VIP',
+    previewBadge: '3D HDRI HYPERCAR · GULLWING · 20M VIP',
     featuredRank: 1,
-    stack: ['React 19', 'Three.js PBR', 'WLTP Physics', 'Loan PMT'],
+    stack: ['React 19', 'Three.js HDRI', 'Wind Tunnel', 'Launch Synth'],
     deliverables: {
       vi: [
         'Sân khấu 3D PBR xoay 360 độ cho 3 dòng xe, 6 màu sơn kim loại, 3 bộ mâm & 3 nội thất',

@@ -1,5 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { isAdminSession } from './engines/adminOps';
+import { fetchLiveCatalogProducts, trackSiteEvent } from './engines/analyticsAndCms';
 import {
   createDefaultProfile,
   ensureOrderDeliverable,
@@ -83,6 +84,11 @@ export const App: React.FC = () => {
   const [currency, setCurrency] = useState<Currency>('VND');
   const [theme, setTheme] = useState<ThemeMode>('dark');
 
+  const [catalogProducts, setCatalogProducts] = useState<TemplateProduct[]>(() =>
+    [...CATALOG_PRODUCTS].sort((a, b) => a.featuredRank - b.featuredRank)
+  );
+  const pageViewTrackedRef = useRef(false);
+
   const [cartItems, setCartItems] = useState<CartItem[]>(() => loadSavedCart());
   const [activeVoucherCode, setActiveVoucherCode] = useState<string | null>(null);
   const [paymentMode, setPaymentMode] = useState<PaymentMode>('deposit-30');
@@ -130,6 +136,23 @@ export const App: React.FC = () => {
       // Ignore storage quota errors
     }
   }, [cartItems]);
+
+  // Hydrate live Cloud CMS catalog (`tvt_products`) & fire non-PII page_view telemetry once on mount
+  useEffect(() => {
+    let mounted = true;
+    void fetchLiveCatalogProducts().then((liveProducts) => {
+      if (mounted && liveProducts.length > 0) {
+        setCatalogProducts(liveProducts);
+      }
+    });
+    if (!pageViewTrackedRef.current) {
+      pageViewTrackedRef.current = true;
+      void trackSiteEvent('page_view', { locale: 'vi' });
+    }
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   // Handle returning OAuth 2.0 callback hash from Google / Facebook / LinkedIn via Supabase Auth
   useEffect(() => {
@@ -237,9 +260,9 @@ export const App: React.FC = () => {
   const comparedProducts = useMemo(
     () =>
       compareIds
-        .map((id) => CATALOG_PRODUCTS.find((p) => p.id === id))
+        .map((id) => catalogProducts.find((p) => p.id === id))
         .filter((p): p is TemplateProduct => Boolean(p)),
-    [compareIds]
+    [compareIds, catalogProducts]
   );
 
   const showToast = (message: string) => {
@@ -251,6 +274,7 @@ export const App: React.FC = () => {
 
   const handleAddTemplate = (product: TemplateProduct, license: LicenseTier) => {
     setCartItems((prev) => addTemplateToCart(prev, product, license));
+    void trackSiteEvent('add_to_cart', { productId: product.id, locale });
     showToast(
       locale === 'vi'
         ? `Đã thêm ${product.name} (${license === 'full-source' ? 'Full Source' : 'Standard'}) vào giỏ`
@@ -260,6 +284,7 @@ export const App: React.FC = () => {
 
   const handleAddCustomScope = (config: CustomScopeConfig) => {
     setCartItems((prev) => addCustomScopeToCart(prev, config));
+    void trackSiteEvent('add_to_cart', { productId: `custom-${config.projectType}`, locale });
     showToast(
       locale === 'vi'
         ? 'Đã thêm gói Code Theo Yêu Cầu vào giỏ hàng'
@@ -277,7 +302,7 @@ export const App: React.FC = () => {
 
   const handleSwitchLicense = (cartKey: string, targetLicense: LicenseTier) => {
     setCartItems((prev) =>
-      switchTemplateLicenseInCart(prev, cartKey, targetLicense, CATALOG_PRODUCTS)
+      switchTemplateLicenseInCart(prev, cartKey, targetLicense, catalogProducts)
     );
   };
 
@@ -406,6 +431,7 @@ export const App: React.FC = () => {
 
   const handleInquirySaved = (record: QuickInquiryRecord) => {
     void savePersistedInquiry(record).then((rows) => setPersistedInquiries(rows));
+    void trackSiteEvent('inquiry_submit', { productId: record.productId, locale });
     showToast(
       locale === 'vi'
         ? `Đã lưu yêu cầu tư vấn ${record.inquiryCode} — Tình sẽ phản hồi trong 15 phút`
@@ -465,12 +491,18 @@ export const App: React.FC = () => {
           <HeroSection locale={locale} />
 
           <CatalogSection
-            products={CATALOG_PRODUCTS}
+            products={catalogProducts}
             locale={locale}
             currency={currency}
             compareIds={compareIds}
-            onPreviewLive={(product) => setSandboxProduct(product)}
-            onInspectDetails={(product, license) => setDetailTarget({ product, license })}
+            onPreviewLive={(product) => {
+              void trackSiteEvent('sandbox_open', { productId: product.id, locale });
+              setSandboxProduct(product);
+            }}
+            onInspectDetails={(product, license) => {
+              void trackSiteEvent('product_detail', { productId: product.id, locale });
+              setDetailTarget({ product, license });
+            }}
             onAddToCart={handleAddTemplate}
             onToggleCompare={handleToggleCompare}
             onOpenCompare={() => setIsCompareOpen(true)}
@@ -571,6 +603,7 @@ export const App: React.FC = () => {
         onProceedToCheckout={() => {
           setIsCartOpen(false);
           setIsCheckoutOpen(true);
+          void trackSiteEvent('checkout_start', { locale });
         }}
       />
 
@@ -623,7 +656,7 @@ export const App: React.FC = () => {
         onSubmitPaymentProof={handleSubmitPaymentProof}
       />
 
-      {/* Owner Admin Console (Orders, Live Bank VietQR, Supabase Cloud DB) */}
+      {/* Owner Admin Console (Executive Analytics, Product CMS CRUD, Orders, Live Bank VietQR) */}
       <OwnerConsoleModal
         isOpen={isOwnerConsoleOpen}
         locale={locale}
@@ -631,11 +664,13 @@ export const App: React.FC = () => {
         orders={persistedOrders}
         inquiries={persistedInquiries}
         bankConfig={bankConfig}
+        catalogProducts={catalogProducts}
         onClose={() => setIsOwnerConsoleOpen(false)}
         onUpdateOrderStatus={handleUpdateOrderStatus}
         onUpdateOrderDeliveryUrl={handleUpdateOrderDeliveryUrl}
         onSimulateRealtimeWebhook={handleSimulateRealtimeWebhook}
         onBankConfigChange={setBankConfig}
+        onCatalogProductsChange={setCatalogProducts}
         onLaunch10kLiveTest={handleLaunch10kLiveTest}
       />
 

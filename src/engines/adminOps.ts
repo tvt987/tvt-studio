@@ -1,3 +1,15 @@
+import {
+  computeLocalAnalyticsSummary,
+  getBundledCmsProducts,
+  loadLocalAnalyticsEvents,
+  loadLocalCmsCatalogOverride,
+  mapDbRowToCmsProduct,
+  type AdminCmsProduct,
+  type DailyAnalyticsPoint,
+  type ProductAdminMutationInput,
+  type RawCloudProductRow,
+  type TopProductStat,
+} from './analyticsAndCms';
 import { generateLicenseKey, normalizeEmail } from './authVault';
 import { loadSupabaseRuntimeConfig } from './orderLedger';
 import type {
@@ -39,23 +51,41 @@ export interface AdminClientRecord {
   updatedAtIso: string;
 }
 
+export interface AdminMetrics {
+  totalOrders: number;
+  paidOrdersCount: number;
+  paidRevenueVnd: number;
+  pipelineVnd: number;
+  webhooksCount: number;
+  webhooksTotalVnd: number;
+  inquiriesCount: number;
+  clientsCount: number;
+  totalVisits: number;
+  uniqueVisitors: number;
+  todayVisits: number;
+  sandboxOpens: number;
+  productDetailViews: number;
+  addToCartEvents: number;
+  checkoutStarts: number;
+  conversionRatePct: number;
+  paidConversionPct: number;
+  activeProductsCount: number;
+  totalProductsCount: number;
+}
+
 export interface AdminOverviewPayload {
   source: 'supabase_cloud' | 'local_fallback';
   adminEmail: string;
-  metrics: {
-    totalOrders: number;
-    paidOrdersCount: number;
-    paidRevenueVnd: number;
-    pipelineVnd: number;
-    webhooksCount: number;
-    webhooksTotalVnd: number;
-    inquiriesCount: number;
-    clientsCount: number;
+  metrics: AdminMetrics;
+  analytics: {
+    dailySeries14d: DailyAnalyticsPoint[];
+    topProducts: TopProductStat[];
   };
   orders: OrderSnapshot[];
   webhooks: AdminWebhookRecord[];
   inquiries: QuickInquiryRecord[];
   clients: AdminClientRecord[];
+  products: AdminCmsProduct[];
   errorMessage?: string;
 }
 
@@ -139,8 +169,9 @@ function mapCloudOrderToSnapshot(row: RawCloudOrder): OrderSnapshot {
 
 export function computeLocalAdminMetrics(
   orders: OrderSnapshot[],
-  inquiries: QuickInquiryRecord[]
-): AdminOverviewPayload['metrics'] {
+  inquiries: QuickInquiryRecord[],
+  products: AdminCmsProduct[] = getBundledCmsProducts()
+): AdminMetrics {
   const paidSet = new Set<OrderLifecycleStatus>([
     'DEPOSIT_VERIFIED',
     'IN_DEVELOPMENT',
@@ -153,6 +184,9 @@ export function computeLocalAdminMetrics(
   const uniqueEmails = new Set(
     orders.map((o) => normalizeEmail(o.client.email)).filter(Boolean)
   );
+  const localEvents = loadLocalAnalyticsEvents();
+  const analytics = computeLocalAnalyticsSummary(localEvents, orders, products);
+
   return {
     totalOrders: orders.length,
     paidOrdersCount: paidOrders.length,
@@ -162,27 +196,43 @@ export function computeLocalAdminMetrics(
     webhooksTotalVnd: 0,
     inquiriesCount: inquiries.length,
     clientsCount: uniqueEmails.size,
+    totalVisits: analytics.totalVisits,
+    uniqueVisitors: analytics.uniqueVisitors,
+    todayVisits: analytics.todayVisits,
+    sandboxOpens: analytics.sandboxOpens,
+    productDetailViews: analytics.productDetailViews,
+    addToCartEvents: analytics.addToCartEvents,
+    checkoutStarts: analytics.checkoutStarts,
+    conversionRatePct: analytics.conversionRatePct,
+    paidConversionPct: analytics.paidConversionPct,
+    activeProductsCount: products.filter((p) => p.isActive).length,
+    totalProductsCount: products.length,
   };
 }
 
-/**
- * Fetches live Cloud Admin overview via Zero-Trust `admin-ops` Supabase Edge Function
- * (cryptographically verified JWT for `tinhkun102@gmail.com`). Falls back cleanly to local data when offline.
- */
 export async function fetchAdminCloudOverview(
   session: AuthSession | null,
   localOrders: OrderSnapshot[],
   localInquiries: QuickInquiryRecord[]
 ): Promise<AdminOverviewPayload> {
   const cfg = loadSupabaseRuntimeConfig();
+  const localProducts = loadLocalCmsCatalogOverride() ?? getBundledCmsProducts();
+  const localEvents = loadLocalAnalyticsEvents();
+  const localAnalytics = computeLocalAnalyticsSummary(localEvents, localOrders, localProducts);
+
   const fallback: AdminOverviewPayload = {
     source: 'local_fallback',
     adminEmail: session?.email ?? ADMIN_OWNER_EMAIL,
-    metrics: computeLocalAdminMetrics(localOrders, localInquiries),
+    metrics: computeLocalAdminMetrics(localOrders, localInquiries, localProducts),
+    analytics: {
+      dailySeries14d: localAnalytics.dailySeries14d,
+      topProducts: localAnalytics.topProducts,
+    },
     orders: localOrders,
     webhooks: [],
     inquiries: localInquiries,
     clients: [],
+    products: localProducts,
   };
 
   if (
@@ -210,7 +260,11 @@ export async function fetchAdminCloudOverview(
       ok?: boolean;
       error?: string;
       adminEmail?: string;
-      metrics?: AdminOverviewPayload['metrics'];
+      metrics?: Partial<AdminMetrics>;
+      analytics?: {
+        dailySeries14d?: DailyAnalyticsPoint[];
+        topProducts?: TopProductStat[];
+      };
       orders?: RawCloudOrder[];
       webhooks?: Array<{
         id: number | string;
@@ -219,6 +273,7 @@ export async function fetchAdminCloudOverview(
         order_code?: string | null;
         transfer_amount_vnd?: number;
         transfer_content?: string;
+        received_at?: string;
         created_at?: string;
       }>;
       inquiries?: Array<{
@@ -241,6 +296,7 @@ export async function fetchAdminCloudOverview(
         preferred_channel?: string;
         updated_at?: string;
       }>;
+      products?: RawCloudProductRow[];
     };
 
     if (!res.ok || !data.ok) {
@@ -282,7 +338,7 @@ export async function fetchAdminCloudOverview(
       orderCode: w.order_code ?? null,
       transferAmountVnd: Number(w.transfer_amount_vnd || 0),
       transferContent: w.transfer_content || '',
-      createdAtIso: w.created_at || new Date().toISOString(),
+      createdAtIso: w.received_at || w.created_at || new Date().toISOString(),
     }));
 
     const clients: AdminClientRecord[] = (data.profiles ?? []).map((p) => ({
@@ -295,17 +351,63 @@ export async function fetchAdminCloudOverview(
       updatedAtIso: p.updated_at || new Date().toISOString(),
     }));
 
+    const cloudProducts: AdminCmsProduct[] =
+      Array.isArray(data.products) && data.products.length > 0
+        ? data.products.map(mapDbRowToCmsProduct)
+        : localProducts;
+
+    const baseMetrics = computeLocalAdminMetrics(mergedOrders, mergedInquiries, cloudProducts);
+    const mergedMetrics: AdminMetrics = {
+      ...baseMetrics,
+      ...(data.metrics ?? {}),
+      activeProductsCount: cloudProducts.filter((p) => p.isActive).length,
+      totalProductsCount: cloudProducts.length,
+    };
+
     return {
       source: 'supabase_cloud',
       adminEmail: data.adminEmail || session.email,
-      metrics: data.metrics ?? computeLocalAdminMetrics(mergedOrders, mergedInquiries),
+      metrics: mergedMetrics,
+      analytics: {
+        dailySeries14d:
+          data.analytics?.dailySeries14d && data.analytics.dailySeries14d.length > 0
+            ? data.analytics.dailySeries14d
+            : localAnalytics.dailySeries14d,
+        topProducts: data.analytics?.topProducts ?? localAnalytics.topProducts,
+      },
       orders: mergedOrders,
       webhooks,
       inquiries: mergedInquiries,
       clients,
+      products: cloudProducts,
     };
   } catch {
     return fallback;
+  }
+}
+
+async function callAdminEdge<T>(
+  session: AuthSession | null,
+  payload: Record<string, unknown>
+): Promise<{ ok: boolean; data?: T; error?: string }> {
+  const cfg = loadSupabaseRuntimeConfig();
+  if (!cfg.url || !cfg.anonKey || !session?.accessToken || !isAdminSession(session)) {
+    return { ok: false, error: 'Not signed in as Cloud Admin' };
+  }
+  try {
+    const res = await fetch(`${cfg.url}/functions/v1/admin-ops`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        apikey: cfg.anonKey,
+        Authorization: `Bearer ${session.accessToken}`,
+      },
+      body: JSON.stringify(payload),
+    });
+    const data = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string } & T;
+    return { ok: Boolean(res.ok && data.ok), data, error: data.error };
+  } catch {
+    return { ok: false, error: 'Network error' };
   }
 }
 
@@ -318,54 +420,69 @@ export async function updateCloudOrderAsAdmin(
     licenseKey?: string;
   }
 ): Promise<{ ok: boolean; error?: string }> {
-  const cfg = loadSupabaseRuntimeConfig();
-  if (!cfg.url || !cfg.anonKey || !session?.accessToken || !isAdminSession(session)) {
-    return { ok: false, error: 'Not signed in as Cloud Admin' };
-  }
-  try {
-    const res = await fetch(`${cfg.url}/functions/v1/admin-ops`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        apikey: cfg.anonKey,
-        Authorization: `Bearer ${session.accessToken}`,
-      },
-      body: JSON.stringify({
-        action: 'update_order',
-        ...params,
-      }),
-    });
-    const data = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string };
-    return { ok: Boolean(res.ok && data.ok), error: data.error };
-  } catch {
-    return { ok: false, error: 'Network error' };
-  }
+  const res = await callAdminEdge(session, { action: 'update_order', ...params });
+  return { ok: res.ok, error: res.error };
 }
 
 export async function deleteCloudOrderAsAdmin(
   session: AuthSession | null,
   orderCode: string
 ): Promise<{ ok: boolean; error?: string }> {
-  const cfg = loadSupabaseRuntimeConfig();
-  if (!cfg.url || !cfg.anonKey || !session?.accessToken || !isAdminSession(session)) {
-    return { ok: false, error: 'Not signed in as Cloud Admin' };
+  const res = await callAdminEdge(session, { action: 'delete_order', orderCode });
+  return { ok: res.ok, error: res.error };
+}
+
+export async function upsertCloudProductAsAdmin(
+  session: AuthSession | null,
+  product: ProductAdminMutationInput
+): Promise<{ ok: boolean; product?: AdminCmsProduct; error?: string }> {
+  const res = await callAdminEdge<{ product?: RawCloudProductRow }>(session, {
+    action: 'upsert_product',
+    product,
+  });
+  return {
+    ok: res.ok,
+    product: res.data?.product ? mapDbRowToCmsProduct(res.data.product) : undefined,
+    error: res.error,
+  };
+}
+
+export async function quickUpdateCloudPriceAsAdmin(
+  session: AuthSession | null,
+  params: {
+    productId: string;
+    priceVnd?: number;
+    originalPriceVnd?: number;
+    featuredRank?: number;
+    isActive?: boolean;
   }
-  try {
-    const res = await fetch(`${cfg.url}/functions/v1/admin-ops`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        apikey: cfg.anonKey,
-        Authorization: `Bearer ${session.accessToken}`,
-      },
-      body: JSON.stringify({
-        action: 'delete_order',
-        orderCode,
-      }),
-    });
-    const data = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string };
-    return { ok: Boolean(res.ok && data.ok), error: data.error };
-  } catch {
-    return { ok: false, error: 'Network error' };
-  }
+): Promise<{ ok: boolean; product?: AdminCmsProduct; error?: string }> {
+  const res = await callAdminEdge<{ product?: RawCloudProductRow }>(session, {
+    action: 'quick_update_price',
+    ...params,
+  });
+  return {
+    ok: res.ok,
+    product: res.data?.product ? mapDbRowToCmsProduct(res.data.product) : undefined,
+    error: res.error,
+  };
+}
+
+export async function deleteCloudProductAsAdmin(
+  session: AuthSession | null,
+  productId: string
+): Promise<{ ok: boolean; error?: string }> {
+  const res = await callAdminEdge(session, { action: 'delete_product', productId });
+  return { ok: res.ok, error: res.error };
+}
+
+export async function bulkSeedCloudProductsAsAdmin(
+  session: AuthSession | null,
+  products: ProductAdminMutationInput[]
+): Promise<{ ok: boolean; seededCount?: number; error?: string }> {
+  const res = await callAdminEdge<{ seededCount?: number }>(session, {
+    action: 'bulk_seed_products',
+    products,
+  });
+  return { ok: res.ok, seededCount: res.data?.seededCount, error: res.error };
 }

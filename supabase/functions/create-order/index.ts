@@ -1,9 +1,6 @@
-/**
- * TVT STUDIO — Authoritative Server-Side Order Creation (Supabase Edge Function)
- * SECURITY: Recomputes EVERY template price, Full-Source +30% multiplier, promo voucher,
- * and 30%/100% deposit directly on the server so DevTools / client-side price tampering
- * is 100% impossible.
- */
+// TVT STUDIO v5.0 — Authoritative Server-Side Order Creation (Supabase Edge Function)
+// Reads live CMS prices from public.tvt_products first (falling back to SERVER_TEMPLATE_VND)
+// so Admin price updates and newly inserted products take effect immediately on checkout.
 
 // @ts-ignore Deno / Supabase runtime import
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
@@ -44,9 +41,9 @@ const ALLOWED_CHANNELS = new Set([
   'zalopay',
   'momo',
   'b2b-usd',
+  'b2b-wire',
 ]);
 
-// Authoritative server-side standard template prices (VND) across ALL 19 commercial websites (+ 10k live VietQR test SKU)
 const SERVER_TEMPLATE_VND: Record<string, number> = {
   'vietqr-test-10k': 10_000,
   'velox-ev-motors': 20_000_000,
@@ -159,14 +156,41 @@ Deno.serve(async (req: Request) => {
     });
   }
 
-  // Recompute authoritative total on the server (blocks client price tampering!)
+  // @ts-ignore Deno global
+  const supabase = createClient(
+    // @ts-ignore Deno global
+    Deno.env.get('SUPABASE_URL')!,
+    // @ts-ignore Deno global
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+  );
+
+  // Load live authoritative CMS prices from tvt_products (so Admin edits apply immediately)
+  const templateIds = items
+    .filter((i) => i.kind === 'template' && i.productId)
+    .map((i) => String(i.productId));
+  const liveCmsPrices = new Map<string, number>();
+  if (templateIds.length > 0) {
+    const { data: cmsRows } = await supabase
+      .from('tvt_products')
+      .select('id, price_vnd, is_active')
+      .in('id', templateIds);
+    if (Array.isArray(cmsRows)) {
+      for (const row of cmsRows as Array<{ id: string; price_vnd: number; is_active: boolean }>) {
+        if (row.is_active !== false && Number(row.price_vnd) >= 10_000) {
+          liveCmsPrices.set(row.id, Number(row.price_vnd));
+        }
+      }
+    }
+  }
+
   let serverSubtotalVnd = 0;
   for (const item of items) {
     const qty = Math.min(20, Math.max(1, Math.floor(Number(item.quantity || 1))));
     if (item.kind === 'template') {
-      const baseVnd = SERVER_TEMPLATE_VND[String(item.productId || '')];
+      const pid = String(item.productId || '');
+      const baseVnd = liveCmsPrices.get(pid) ?? SERVER_TEMPLATE_VND[pid];
       if (!baseVnd) {
-        return new Response(JSON.stringify({ ok: false, error: `Unknown productId: ${item.productId}` }), {
+        return new Response(JSON.stringify({ ok: false, error: `Unknown productId: ${pid}` }), {
           status: 400,
           headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
         });
@@ -174,7 +198,6 @@ Deno.serve(async (req: Request) => {
       const unitVnd = item.license === 'full-source' ? roundVnd10k(baseVnd * 1.3) : baseVnd;
       serverSubtotalVnd += unitVnd * qty;
     } else {
-      // Custom scope packages require finite amount within [1.8M, 500M] VND
       const parsedCustom = Number(item.unitVnd || 1_800_000);
       const boundedCustom = Number.isFinite(parsedCustom)
         ? Math.min(500_000_000, Math.max(1_800_000, parsedCustom))
@@ -203,15 +226,6 @@ Deno.serve(async (req: Request) => {
         ? 'PROOF_SUBMITTED'
         : 'AWAITING_PAYMENT';
 
-  // @ts-ignore Deno global
-  const supabase = createClient(
-    // @ts-ignore Deno global
-    Deno.env.get('SUPABASE_URL')!,
-    // @ts-ignore Deno global
-    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-  );
-
-  // If buyer is signed in via Email OTP JWT, attach verified auth.uid() to the order
   let authenticatedUserId: string | null = null;
   const authHeader = req.headers.get('authorization') || '';
   const bearer = authHeader.replace(/^Bearer\s+/i, '').trim();
@@ -222,7 +236,6 @@ Deno.serve(async (req: Request) => {
     }
   }
 
-  // Check if order_code was already pre-registered (idempotent Step 2 -> Step 3 flow)
   const { data: existingOrder } = await supabase
     .from('tvt_orders')
     .select('order_code, status, paid_amount_vnd, payment_ref, license_key, net_total_vnd, payable_now_vnd')
@@ -259,7 +272,6 @@ Deno.serve(async (req: Request) => {
     );
   }
 
-  // Reconcile any early bank transfer that already landed in tvt_payment_webhooks
   const { data: earlyHooks } = await supabase
     .from('tvt_payment_webhooks')
     .select('transfer_amount_vnd, provider_tx_id')
@@ -307,7 +319,6 @@ Deno.serve(async (req: Request) => {
     });
   }
 
-  // Server-originated instant <1s Telegram push (cannot be spoofed directly!)
   // @ts-ignore Deno global
   const tgToken = Deno.env.get('TELEGRAM_BOT_TOKEN') || '';
   // @ts-ignore Deno global
