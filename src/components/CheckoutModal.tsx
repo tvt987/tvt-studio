@@ -97,6 +97,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   const [formError, setFormError] = useState<string | null>(null);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [confirmedOrder, setConfirmedOrder] = useState<OrderSnapshot | null>(null);
+  const preRegisteredCodeRef = useRef<string | null>(null);
   const scrollShellRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -145,6 +146,93 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
     if (!hasLiveBankQr || !bankConfig) return null;
     return buildVietQrImageUrl(bankConfig, totals.payableNowVnd, bankSafeMemo);
   }, [bankConfig, bankSafeMemo, hasLiveBankQr, totals.payableNowVnd]);
+
+  // Step 2 Pre-Registration + Real-Time Radar:
+  // Registers the VietQR order in Supabase the instant the QR code is shown on Step 2
+  // so scanning & transferring on Step 2 triggers auto-paid and jumps to Step 3 in 1-3s!
+  useEffect(() => {
+    if (!isOpen || step !== 2 || paymentChannel !== 'vietqr' || !hasLiveBankQr) return;
+    if (!isCloudRealtimeConfigured()) return;
+    if (!client.fullName.trim() || !client.phoneOrZalo.trim() || !client.email.trim()) return;
+
+    const targetCode = orderCode;
+    let cancelled = false;
+
+    const buildDraftSnapshot = (): OrderSnapshot => {
+      const base = createOrderSnapshot({
+        orderCode: targetCode,
+        currency,
+        paymentChannel: 'vietqr',
+        client,
+        items,
+        totals,
+      });
+      return {
+        ...base,
+        userId: authSession?.userId,
+        deliverable: {
+          licenseKey: generateLicenseKey(targetCode),
+          downloadCount: 0,
+        },
+      };
+    };
+
+    if (preRegisteredCodeRef.current !== targetCode) {
+      preRegisteredCodeRef.current = targetCode;
+      void dispatchOrderToCloud(buildDraftSnapshot(), locale, authSession?.accessToken);
+    }
+
+    const promoteToPaidStep3 = (ref: string, paidAmount: number) => {
+      if (cancelled) return;
+      const paidOrder: OrderSnapshot = {
+        ...buildDraftSnapshot(),
+        status: 'DEPOSIT_VERIFIED',
+        paymentRef: ref,
+        syncState: 'supabase_synced',
+      };
+      setConfirmedOrder(paidOrder);
+      setStep(3);
+      onOrderCompleted(paidOrder);
+      onAutoVerifiedPayment(targetCode, ref, paidAmount);
+    };
+
+    const unsub = subscribeRealtimePaymentVerified((ev) => {
+      if (ev.orderCode === targetCode && ev.status === 'DEPOSIT_VERIFIED') {
+        promoteToPaidStep3(ev.paymentRef, ev.paidAmountVnd);
+      }
+    });
+
+    const checkNow = async () => {
+      const res = await pollOrderCloudPaymentStatus(targetCode);
+      if (res && (res.status === 'DEPOSIT_VERIFIED' || res.status === 'DELIVERED')) {
+        promoteToPaidStep3(res.paymentRef, res.paidAmountVnd);
+      }
+    };
+    const timer = window.setInterval(() => {
+      void checkNow();
+    }, 3000);
+
+    return () => {
+      cancelled = true;
+      unsub();
+      window.clearInterval(timer);
+    };
+  }, [
+    authSession?.accessToken,
+    authSession?.userId,
+    client,
+    currency,
+    hasLiveBankQr,
+    isOpen,
+    items,
+    locale,
+    onAutoVerifiedPayment,
+    onOrderCompleted,
+    orderCode,
+    paymentChannel,
+    step,
+    totals,
+  ]);
 
   // Real-time auto-verification listener (Supabase non-PII RPC 3s poll + BroadcastChannel)
   useEffect(() => {
@@ -708,6 +796,24 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                             ? 'Quét Zalo nhận STK Ngân Hàng chính chủ'
                             : 'Scan Zalo to receive verified Bank VietQR'}
                       </span>
+                      {liveVietQrUrl && isCloudRealtimeConfigured() && (
+                        <span
+                          className="mt-2 inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-semibold"
+                          style={{
+                            borderColor: 'var(--emerald)',
+                            backgroundColor: 'var(--emerald-soft)',
+                            color: 'var(--emerald)',
+                          }}
+                          data-testid="step2-realtime-radar"
+                        >
+                          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-current" />
+                          <span>
+                            {locale === 'vi'
+                              ? 'Radar Real-Time đang bật · Chuyển xong tự xác nhận sau 1–3s'
+                              : 'Live Radar Active · Auto-confirms in 1–3s after transfer'}
+                          </span>
+                        </span>
+                      )}
                     </div>
 
                     <div className="space-y-3 sm:col-span-7">

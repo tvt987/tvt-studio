@@ -218,14 +218,72 @@ Deno.serve(async (req: Request) => {
     }
   }
 
+  // Check if order_code was already pre-registered (idempotent Step 2 -> Step 3 flow)
+  const { data: existingOrder } = await supabase
+    .from('tvt_orders')
+    .select('order_code, status, paid_amount_vnd, payment_ref, license_key, net_total_vnd, payable_now_vnd')
+    .eq('order_code', orderCode)
+    .maybeSingle();
+
+  if (existingOrder) {
+    const alreadyPaid =
+      existingOrder.status === 'DEPOSIT_VERIFIED' || existingOrder.status === 'DELIVERED';
+    if (!alreadyPaid) {
+      await supabase
+        .from('tvt_orders')
+        .update({
+          user_id: authenticatedUserId ?? undefined,
+          status,
+          payment_channel: paymentChannel,
+          payment_mode: paymentMode,
+          payment_ref: cleanPaymentRef || existingOrder.payment_ref || null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('order_code', orderCode);
+    }
+    return new Response(
+      JSON.stringify({
+        ok: true,
+        idempotent: true,
+        orderCode,
+        status: alreadyPaid ? existingOrder.status : status,
+        netTotalVnd: Number(existingOrder.net_total_vnd || netTotalVnd),
+        payableNowVnd: Number(existingOrder.payable_now_vnd || payableNowVnd),
+        paidAmountVnd: Number(existingOrder.paid_amount_vnd || 0),
+      }),
+      { status: 200, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } }
+    );
+  }
+
+  // Reconcile any early bank transfer that already landed in tvt_payment_webhooks
+  const { data: earlyHooks } = await supabase
+    .from('tvt_payment_webhooks')
+    .select('transfer_amount_vnd, provider_tx_id')
+    .eq('order_code', orderCode);
+
+  const earlyPaidVnd = Array.isArray(earlyHooks)
+    ? earlyHooks.reduce((acc, row) => acc + Number(row.transfer_amount_vnd || 0), 0)
+    : 0;
+  const earlySufficient = earlyPaidVnd >= payableNowVnd && payableNowVnd > 0;
+  const finalStatus = earlySufficient ? 'DEPOSIT_VERIFIED' : status;
+  const finalPaymentRef = earlySufficient
+    ? `SEPAY-${String(earlyHooks?.[0]?.provider_tx_id || orderCode.slice(-4))}`
+    : cleanPaymentRef || null;
+  const finalLicenseKey = earlySufficient
+    ? `TVT-LIC-${orderCode.slice(-4)}-${String(earlyHooks?.[0]?.provider_tx_id || 'AUTO').slice(-4).toUpperCase()}`
+    : null;
+
   const { error: insertErr } = await supabase.from('tvt_orders').insert({
     user_id: authenticatedUserId,
     order_code: orderCode,
     idempotency_key: orderCode,
-    status,
+    status: finalStatus,
     payment_channel: paymentChannel,
     payment_mode: paymentMode,
-    payment_ref: cleanPaymentRef || null,
+    payment_ref: finalPaymentRef,
+    paid_amount_vnd: earlyPaidVnd,
+    paid_at: earlySufficient ? new Date().toISOString() : null,
+    license_key: finalLicenseKey,
     client_name: clientName,
     client_phone: clientPhone,
     client_email: clientEmail,
@@ -268,9 +326,10 @@ Deno.serve(async (req: Request) => {
     JSON.stringify({
       ok: true,
       orderCode,
-      status,
+      status: finalStatus,
       netTotalVnd,
       payableNowVnd,
+      paidAmountVnd: earlyPaidVnd,
     }),
     { status: 201, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } }
   );
