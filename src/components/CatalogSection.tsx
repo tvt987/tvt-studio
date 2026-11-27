@@ -42,7 +42,7 @@ interface CatalogSectionProps {
 function getComplexityBadge(priceVnd: number, locale: Locale): { label: string; colorVar: string; vip: boolean } {
   if (priceVnd >= 15_000_000) {
     return {
-      label: locale === 'vi' ? 'VIP PRO 15M–23M' : 'FLAGSHIP VIP PRO',
+      label: locale === 'vi' ? 'VIP PRO 15M–30M' : 'FLAGSHIP VIP PRO',
       colorVar: 'var(--accent)',
       vip: true,
     };
@@ -120,8 +120,8 @@ export const CatalogSection: React.FC<CatalogSectionProps> = ({
           </div>
           <h2 className="font-display mt-2 text-2xl font-extrabold tracking-tight sm:text-4xl">
             {locale === 'vi'
-              ? '19 Sản Phẩm Live — Chọn Mẫu, Tùy Biến Thương Hiệu & Chạy Ngay.'
-              : '19 Live Commercial Products — Rebrand, Deploy & Launch Fast.'}
+              ? '22 Sản Phẩm Live — Chọn Mẫu, Tùy Biến Thương Hiệu & Chạy Ngay.'
+              : '22 Live Commercial Products — Rebrand, Deploy & Launch Fast.'}
           </h2>
           <p className="mt-3 text-sm leading-relaxed sm:text-base" style={{ color: 'var(--ink-secondary)' }}>
             {locale === 'vi'

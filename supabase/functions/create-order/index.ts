@@ -46,6 +46,9 @@ const ALLOWED_CHANNELS = new Set([
 
 const SERVER_TEMPLATE_VND: Record<string, number> = {
   'vietqr-test-10k': 10_000,
+  'aeroforge-digital-twin': 29_900_000,
+  'helios-quant-terminal': 28_900_000,
+  'chronos-horology': 26_900_000,
   'velox-ev-motors': 20_000_000,
   'aegispulse': 22_900_000,
   'verdict-graph': 19_900_000,

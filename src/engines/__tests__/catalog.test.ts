@@ -10,8 +10,8 @@ import {
 } from '../catalog';
 
 describe('Catalog Engine', () => {
-  it('contains all 19 real commercial products with valid live URLs and relative media paths', () => {
-    expect(CATALOG_PRODUCTS).toHaveLength(19);
+  it('contains all 22 real commercial products with valid live URLs and relative media paths', () => {
+    expect(CATALOG_PRODUCTS).toHaveLength(22);
     for (const product of CATALOG_PRODUCTS) {
       expect(product.liveUrl).toMatch(/^https:\/\/tvt987\.github\.io\/.+\/$/);
       expect(product.previewImage).toMatch(/^\.\/media\/.+\.(webp|jpg)$/);
@@ -23,12 +23,12 @@ describe('Catalog Engine', () => {
 
   it('computes accurate category counts across all 5 vertical segments', () => {
     const counts = getCategoryCounts(CATALOG_PRODUCTS);
-    expect(counts.all).toBe(19);
-    expect(counts['commerce-3d']).toBe(4);
+    expect(counts.all).toBe(22);
+    expect(counts['commerce-3d']).toBe(5);
     expect(counts['clinic-proptech']).toBe(3);
     expect(counts['pos-fnb']).toBe(3);
-    expect(counts['enterprise-b2b']).toBe(5);
-    expect(counts['saas-ai']).toBe(4);
+    expect(counts['enterprise-b2b']).toBe(6);
+    expect(counts['saas-ai']).toBe(5);
   });
 
   it('filters catalog by category and search query across VI/EN and tech stack', () => {
@@ -52,10 +52,10 @@ describe('Catalog Engine', () => {
 
     const asc = filterAndSortCatalog(CATALOG_PRODUCTS, 'all', '', 'price-asc');
     expect(asc[0].id).toBe('vanguard-fitness');
-    expect(asc[asc.length - 1].id).toBe('aegispulse');
+    expect(asc[asc.length - 1].id).toBe('aeroforge-digital-twin');
 
     const desc = filterAndSortCatalog(CATALOG_PRODUCTS, 'all', '', 'price-desc');
-    expect(desc[0].id).toBe('aegispulse');
+    expect(desc[0].id).toBe('aeroforge-digital-twin');
     expect(desc[desc.length - 1].id).toBe('vanguard-fitness');
 
     const fastest = filterAndSortCatalog(CATALOG_PRODUCTS, 'all', '', 'fastest');

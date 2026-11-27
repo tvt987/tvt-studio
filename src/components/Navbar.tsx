@@ -52,7 +52,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navLinks = [
-    { href: '#catalog', label: locale === 'vi' ? '19 Web Mẫu' : '19 Templates' },
+    { href: '#catalog', label: locale === 'vi' ? '22 Web Mẫu' : '22 Templates' },
     { href: '#pro-tools', label: locale === 'vi' ? '10 Pro Tools' : '10 Pro Tools' },
     { href: '#estimator', label: locale === 'vi' ? 'Code Riêng' : 'Custom Build' },
     { href: '#payment-flow', label: locale === 'vi' ? 'Thanh Toán' : 'Payment' },

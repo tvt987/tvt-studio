@@ -48,7 +48,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
     deliveryDaysMax: 5,
     liveUrl: 'https://tvt987.github.io/maison-vera/',
     previewImage: './media/maison-vera.webp',
-    featuredRank: 11,
+    featuredRank: 14,
     stack: ['React 19', 'Three.js PBR', 'TypeScript', 'Tailwind v4'],
     deliverables: {
       vi: [
@@ -95,7 +95,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
     deliveryDaysMax: 5,
     liveUrl: 'https://tvt987.github.io/aether-acoustics/',
     previewImage: './media/aether-acoustics.webp',
-    featuredRank: 13,
+    featuredRank: 16,
     stack: ['React 19', 'WebGL PBR', 'Web Audio DSP', 'Vitest'],
     deliverables: {
       vi: [
@@ -143,7 +143,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
     liveUrl: 'https://tvt987.github.io/lumina-medspa/',
     previewImage: './media/lumina-medspa.webp',
     previewBadge: 'PATIENT VAULT · 0% INSTALLMENT',
-    featuredRank: 17,
+    featuredRank: 20,
     stack: ['React 19', 'Booking Engine', 'TypeScript', 'SEO Medical'],
     deliverables: {
       vi: [
@@ -191,7 +191,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
     liveUrl: 'https://tvt987.github.io/kinetix-proptech/',
     previewImage: './media/kinetix-proptech.webp',
     previewBadge: 'TOWER 3D · +4% RATE STRESS',
-    featuredRank: 12,
+    featuredRank: 15,
     stack: ['React 19', 'Mortgage Engine', 'Interactive Map', 'TypeScript'],
     deliverables: {
       vi: [
@@ -239,7 +239,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
     liveUrl: 'https://tvt987.github.io/pulse-pos-fnb/',
     previewImage: './media/pulse-pos-fnb.webp',
     previewBadge: 'TABLE QR · LIVE KDS · AUTO-PO',
-    featuredRank: 10,
+    featuredRank: 13,
     stack: ['React 19', 'POS Engine', 'KDS Real-Time', 'VietQR Ready'],
     deliverables: {
       vi: [
@@ -286,7 +286,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
     deliveryDaysMax: 7,
     liveUrl: 'https://tvt987.github.io/atelier-canvas/',
     previewImage: './media/atelier-canvas.webp',
-    featuredRank: 9,
+    featuredRank: 12,
     stack: ['React 19', 'Canvas / SVG', 'Command Stack', 'TypeScript'],
     deliverables: {
       vi: [
@@ -333,7 +333,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
     deliveryDaysMax: 7,
     liveUrl: 'https://tvt987.github.io/nexus-lake/',
     previewImage: './media/nexus-lake.webp',
-    featuredRank: 8,
+    featuredRank: 11,
     stack: ['React 19', 'DuckDB-WASM', 'SQL Engine', 'BI Charts'],
     deliverables: {
       vi: [
@@ -380,7 +380,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
     deliveryDaysMax: 8,
     liveUrl: 'https://tvt987.github.io/verdict-graph/',
     previewImage: './media/verdict-graph.webp',
-    featuredRank: 3,
+    featuredRank: 6,
     stack: ['React 19', 'DAG Engine', 'AI Guardrails', 'Telemetry'],
     deliverables: {
       vi: [
@@ -427,7 +427,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
     deliveryDaysMax: 10,
     liveUrl: 'https://tvt987.github.io/aegispulse-distributed-sre/',
     previewImage: './media/aegispulse.webp',
-    featuredRank: 2,
+    featuredRank: 5,
     stack: ['.NET 10 / C#', 'Redis Lock', 'Hybrid RAG', 'OpenTelemetry'],
     deliverables: {
       vi: [
@@ -472,7 +472,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
     liveUrl: 'https://tvt987.github.io/aurelia-resort/',
     previewImage: './media/aurelia-resort.webp',
     previewBadge: '5-STAR HEATMAP · MICE PLANNER',
-    featuredRank: 7,
+    featuredRank: 10,
     stack: ['React 19', 'SVG Masterplan', 'VietQR EMVCo', 'ICS Pass'],
     deliverables: {
       vi: [
@@ -562,7 +562,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
     liveUrl: 'https://tvt987.github.io/solaris-academy/',
     previewImage: './media/solaris-academy.webp',
     previewBadge: 'ZERO-EVAL AST SANDBOX · SM-2',
-    featuredRank: 15,
+    featuredRank: 18,
     stack: ['React 19', 'AST Sandbox', 'SM-2 SRS', 'Cert QR PDF'],
     deliverables: {
       vi: [
@@ -607,7 +607,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
     liveUrl: 'https://tvt987.github.io/kuro-omakase/',
     previewImage: './media/kuro-omakase.webp',
     previewBadge: '14-SEAT HINOKI MAP · ALLERGEN',
-    featuredRank: 18,
+    featuredRank: 21,
     stack: ['React 19', 'SVG Seat Lock', 'Allergen Engine', 'VietQR'],
     deliverables: {
       vi: [
@@ -652,7 +652,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
     liveUrl: 'https://tvt987.github.io/vanguard-fitness/',
     previewImage: './media/vanguard-fitness.webp',
     previewBadge: '12W METABOLIC · WAITLIST LOCK',
-    featuredRank: 19,
+    featuredRank: 22,
     stack: ['React 19', 'Metabolic Math', 'Waitlist Lock', 'QR Pass'],
     deliverables: {
       vi: [
@@ -697,7 +697,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
     liveUrl: 'https://tvt987.github.io/meridian-logistics/',
     previewImage: './media/meridian-logistics.webp',
     previewBadge: 'CONTAINER 3D PACK · HS/EVFTA',
-    featuredRank: 6,
+    featuredRank: 9,
     stack: ['React 19', 'CBM Freight Math', 'SVG Corridors', 'Bill of Lading'],
     deliverables: {
       vi: [
@@ -742,7 +742,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
     liveUrl: 'https://tvt987.github.io/coda-hr-payroll/',
     previewImage: './media/coda-hr-payroll.webp',
     previewBadge: 'LAW 2026 · PIT FINALIZATION · ATS',
-    featuredRank: 5,
+    featuredRank: 8,
     stack: ['React 19', 'VN Payroll 2026', 'Kanban ATS', 'CSV BOM'],
     deliverables: {
       vi: [
@@ -787,7 +787,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
     liveUrl: 'https://tvt987.github.io/veritas-legal-firm/',
     previewImage: './media/veritas-legal-firm.webp',
     previewBadge: 'DECREE 13 PDPD RISK · A4 PDF',
-    featuredRank: 16,
+    featuredRank: 19,
     stack: ['React 19', 'Contract Engine', 'PDPD Risk 0–100', 'A4 Legal PDF'],
     deliverables: {
       vi: [
@@ -832,7 +832,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
     liveUrl: 'https://tvt987.github.io/nordic-home-atelier/',
     previewImage: './media/nordic-home-atelier.webp',
     previewBadge: '2D CAD PLANNER · BOQ PRO',
-    featuredRank: 14,
+    featuredRank: 17,
     stack: ['React 19', '2D CAD Planner', 'Swatch Pricing', 'A4 Proposal'],
     deliverables: {
       vi: [
@@ -877,7 +877,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
     liveUrl: 'https://tvt987.github.io/zenith-wealth-fintech/',
     previewImage: './media/zenith-wealth-fintech.webp',
     previewBadge: 'QUANT FIRE · CRISIS STRESS-TEST',
-    featuredRank: 4,
+    featuredRank: 7,
     stack: ['React 19', 'Monte Carlo', 'Sharpe Frontier', 'Rebalancer'],
     deliverables: {
       vi: [
@@ -898,6 +898,141 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
       en: 'Deterministic quantitative finance engine running sub-5ms client-side, ready for brokerage APIs.',
     },
     metricsBadge: 'QUANT FIRE · CRISIS STRESS-TEST',
+  },
+  {
+    id: 'aeroforge-digital-twin',
+    sku: 'TVT-IOT-22',
+    name: 'AeroForge 3D Digital Twin',
+    subtitle: {
+      vi: 'Bản Sao Số Nhà Máy 4.0 3D, Robot 6 Trục Kinematics & AI Dự Báo Lỗi FFT',
+      en: 'Industry 4.0 Smart Factory 3D Twin, 6-Axis Robot Kinematics & Vibration FFT AI',
+    },
+    tagline: {
+      vi: 'Siêu Phẩm 29,9 Triệu: Sàn nhà máy 3D Three.js HDRI, cánh tay robot CNC 6 trục FK/IK thật, băng chuyền QA quang học, camera nhiệt hồng ngoại Ironbow, phổ rung động ổ bi FFT & tối ưu điện mặt trời EVN 3 khung giờ.',
+      en: '29.9M Ultra-Flagship: Live Three.js Smart Factory 3D floor, real 6-axis CNC robot FK/IK kinematics, optical QA conveyor, Ironbow thermal heatmap, bearing vibration FFT predictive AI & EVN solar optimizer.',
+    },
+    category: 'saas-ai',
+    categoryLabel: { vi: 'SaaS & AI', en: 'SaaS & AI' },
+    priceVnd: 29_900_000,
+    originalPriceVnd: 46_000_000,
+    priceUsd: 1_199,
+    originalPriceUsd: 1_840,
+    deliveryDaysMin: 6,
+    deliveryDaysMax: 10,
+    liveUrl: 'https://tvt987.github.io/aeroforge-digital-twin/',
+    previewImage: './media/aeroforge-digital-twin.webp',
+    previewBadge: '3D FACTORY TWIN · 6-AXIS IK · 29.9M ULTRA',
+    featuredRank: 2,
+    stack: ['React 19', 'Three.js HDRI', '6-Axis FK/IK', 'Vibration FFT'],
+    deliverables: {
+      vi: [
+        'Sàn nhà máy 3D Three.js HDRI: cánh tay robot CNC 6 trục FK/IK thật, băng chuyền QA quang học & đội xe AGV',
+        'Chế độ Camera nhiệt hồng ngoại Ironbow thời gian thực & 4 kịch bản tiêm lỗi công nghiệp tự sinh lệnh bảo trì AI',
+        'Phổ rung động ổ bi FFT (0–2.500 Hz) chuẩn ISO 10816 + đồ thị tuổi thọ còn lại Weibull RUL & OEE',
+        'Bộ tối ưu điện mặt trời áp mái + pin lưu trữ BESS theo biểu giá 3 khung giờ EVN + báo cáo ca PDF A4 / CSV BOM',
+      ],
+      en: [
+        'Three.js HDRI Smart Factory bay with 6-axis FK/IK robotic arm, optical QA vision gate & AGV fleet',
+        'Real-time FLIR Ironbow 3D thermal heatmap overlay & 4 industrial fault injectors generating AI work orders',
+        'ISO 10816 bearing vibration FFT spectrum (0–2,500 Hz), Weibull RUL survival curve & live OEE cockpit',
+        'Vietnam EVN 3-tier industrial tariff & rooftop solar BESS optimizer with A4 shift dossier & CSV BOM',
+      ],
+    },
+    architectureNote: {
+      vi: 'Động học thuận/nghịch 6 trục thuần TypeScript kết hợp phổ FFT tách biệt sẵn sàng nối cảm biến OPC-UA / MQTT thật.',
+      en: 'Pure TypeScript 6-axis FK/IK kinematics and FFT diagnostics architected for live OPC-UA / MQTT industrial telemetry.',
+    },
+    metricsBadge: '3D FACTORY TWIN · 6-AXIS IK · 29.9M ULTRA',
+  },
+  {
+    id: 'helios-quant-terminal',
+    sku: 'TVT-QNT-21',
+    name: 'Helios Quant Terminal',
+    subtitle: {
+      vi: 'Sàn Khớp Lệnh L2 Orderbook, Biểu Đồ Nến Canvas & Backtest Thuật Toán Quant',
+      en: 'Institutional L2 Orderbook Matching Engine, Canvas Candlestick & Algo Backtester',
+    },
+    tagline: {
+      vi: 'Siêu Phẩm 28,9 Triệu: Nhân khớp lệnh Price-Time Priority 6 thị trường (BTC/ETH/VN30F1M/Vàng/NVDA), biểu đồ nến Canvas HiDPI (EMA/Bollinger/VWAP/RSI/MACD), mô phỏng sốc thanh khoản & Backtest 4 chiến lược 500 nến (<5ms).',
+      en: '28.9M Ultra-Flagship: Deterministic FIFO LOB matching engine across 6 markets (incl. VN30F1M), HiDPI Canvas candlesticks with EMA/BB/VWAP/RSI/MACD, flash-crash stress lab & sub-5ms 500-bar quant backtester.',
+    },
+    category: 'enterprise-b2b',
+    categoryLabel: { vi: 'Doanh Nghiệp, HR & FinTech', en: 'Enterprise, EdTech & FinTech' },
+    priceVnd: 28_900_000,
+    originalPriceVnd: 44_500_000,
+    priceUsd: 1_159,
+    originalPriceUsd: 1_780,
+    deliveryDaysMin: 6,
+    deliveryDaysMax: 10,
+    liveUrl: 'https://tvt987.github.io/helios-quant-terminal/',
+    previewImage: './media/helios-quant-terminal.webp',
+    previewBadge: 'L2 MATCHING ENGINE · ALGO QUANT · 28.9M',
+    featuredRank: 3,
+    stack: ['React 19', 'FIFO LOB Engine', 'Canvas 2D TA', 'Quant Backtest'],
+    deliverables: {
+      vi: [
+        'Nhân khớp lệnh Limit Order Book chuẩn FIFO 15×15 cấp giá cho 6 thị trường (BTC, ETH, SOL, VN30F1M, XAU, NVDA)',
+        'Biểu đồ nến OHLCV Canvas 2D HiDPI mượt 60fps kèm EMA 9/21, Bollinger Bands, VWAP, RSI(14) & MACD',
+        'Phòng mô phỏng sốc thanh khoản (Flash Crash -10%, Short Squeeze +12%, Whale Sweep $50M) & rủi ro Margin/Liquidation',
+        'Bộ Backtest 4 chiến lược thuật toán 500 nến (<5ms) tính Sharpe/Sortino/Calmar/VaR 99% & xuất sổ lệnh CSV BOM',
+      ],
+      en: [
+        'Deterministic FIFO L2 Orderbook matching engine (15×15 levels) across 6 global & VN30F1M futures markets',
+        '60fps HiDPI Canvas 2D OHLCV candlestick chart with EMA 9/21, Bollinger Bands, VWAP, RSI(14) & MACD',
+        '1-click liquidity stress shock lab (Flash Crash, Short Squeeze, Whale Sweep) with live liquidation risk',
+        'Sub-5ms 500-bar quant backtester (4 strategies) with Sharpe/Sortino/VaR 99% & UTF-8 BOM blotter CSV',
+      ],
+    },
+    architectureNote: {
+      vi: 'Toán học tài chính định lượng & sổ lệnh L2 chạy 0ms trên client với 103 bài kiểm thử tự động, sẵn sàng nối FIX / WebSocket.',
+      en: 'Zero-latency deterministic LOB & quantitative engine verified by 103 CI tests, ready for FIX / WebSocket feeds.',
+    },
+    metricsBadge: 'L2 MATCHING ENGINE · ALGO QUANT · 28.9M',
+  },
+  {
+    id: 'chronos-horology',
+    sku: 'TVT-LUX-20',
+    name: 'Chronos Horology 3D',
+    subtitle: {
+      vi: 'Bộ Máy Đồng Hồ Cơ Tourbillon 3D Chạy Thật, Âm Thanh 4Hz & Boutique Thụy Sĩ',
+      en: 'Working 3D Mechanical Tourbillon Calibre, 4Hz Escapement Synth & Swiss Boutique',
+    },
+    tagline: {
+      vi: 'Siêu Phẩm 26,9 Triệu: Bộ máy đồng hồ cơ Tourbillon 3D Three.js hoạt động thật 60fps (bánh răng ăn khớp, cầu cân bằng 28,800 vph, tách 7 tầng máy, dạ quang Lume Night, âm thanh bộ thoát 4Hz Web Audio) & chứng nhận COSC A4.',
+      en: '26.9M Ultra-Flagship: Live animated 3D mechanical Tourbillon calibre (28,800 vph balance, meshed gear train, 7-layer exploded view, Lume Night, Web Audio 4Hz escapement synth) & COSC A4 certification.',
+    },
+    category: 'commerce-3d',
+    categoryLabel: { vi: 'Bán Hàng 3D & Nội Thất', en: '3D Commerce & Interior' },
+    priceVnd: 26_900_000,
+    originalPriceVnd: 41_500_000,
+    priceUsd: 1_079,
+    originalPriceUsd: 1_660,
+    deliveryDaysMin: 5,
+    deliveryDaysMax: 8,
+    liveUrl: 'https://tvt987.github.io/chronos-horology/',
+    previewImage: './media/chronos-horology.webp',
+    previewBadge: '3D TOURBILLON CALIBRE · 4HZ AUDIO · 26.9M',
+    featuredRank: 4,
+    stack: ['React 19', 'Three.js HDRI', 'Tourbillon 3D', 'Web Audio 4Hz'],
+    deliverables: {
+      vi: [
+        'Bộ máy Tourbillon 3D Three.js HDRI chạy thật: bánh răng ăn khớp tỷ số chính xác, tách 7 tầng máy & 7 góc camera macro',
+        'Chế độ dạ quang Super-LumiNova, bấm giờ Chronograph có Split-Lap & âm thanh bộ thoát 28.800 vph tổng hợp Web Audio',
+        'Phòng lab vật lý COSC 6 vị trí trọng lực, mô phỏng mô-men dây cót 72 giờ & khắc laser nắp đáy 3D thời gian thực',
+        'Tùy biến 4 kim loại quý (Vàng hồng 18K / Titan / Carbon / Platinum), Collector Vault & Chứng nhận COSC A4 QR',
+      ],
+      en: [
+        'Live Three.js HDRI mechanical Tourbillon calibre with meshed gear train, 7-layer explode slider & 7 macro cams',
+        'Super-LumiNova night mode, live Split-Lap Chronograph & synthesized 28,800 vph Web Audio escapement acoustics',
+        'ISO 3159 COSC 6-position accuracy lab, 72h barrel torque simulation & live 3D CanvasTexture caseback engraving',
+        '4 haute-horlogerie metals (18K Rose Gold, Grade-5 Ti, Forged Carbon, Pt950), Collector Vault & A4 COSC QR',
+      ],
+    },
+    architectureNote: {
+      vi: 'Tích hợp vật lý chuyển động cơ khí thuần 60fps & HDRI Studio giúp định vị đẳng cấp thương hiệu đồng hồ/trang sức xa xỉ.',
+      en: '60fps procedural mechanical gear kinematics and PMREM HDRI reflections tailored for luxury watchmaking houses.',
+    },
+    metricsBadge: '3D TOURBILLON CALIBRE · 4HZ AUDIO · 26.9M',
   },
 ];
 

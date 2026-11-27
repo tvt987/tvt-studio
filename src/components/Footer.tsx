@@ -99,7 +99,7 @@ export const Footer: React.FC<FooterProps> = ({ locale, onOpenTracker }) => {
             <ul className="mt-3 space-y-2.5 text-sm" style={{ color: 'var(--ink-secondary)' }}>
               <li>
                 <a href="#catalog" className="transition-colors hover:text-[var(--ink-primary)]">
-                  {locale === 'vi' ? 'Kho 19 Website Mẫu Live' : '19 Live Website Templates'}
+                  {locale === 'vi' ? 'Kho 22 Website Mẫu Live' : '22 Live Website Templates'}
                 </a>
               </li>
               <li>

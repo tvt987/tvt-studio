@@ -1205,7 +1205,7 @@ export const OwnerConsoleModal: React.FC<OwnerConsoleModalProps> = ({
                     className="btn-secondary inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold"
                   >
                     <IconLayers className="h-3.5 w-3.5" />
-                    <span>Đồng Bộ 19 Mẫu Chuẩn</span>
+                    <span>Đồng Bộ 22 Mẫu Chuẩn</span>
                   </button>
                   <button
                     type="button"
