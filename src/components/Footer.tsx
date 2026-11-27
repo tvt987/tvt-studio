@@ -2,6 +2,7 @@ import React from 'react';
 import { STUDIO_CONTACT } from '../engines/catalog';
 import type { Locale } from '../engines/types';
 import { IconArrowUpRight, IconGlobe, IconMail, IconPhone } from './Icons';
+import { TvtBrandLockup } from './TvtBrandMark';
 
 interface FooterProps {
   locale: Locale;
@@ -21,22 +22,7 @@ export const Footer: React.FC<FooterProps> = ({ locale, onOpenTracker }) => {
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-12">
           {/* Brand Column */}
           <div className="lg:col-span-5">
-            <div className="flex items-center gap-3">
-              <img
-                src="./media/studio-emblem.webp"
-                alt="TVT Studio Emblem"
-                width={44}
-                height={44}
-                className="h-11 w-11 rounded-xl border object-cover"
-                style={{ borderColor: 'var(--border-strong)' }}
-              />
-              <div>
-                <div className="font-brand text-base font-extrabold tracking-wider">TVT STUDIO</div>
-                <div className="font-mono-num text-[11px]" style={{ color: 'var(--ink-muted)' }}>
-                  BY {STUDIO_CONTACT.architectName.toUpperCase()}
-                </div>
-              </div>
-            </div>
+            <TvtBrandLockup size="lg" subtitle={`BY ${STUDIO_CONTACT.architectName.toUpperCase()}`} />
 
             <p className="mt-4 max-w-md text-xs leading-relaxed sm:text-sm" style={{ color: 'var(--ink-secondary)' }}>
               {locale === 'vi'
@@ -113,7 +99,7 @@ export const Footer: React.FC<FooterProps> = ({ locale, onOpenTracker }) => {
             <ul className="mt-3 space-y-2.5 text-sm" style={{ color: 'var(--ink-secondary)' }}>
               <li>
                 <a href="#catalog" className="transition-colors hover:text-[var(--ink-primary)]">
-                  {locale === 'vi' ? 'Kho 9 Website Mẫu Live' : '9 Live Website Templates'}
+                  {locale === 'vi' ? 'Kho 19 Website Mẫu Live' : '19 Live Website Templates'}
                 </a>
               </li>
               <li>

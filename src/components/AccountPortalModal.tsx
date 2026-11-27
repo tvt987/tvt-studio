@@ -40,6 +40,7 @@ import {
   IconLock,
   IconPhone,
 } from './Icons';
+import { TvtBrandLockup } from './TvtBrandMark';
 
 interface AccountPortalModalProps {
   isOpen: boolean;
@@ -269,17 +270,7 @@ export const AccountPortalModal: React.FC<AccountPortalModalProps> = ({
 
           {/* Centered Brand Mark + Title */}
           <div className="flex flex-col items-center text-center">
-            <div className="flex items-center gap-2.5">
-              <img
-                src="./media/studio-emblem.webp"
-                alt="TVT Studio"
-                className="h-9 w-9 rounded-xl border object-cover"
-                style={{ borderColor: 'var(--border-strong)' }}
-              />
-              <span className="font-brand text-xl font-extrabold tracking-wider">
-                TVT <span style={{ color: 'var(--accent)' }}>STUDIO</span>
-              </span>
-            </div>
+            <TvtBrandLockup size="md" showSubtitle={false} />
 
             <h2 className="font-display mt-3 text-xl font-extrabold sm:text-2xl">
               {authView === 'login'

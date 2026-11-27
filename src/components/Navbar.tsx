@@ -12,6 +12,7 @@ import {
   IconSun,
   IconUser,
 } from './Icons';
+import { TvtBrandLockup } from './TvtBrandMark';
 
 interface NavbarProps {
   locale: Locale;
@@ -70,28 +71,10 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* Brand Identity */}
         <a
           href="#top"
-          className="flex min-w-0 shrink items-center gap-2 focus:outline-none sm:gap-2.5"
+          className="flex min-w-0 shrink items-center focus:outline-none"
           aria-label="TVT Studio Home"
         >
-          <img
-            src="./media/studio-emblem.webp"
-            alt="TVT Studio Emblem"
-            width={34}
-            height={34}
-            className="h-8 w-8 shrink-0 rounded-lg border object-cover sm:h-8.5 sm:w-8.5"
-            style={{ borderColor: 'var(--border-strong)' }}
-          />
-          <div className="flex min-w-0 flex-col leading-none">
-            <span className="font-display whitespace-nowrap text-sm font-extrabold tracking-tight sm:font-brand sm:text-base sm:tracking-wider">
-              TVT STUDIO
-            </span>
-            <span
-              className="font-mono-num hidden whitespace-nowrap text-[10px] tracking-widest uppercase sm:block"
-              style={{ color: 'var(--ink-muted)' }}
-            >
-              ARCHITECTURAL IT
-            </span>
-          </div>
+          <TvtBrandLockup size="md" subtitle="ARCHITECTURAL IT" />
         </a>
 
         {/* Desktop Nav Links */}
