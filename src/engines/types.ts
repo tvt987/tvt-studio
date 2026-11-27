@@ -7,6 +7,7 @@ export type ProductCategory =
   | 'commerce-3d'
   | 'clinic-proptech'
   | 'pos-fnb'
+  | 'enterprise-b2b'
   | 'saas-ai';
 
 export type CatalogSort = 'featured' | 'price-asc' | 'price-desc' | 'fastest';

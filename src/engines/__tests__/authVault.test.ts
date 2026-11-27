@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
   buildOAuthAuthorizeUrl,
+  checkLoginLockoutSeconds,
+  clearLoginFailures,
   filterOrdersForAccount,
   generateHandoverKitMarkdown,
   generateLicenseKey,
@@ -9,6 +11,8 @@ import {
   isValidEmail,
   mergeCloudAndLocalOrders,
   normalizeEmail,
+  recordLoginFailure,
+  sanitizePlainText,
 } from '../authVault';
 import { addTemplateToCart, calculateCartTotals } from '../cart';
 import { CATALOG_PRODUCTS } from '../catalog';
@@ -114,5 +118,16 @@ describe('Email Auth Vault & Permanent Source Recovery Engine', () => {
     expect(h1).toBe(h2);
     expect(h1).not.toBe(h3);
     expect(h1).not.toContain('Secret123');
+    expect(h1.startsWith('pbkdf2$100000$')).toBe(true);
+  });
+
+  it('sanitizes HTML injection tags cleanly and enforces login lockout helpers', () => {
+    expect(sanitizePlainText('<b>Nguyen</b> <script>alert(1)</script> Long')).toBe(
+      'Nguyen alert(1) Long'
+    );
+    expect(checkLoginLockoutSeconds('nobody@test.vn')).toBe(0);
+    const res = recordLoginFailure('nobody@test.vn');
+    expect(res.remaining).toBe(4);
+    clearLoginFailures('nobody@test.vn');
   });
 });

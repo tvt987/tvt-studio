@@ -16,19 +16,19 @@ interface HeroSectionProps {
 export const HeroSection: React.FC<HeroSectionProps> = ({ locale }) => {
   const trustStats = [
     {
-      value: '11+',
-      label: locale === 'vi' ? 'Sản Phẩm Thương Mại Live' : 'Live Commercial Products',
-      detail: locale === 'vi' ? 'Xem demo thật 100% trước khi mua' : '100% live interactive sandboxes',
+      value: '21+',
+      label: locale === 'vi' ? 'Website & 10 Pro Tools Live' : 'Live Apps & 10 Pro Tools',
+      detail: locale === 'vi' ? '19 Web Mẫu + 10 Công cụ · Demo thật 100%' : '19 Commercial Sites + 10 Free Tools',
     },
     {
-      value: '304+',
+      value: '600+',
       label: locale === 'vi' ? 'CI Automated Tests Green' : 'CI Automated Tests Green',
       detail: locale === 'vi' ? 'Vitest + Pytest + .NET xUnit · 0 Error' : 'Vitest + Pytest + .NET xUnit · 0 Errors',
     },
     {
       value: '700+',
       label: locale === 'vi' ? 'Siêu Thị Production' : 'Production Retail Stores',
-      detail: locale === 'vi' ? 'Kinh nghiệm lõi .NET 8 / 5.000+ RPS' : 'Battle-tested .NET / 5,000+ RPS',
+      detail: locale === 'vi' ? 'Kinh nghiệm lõi .NET 8/10 · 5.000+ RPS' : 'Battle-tested .NET / 5,000+ RPS',
     },
     {
       value: locale === 'vi' ? '2–10 Ngày' : '2–10 Days',

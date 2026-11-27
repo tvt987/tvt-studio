@@ -8,11 +8,23 @@
 // @ts-ignore Deno / Supabase runtime import
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-const CORS_HEADERS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-};
+const ALLOWED_ORIGINS = new Set([
+  'https://tvt987.github.io',
+  'http://localhost:5173',
+  'http://127.0.0.1:4325',
+  'http://127.0.0.1:4173',
+]);
+
+function getCorsHeaders(req: Request): Record<string, string> {
+  const origin = req.headers.get('origin') || '';
+  const allowed = ALLOWED_ORIGINS.has(origin) ? origin : 'https://tvt987.github.io';
+  return {
+    'Access-Control-Allow-Origin': allowed,
+    Vary: 'Origin',
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  };
+}
 
 const UNLOCKED_STATUSES = new Set([
   'DEPOSIT_VERIFIED',
@@ -23,6 +35,7 @@ const UNLOCKED_STATUSES = new Set([
 
 // @ts-ignore Deno.serve
 Deno.serve(async (req: Request) => {
+  const CORS_HEADERS = getCorsHeaders(req);
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: CORS_HEADERS });
   }
@@ -61,8 +74,8 @@ Deno.serve(async (req: Request) => {
 
   const body = (await req.json().catch(() => ({}))) as { orderCode?: string };
   const orderCode = String(body.orderCode || '').trim().toUpperCase();
-  if (!orderCode) {
-    return new Response(JSON.stringify({ ok: false, error: 'Missing orderCode' }), {
+  if (!/^TVT-ORD-\d{4}$/.test(orderCode)) {
+    return new Response(JSON.stringify({ ok: false, error: 'Invalid orderCode format' }), {
       status: 400,
       headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
     });

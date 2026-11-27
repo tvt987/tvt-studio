@@ -8,23 +8,65 @@
 // @ts-ignore Deno / Supabase runtime import
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-const CORS_HEADERS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-};
+const ALLOWED_ORIGINS = new Set([
+  'https://tvt987.github.io',
+  'http://localhost:5173',
+  'http://127.0.0.1:4325',
+  'http://127.0.0.1:4173',
+]);
 
-// Authoritative server-side standard template prices (VND)
+function getCorsHeaders(req: Request): Record<string, string> {
+  const origin = req.headers.get('origin') || '';
+  const allowed = ALLOWED_ORIGINS.has(origin) ? origin : 'https://tvt987.github.io';
+  return {
+    'Access-Control-Allow-Origin': allowed,
+    Vary: 'Origin',
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  };
+}
+
+function stripUnsafeHtml(raw: unknown, maxLen: number): string {
+  return String(raw || '')
+    .replace(/<[^>]*>/g, '')
+    .replace(/[\u0000-\u001F\u007F]/g, ' ')
+    .trim()
+    .slice(0, maxLen);
+}
+
+function escapeTelegramHtml(raw: string): string {
+  return raw.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+const ALLOWED_CHANNELS = new Set([
+  'consult-first',
+  'vietqr',
+  'zalopay',
+  'momo',
+  'b2b-usd',
+]);
+
+// Authoritative server-side standard template prices (VND) across ALL 19 commercial websites
 const SERVER_TEMPLATE_VND: Record<string, number> = {
   'lumina-medspa': 2_490_000,
+  'aurelia-resort': 3_290_000,
+  'kuro-omakase': 2_990_000,
+  'vanguard-fitness': 2_890_000,
   'maison-vera': 3_490_000,
   'aether-acoustics': 3_490_000,
+  'velox-ev-motors': 4_290_000,
+  'solaris-academy': 4_190_000,
   'kinetix-proptech': 3_990_000,
+  'nordic-home-atelier': 3_890_000,
+  'veritas-legal-firm': 3_590_000,
+  'meridian-logistics': 4_790_000,
+  'coda-hr-payroll': 4_890_000,
   'pulse-pos-fnb': 4_990_000,
+  'zenith-wealth-fintech': 5_290_000,
   'atelier-canvas': 5_490_000,
   'nexus-lake': 5_490_000,
   'verdict-graph': 5_990_000,
-  'aegis-pulse': 6_990_000,
+  'aegispulse': 6_990_000,
 };
 
 function roundVnd10k(val: number): number {
@@ -47,6 +89,7 @@ function computeServerVoucherDiscount(code: string | null | undefined, subtotalV
 
 // @ts-ignore Deno.serve
 Deno.serve(async (req: Request) => {
+  const CORS_HEADERS = getCorsHeaders(req);
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: CORS_HEADERS });
   }
@@ -97,9 +140,9 @@ Deno.serve(async (req: Request) => {
     });
   }
 
-  const clientName = String(body.client?.fullName || '').trim().slice(0, 120);
-  const clientPhone = String(body.client?.phoneOrZalo || '').trim().slice(0, 40);
-  const clientEmail = String(body.client?.email || '').trim().slice(0, 120);
+  const clientName = stripUnsafeHtml(body.client?.fullName, 120);
+  const clientPhone = stripUnsafeHtml(body.client?.phoneOrZalo, 40);
+  const clientEmail = stripUnsafeHtml(body.client?.email, 120).toLowerCase();
   if (!clientName || !clientPhone || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(clientEmail)) {
     return new Response(JSON.stringify({ ok: false, error: 'Invalid client contact fields' }), {
       status: 400,
@@ -130,8 +173,12 @@ Deno.serve(async (req: Request) => {
       const unitVnd = item.license === 'full-source' ? roundVnd10k(baseVnd * 1.3) : baseVnd;
       serverSubtotalVnd += unitVnd * qty;
     } else {
-      // Custom scope packages require minimum Starter floor (1.8M VND)
-      const safeCustomUnit = Math.max(1_800_000, roundVnd10k(Number(item.unitVnd || 1_800_000)));
+      // Custom scope packages require finite amount within [1.8M, 500M] VND
+      const parsedCustom = Number(item.unitVnd || 1_800_000);
+      const boundedCustom = Number.isFinite(parsedCustom)
+        ? Math.min(500_000_000, Math.max(1_800_000, parsedCustom))
+        : 1_800_000;
+      const safeCustomUnit = roundVnd10k(boundedCustom);
       serverSubtotalVnd += safeCustomUnit * qty;
     }
   }
@@ -142,11 +189,13 @@ Deno.serve(async (req: Request) => {
   const payableNowVnd = paymentMode === 'full' ? netTotalVnd : roundVnd10k(netTotalVnd * 0.3);
   const netTotalUsd = Math.round(netTotalVnd / 25_000);
   const payableNowUsd = Math.round(payableNowVnd / 25_000);
-  const paymentChannel = String(body.paymentChannel || 'consult-first').slice(0, 32);
+  const rawChannel = String(body.paymentChannel || 'consult-first').trim().toLowerCase();
+  const paymentChannel = ALLOWED_CHANNELS.has(rawChannel) ? rawChannel : 'consult-first';
+  const cleanPaymentRef = stripUnsafeHtml(body.paymentRef, 64);
   const status =
     paymentChannel === 'consult-first'
       ? 'PENDING_CONSULTATION'
-      : body.paymentRef && body.paymentRef.trim().length >= 4
+      : cleanPaymentRef.length >= 4
         ? 'PROOF_SUBMITTED'
         : 'AWAITING_PAYMENT';
 
@@ -176,12 +225,12 @@ Deno.serve(async (req: Request) => {
     status,
     payment_channel: paymentChannel,
     payment_mode: paymentMode,
-    payment_ref: body.paymentRef?.trim().slice(0, 64) || null,
+    payment_ref: cleanPaymentRef || null,
     client_name: clientName,
     client_phone: clientPhone,
     client_email: clientEmail,
-    brand_or_domain: String(body.client?.brandOrDomain || '').trim().slice(0, 120) || null,
-    notes: String(body.client?.notes || '').trim().slice(0, 800) || null,
+    brand_or_domain: stripUnsafeHtml(body.client?.brandOrDomain, 120) || null,
+    notes: stripUnsafeHtml(body.client?.notes, 800) || null,
     net_total_vnd: netTotalVnd,
     net_total_usd: netTotalUsd,
     payable_now_vnd: payableNowVnd,
@@ -204,9 +253,9 @@ Deno.serve(async (req: Request) => {
   if (tgToken && tgChatId) {
     const text = [
       `<b>[ĐƠN HÀNG MỚI · SERVER VERIFIED]</b>`,
-      `Mã đơn: <code>${orderCode}</code>`,
-      `Khách: <b>${clientName}</b> · ${clientPhone}`,
-      `Kênh: ${paymentChannel} · Đợt 1: <b>${payableNowVnd.toLocaleString('vi-VN')}₫</b> / Tổng: ${netTotalVnd.toLocaleString('vi-VN')}₫`,
+      `Mã đơn: <code>${escapeTelegramHtml(orderCode)}</code>`,
+      `Khách: <b>${escapeTelegramHtml(clientName)}</b> · ${escapeTelegramHtml(clientPhone)}`,
+      `Kênh: ${escapeTelegramHtml(paymentChannel)} · Đợt 1: <b>${payableNowVnd.toLocaleString('vi-VN')}₫</b> / Tổng: ${netTotalVnd.toLocaleString('vi-VN')}₫`,
     ].join('\n');
     await fetch(`https://api.telegram.org/bot${tgToken}/sendMessage`, {
       method: 'POST',

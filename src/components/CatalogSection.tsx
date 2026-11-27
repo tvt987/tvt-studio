@@ -79,9 +79,10 @@ export const CatalogSection: React.FC<CatalogSectionProps> = ({
 
   const categoryTabs: Array<{ id: ProductCategory; label: string }> = [
     { id: 'all', label: locale === 'vi' ? 'Tất Cả' : 'All' },
-    { id: 'commerce-3d', label: locale === 'vi' ? 'Bán Hàng 3D' : '3D Commerce' },
-    { id: 'clinic-proptech', label: locale === 'vi' ? 'Phòng Khám & BĐS' : 'Clinic & PropTech' },
-    { id: 'pos-fnb', label: 'POS & F&B' },
+    { id: 'commerce-3d', label: locale === 'vi' ? '3D & Nội Thất' : '3D & Interior' },
+    { id: 'clinic-proptech', label: locale === 'vi' ? 'Y Tế, BĐS & Gym' : 'Clinic & Wellness' },
+    { id: 'pos-fnb', label: locale === 'vi' ? 'Resort, F&B & POS' : 'Resort & F&B' },
+    { id: 'enterprise-b2b', label: locale === 'vi' ? 'HR, Luật & FinTech' : 'B2B & FinTech' },
     { id: 'saas-ai', label: 'SaaS & AI' },
   ];
 
@@ -108,8 +109,8 @@ export const CatalogSection: React.FC<CatalogSectionProps> = ({
           </div>
           <h2 className="font-display mt-2 text-2xl font-extrabold tracking-tight sm:text-4xl">
             {locale === 'vi'
-              ? '9 Sản Phẩm Live — Chọn Mẫu, Tùy Biến Thương Hiệu & Chạy Ngay.'
-              : '9 Live Commercial Products — Rebrand, Deploy & Launch Fast.'}
+              ? '19 Sản Phẩm Live — Chọn Mẫu, Tùy Biến Thương Hiệu & Chạy Ngay.'
+              : '19 Live Commercial Products — Rebrand, Deploy & Launch Fast.'}
           </h2>
           <p className="mt-3 text-sm leading-relaxed sm:text-base" style={{ color: 'var(--ink-secondary)' }}>
             {locale === 'vi'

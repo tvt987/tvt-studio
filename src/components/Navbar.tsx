@@ -46,10 +46,10 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navLinks = [
-    { href: '#catalog', label: locale === 'vi' ? 'Kho Web Mẫu' : 'Templates' },
+    { href: '#catalog', label: locale === 'vi' ? '19 Web Mẫu' : '19 Templates' },
+    { href: '#pro-tools', label: locale === 'vi' ? '10 Pro Tools' : '10 Pro Tools' },
     { href: '#estimator', label: locale === 'vi' ? 'Code Riêng' : 'Custom Build' },
     { href: '#payment-flow', label: locale === 'vi' ? 'Thanh Toán' : 'Payment' },
-    { href: '#process', label: locale === 'vi' ? 'Quy Trình' : 'Process' },
     { href: '#faq', label: 'FAQ' },
   ];
 
@@ -81,7 +81,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               TVT STUDIO
             </span>
             <span
-              className="font-mono-num hidden text-[10px] tracking-widest uppercase sm:block"
+              className="font-mono-num hidden whitespace-nowrap text-[10px] tracking-widest uppercase sm:block"
               style={{ color: 'var(--ink-muted)' }}
             >
               ARCHITECTURAL IT
@@ -90,12 +90,12 @@ export const Navbar: React.FC<NavbarProps> = ({
         </a>
 
         {/* Desktop Nav Links */}
-        <nav className="hidden items-center gap-7 lg:flex" aria-label="Primary">
+        <nav className="hidden items-center gap-4 lg:flex xl:gap-6" aria-label="Primary">
           {navLinks.map((link) => (
             <a
               key={link.href}
               href={link.href}
-              className="text-sm font-medium transition-colors hover:text-[var(--ink-primary)]"
+              className="whitespace-nowrap text-[13px] font-medium transition-colors hover:text-[var(--ink-primary)] xl:text-sm"
               style={{ color: 'var(--ink-secondary)' }}
             >
               {link.label}

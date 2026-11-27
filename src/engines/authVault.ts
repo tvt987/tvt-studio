@@ -12,6 +12,9 @@ import type {
 const AUTH_SESSION_KEY = 'tvt_studio_auth_session_v2';
 const CLIENT_PROFILES_KEY = 'tvt_studio_client_profiles_v2';
 const LOCAL_ACCOUNTS_KEY = 'tvt_studio_local_accounts_v2';
+const LOGIN_ATTEMPTS_KEY = 'tvt_studio_login_throttle_v1';
+const MAX_FAILED_ATTEMPTS = 5;
+const LOCKOUT_MS = 30_000;
 
 export type SocialAuthProvider = 'google' | 'facebook' | 'linkedin_oidc';
 
@@ -22,22 +25,138 @@ interface LocalAccountEntry {
   createdAtIso: string;
 }
 
-export async function hashPasswordSalted(email: string, password: string): Promise<string> {
-  const input = `tvt-studio-v2::${normalizeEmail(email)}::${password}`;
-  if (typeof crypto !== 'undefined' && crypto.subtle) {
-    const bytes = new TextEncoder().encode(input);
-    const digest = await crypto.subtle.digest('SHA-256', bytes);
-    return Array.from(new Uint8Array(digest))
-      .map((b) => b.toString(16).padStart(2, '0'))
-      .join('');
+interface LoginAttemptRecord {
+  failures: number;
+  lockedUntilMs: number;
+}
+
+/**
+ * Strips HTML tags and dangerous control characters from plain-text client fields.
+ */
+export function sanitizePlainText(raw: string, maxLen = 200): string {
+  return String(raw ?? '')
+    .replace(/<[^>]*>/g, '')
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '')
+    .trim()
+    .slice(0, maxLen);
+}
+
+/**
+ * Constant-time string comparison to avoid timing side channels during hash verification.
+ */
+function timingSafeEqualStr(a: string, b: string): boolean {
+  const len = Math.max(a.length, b.length);
+  let diff = a.length ^ b.length;
+  for (let i = 0; i < len; i++) {
+    diff |= (a.charCodeAt(i) || 0) ^ (b.charCodeAt(i) || 0);
   }
-  // Fallback deterministic hash for non-WebCrypto test runtimes
+  return diff === 0;
+}
+
+/**
+ * OWASP 2026 password derivation using Web Crypto PBKDF2-HMAC-SHA256 (100,000 iterations)
+ * with per-account salt. Never stores plain-text passwords.
+ */
+export async function hashPasswordSalted(email: string, password: string): Promise<string> {
+  const cleanEmail = normalizeEmail(email);
+  const saltBytes = new TextEncoder().encode(`tvt-studio-pbkdf2-v2::${cleanEmail}`);
+  const passBytes = new TextEncoder().encode(password);
+
+  if (typeof crypto !== 'undefined' && crypto.subtle) {
+    try {
+      const baseKey = await crypto.subtle.importKey('raw', passBytes, 'PBKDF2', false, [
+        'deriveBits',
+      ]);
+      const derived = await crypto.subtle.deriveBits(
+        {
+          name: 'PBKDF2',
+          salt: saltBytes,
+          iterations: 100_000,
+          hash: 'SHA-256',
+        },
+        baseKey,
+        256
+      );
+      const hex = Array.from(new Uint8Array(derived))
+        .map((b) => b.toString(16).padStart(2, '0'))
+        .join('');
+      return `pbkdf2$100000$${hex}`;
+    } catch {
+      const fallbackDigest = await crypto.subtle.digest(
+        'SHA-256',
+        new TextEncoder().encode(`tvt-studio-v2::${cleanEmail}::${password}`)
+      );
+      return Array.from(new Uint8Array(fallbackDigest))
+        .map((b) => b.toString(16).padStart(2, '0'))
+        .join('');
+    }
+  }
   let h = 2166136261;
+  const input = `tvt-studio-v2::${cleanEmail}::${password}`;
   for (let i = 0; i < input.length; i++) {
     h ^= input.charCodeAt(i);
     h = Math.imul(h, 16777619) >>> 0;
   }
   return `fnv-${h.toString(16).padStart(8, '0')}`;
+}
+
+async function hashLegacySha256(email: string, password: string): Promise<string> {
+  const input = `tvt-studio-v2::${normalizeEmail(email)}::${password}`;
+  if (typeof crypto !== 'undefined' && crypto.subtle) {
+    const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(input));
+    return Array.from(new Uint8Array(digest))
+      .map((b) => b.toString(16).padStart(2, '0'))
+      .join('');
+  }
+  return hashPasswordSalted(email, password);
+}
+
+function readThrottleMap(): Record<string, LoginAttemptRecord> {
+  if (typeof window === 'undefined') return {};
+  try {
+    const raw = window.sessionStorage.getItem(LOGIN_ATTEMPTS_KEY);
+    return raw ? (JSON.parse(raw) as Record<string, LoginAttemptRecord>) : {};
+  } catch {
+    return {};
+  }
+}
+
+function writeThrottleMap(map: Record<string, LoginAttemptRecord>): void {
+  if (typeof window === 'undefined') return;
+  try {
+    window.sessionStorage.setItem(LOGIN_ATTEMPTS_KEY, JSON.stringify(map));
+  } catch {
+    // ignore
+  }
+}
+
+export function checkLoginLockoutSeconds(email: string, nowMs = Date.now()): number {
+  const rec = readThrottleMap()[normalizeEmail(email)];
+  if (!rec || rec.lockedUntilMs <= nowMs) return 0;
+  return Math.ceil((rec.lockedUntilMs - nowMs) / 1000);
+}
+
+export function recordLoginFailure(email: string, nowMs = Date.now()): { lockedSeconds: number; remaining: number } {
+  const key = normalizeEmail(email);
+  const map = readThrottleMap();
+  const prev = map[key] ?? { failures: 0, lockedUntilMs: 0 };
+  const failures = prev.failures + 1;
+  const lockedUntilMs = failures >= MAX_FAILED_ATTEMPTS ? nowMs + LOCKOUT_MS : 0;
+  map[key] = { failures: failures >= MAX_FAILED_ATTEMPTS ? 0 : failures, lockedUntilMs };
+  writeThrottleMap(map);
+  return {
+    lockedSeconds: lockedUntilMs > nowMs ? Math.ceil(LOCKOUT_MS / 1000) : 0,
+    remaining: Math.max(0, MAX_FAILED_ATTEMPTS - failures),
+  };
+}
+
+export function clearLoginFailures(email: string): void {
+  const key = normalizeEmail(email);
+  const map = readThrottleMap();
+  if (map[key]) {
+    delete map[key];
+    writeThrottleMap(map);
+  }
 }
 
 function readLocalAccounts(): Record<string, LocalAccountEntry> {
@@ -155,7 +274,7 @@ export async function signUpWithEmailPassword(params: {
   messageEn: string;
 }> {
   const cleanEmail = normalizeEmail(params.email);
-  const fullName = params.fullName.trim();
+  const fullName = sanitizePlainText(params.fullName, 120);
   const password = params.password;
 
   if (!fullName) {
@@ -290,6 +409,14 @@ export async function signInWithEmailPassword(
       messageEn: 'Please enter a valid email address.',
     };
   }
+  const lockedSec = checkLoginLockoutSeconds(cleanEmail);
+  if (lockedSec > 0) {
+    return {
+      ok: false,
+      messageVi: `Nhập sai quá nhiều lần. Vui lòng thử lại sau ${lockedSec} giây.`,
+      messageEn: `Too many failed attempts. Please wait ${lockedSec} seconds.`,
+    };
+  }
   if (!password || password.length < 6) {
     return {
       ok: false,
@@ -314,12 +441,20 @@ export async function signInWithEmailPassword(
         msg?: string;
       };
       if (!res.ok || !data.access_token || !data.user?.id) {
+        const resLock = recordLoginFailure(cleanEmail);
         return {
           ok: false,
-          messageVi: 'Email hoặc mật khẩu chưa chính xác.',
-          messageEn: 'Invalid email or password.',
+          messageVi:
+            resLock.lockedSeconds > 0
+              ? `Sai thông tin quá 5 lần. Tạm khóa bảo mật trong ${resLock.lockedSeconds} giây.`
+              : `Email hoặc mật khẩu chưa chính xác (còn ${resLock.remaining} lần thử).`,
+          messageEn:
+            resLock.lockedSeconds > 0
+              ? `Too many failed attempts. Temporarily locked for ${resLock.lockedSeconds}s.`
+              : `Invalid email or password (${resLock.remaining} attempts remaining).`,
         };
       }
+      clearLoginFailures(cleanEmail);
       const session: AuthSession = {
         mode: 'supabase_otp',
         userId: data.user.id,
@@ -353,14 +488,24 @@ export async function signInWithEmailPassword(
       messageEn: 'No account found for this email yet. Click "Sign up now".',
     };
   }
-  const candidateHash = await hashPasswordSalted(cleanEmail, password);
-  if (candidateHash !== entry.passwordHash) {
+  const candidateHash = entry.passwordHash.startsWith('pbkdf2$')
+    ? await hashPasswordSalted(cleanEmail, password)
+    : await hashLegacySha256(cleanEmail, password);
+  if (!timingSafeEqualStr(candidateHash, entry.passwordHash)) {
+    const res = recordLoginFailure(cleanEmail);
     return {
       ok: false,
-      messageVi: 'Mật khẩu chưa chính xác. Thử lại hoặc chọn "Quên mật khẩu".',
-      messageEn: 'Incorrect password. Try again or use "Forgot password".',
+      messageVi:
+        res.lockedSeconds > 0
+          ? `Sai mật khẩu quá 5 lần. Tạm khóa bảo mật trong ${res.lockedSeconds} giây.`
+          : `Mật khẩu chưa chính xác (còn ${res.remaining} lần thử).`,
+      messageEn:
+        res.lockedSeconds > 0
+          ? `Too many failed attempts. Temporarily locked for ${res.lockedSeconds}s.`
+          : `Incorrect password (${res.remaining} attempts remaining).`,
     };
   }
+  clearLoginFailures(cleanEmail);
 
   const localSession: AuthSession = {
     mode: 'local_vault',
@@ -531,6 +676,10 @@ export function saveLocalClientProfile(profile: ClientProfile): ClientProfile {
   const normalized: ClientProfile = {
     ...profile,
     email: normalizeEmail(profile.email),
+    fullName: sanitizePlainText(profile.fullName, 120),
+    phoneOrZalo: sanitizePlainText(profile.phoneOrZalo, 60),
+    brandOrDomain: sanitizePlainText(profile.brandOrDomain, 160),
+    billingNote: sanitizePlainText(profile.billingNote, 500),
     updatedAtIso: new Date().toISOString(),
   };
   if (typeof window !== 'undefined') {

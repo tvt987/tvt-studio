@@ -10,8 +10,8 @@ import {
 } from '../catalog';
 
 describe('Catalog Engine', () => {
-  it('contains all 9 real commercial products with valid live URLs and relative media paths', () => {
-    expect(CATALOG_PRODUCTS).toHaveLength(9);
+  it('contains all 19 real commercial products with valid live URLs and relative media paths', () => {
+    expect(CATALOG_PRODUCTS).toHaveLength(19);
     for (const product of CATALOG_PRODUCTS) {
       expect(product.liveUrl).toMatch(/^https:\/\/tvt987\.github\.io\/.+\/$/);
       expect(product.previewImage).toMatch(/^\.\/media\/.+\.(webp|jpg)$/);
@@ -21,19 +21,20 @@ describe('Catalog Engine', () => {
     }
   });
 
-  it('computes accurate category counts across all 4 vertical segments', () => {
+  it('computes accurate category counts across all 5 vertical segments', () => {
     const counts = getCategoryCounts(CATALOG_PRODUCTS);
-    expect(counts.all).toBe(9);
-    expect(counts['commerce-3d']).toBe(2);
-    expect(counts['clinic-proptech']).toBe(2);
-    expect(counts['pos-fnb']).toBe(1);
+    expect(counts.all).toBe(19);
+    expect(counts['commerce-3d']).toBe(4);
+    expect(counts['clinic-proptech']).toBe(3);
+    expect(counts['pos-fnb']).toBe(3);
+    expect(counts['enterprise-b2b']).toBe(5);
     expect(counts['saas-ai']).toBe(4);
   });
 
   it('filters catalog by category and search query across VI/EN and tech stack', () => {
     const posOnly = filterAndSortCatalog(CATALOG_PRODUCTS, 'pos-fnb', '', 'featured');
-    expect(posOnly).toHaveLength(1);
-    expect(posOnly[0].id).toBe('pulse-pos-fnb');
+    expect(posOnly).toHaveLength(3);
+    expect(posOnly.some((p) => p.id === 'pulse-pos-fnb')).toBe(true);
 
     const byStack = filterAndSortCatalog(CATALOG_PRODUCTS, 'all', 'DuckDB-WASM', 'featured');
     expect(byStack).toHaveLength(1);

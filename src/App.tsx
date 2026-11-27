@@ -60,6 +60,7 @@ import { OrderTrackerModal } from './components/OrderTrackerModal';
 import { OwnerConsoleModal } from './components/OwnerConsoleModal';
 import { PaymentJourneySection } from './components/PaymentJourneySection';
 import { ProcessSlaSection } from './components/ProcessSlaSection';
+import { ProToolsSuiteSection } from './components/ProToolsSuiteSection';
 import { ProductDetailModal } from './components/ProductDetailModal';
 import { QuickInquiryModal } from './components/QuickInquiryModal';
 
@@ -421,6 +422,8 @@ export const App: React.FC = () => {
               setInquiryOpen(true);
             }}
           />
+
+          <ProToolsSuiteSection locale={locale} />
 
           <CustomEstimatorSection
             locale={locale}
