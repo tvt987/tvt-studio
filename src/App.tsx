@@ -488,7 +488,13 @@ export const App: React.FC = () => {
         />
 
         <main>
-          <HeroSection locale={locale} />
+          <HeroSection
+            locale={locale}
+            onPreviewLive={(product) => {
+              void trackSiteEvent('sandbox_open', { productId: product.id, locale });
+              setSandboxProduct(product);
+            }}
+          />
 
           <CatalogSection
             products={catalogProducts}
