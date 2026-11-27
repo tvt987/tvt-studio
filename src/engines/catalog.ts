@@ -3,6 +3,7 @@ import type {
   Currency,
   LicenseTier,
   ProductCategory,
+  TechStackFilter,
   TemplateProduct,
 } from './types';
 
@@ -1337,6 +1338,73 @@ export function getCategoryCounts(
   };
   for (const p of products) {
     counts[p.category] += 1;
+  }
+  return counts;
+}
+
+const THREE_JS_3D_PATTERN = /\b(three\.js|webgl|pmrem|hdri|pbr|3d hardware|3d fft)\b/i;
+const AI_RAG_MCP_PATTERN = /\b(rag|mcp|llm|multi-agent)\b/i;
+
+export function matchesTechStack(
+  product: TemplateProduct,
+  stackFilter: TechStackFilter
+): boolean {
+  if (stackFilter === 'all') {
+    return true;
+  }
+  if (stackFilter === 'dotnet') {
+    return product.stack.some((tag) => {
+      const lower = tag.toLowerCase();
+      return lower.includes('.net 10') || lower.includes('dotnet');
+    });
+  }
+  if (stackFilter === 'fastapi') {
+    return product.stack.some((tag) => tag.toLowerCase().includes('fastapi'));
+  }
+
+  const metadataBlob = [
+    product.name,
+    product.metricsBadge,
+    ...product.stack,
+    product.tagline.en,
+    product.architectureNote.en,
+    ...product.deliverables.en,
+  ].join(' ');
+
+  if (stackFilter === 'threejs') {
+    return THREE_JS_3D_PATTERN.test(metadataBlob);
+  }
+  if (stackFilter === 'ai-rag') {
+    return AI_RAG_MCP_PATTERN.test(metadataBlob);
+  }
+  return true;
+}
+
+export function filterCatalogByStack(
+  products: TemplateProduct[],
+  stackFilter: TechStackFilter
+): TemplateProduct[] {
+  if (stackFilter === 'all') {
+    return [...products];
+  }
+  return products.filter((item) => matchesTechStack(item, stackFilter));
+}
+
+export function countCatalogStacks(
+  products: TemplateProduct[]
+): Record<TechStackFilter, number> {
+  const counts: Record<TechStackFilter, number> = {
+    all: products.length,
+    dotnet: 0,
+    fastapi: 0,
+    threejs: 0,
+    'ai-rag': 0,
+  };
+  for (const product of products) {
+    if (matchesTechStack(product, 'dotnet')) counts.dotnet += 1;
+    if (matchesTechStack(product, 'fastapi')) counts.fastapi += 1;
+    if (matchesTechStack(product, 'threejs')) counts.threejs += 1;
+    if (matchesTechStack(product, 'ai-rag')) counts['ai-rag'] += 1;
   }
   return counts;
 }

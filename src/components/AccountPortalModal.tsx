@@ -203,6 +203,8 @@ export const AccountPortalModal: React.FC<AccountPortalModalProps> = ({
     e.preventDefault();
     if (!session) return;
     setBusy(true);
+    const optimistic = { ...draftProfile, updatedAtIso: new Date().toISOString() };
+    onProfileSaved(optimistic);
     const saved = await syncCloudProfile(session, draftProfile);
     setBusy(false);
     onProfileSaved(saved);
@@ -862,7 +864,14 @@ export const AccountPortalModal: React.FC<AccountPortalModalProps> = ({
                               </h3>
                               <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px]">
                                 <span style={{ color: 'var(--ink-muted)' }}>License:</span>
-                                <code className="font-mono-num rounded bg-black/30 px-1.5 py-0.5 font-bold" style={{ color: 'var(--cyan)' }}>
+                                <code
+                                  className="font-mono-num rounded border px-1.5 py-0.5 font-bold"
+                                  style={{
+                                    backgroundColor: 'var(--cyan-soft)',
+                                    borderColor: 'var(--border-hairline)',
+                                    color: 'var(--cyan)',
+                                  }}
+                                >
                                   {deliv.licenseKey}
                                 </code>
                                 <button

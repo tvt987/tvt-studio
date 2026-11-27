@@ -12,6 +12,8 @@ export type ProductCategory =
 
 export type CatalogSort = 'featured' | 'price-asc' | 'price-desc' | 'fastest';
 
+export type TechStackFilter = 'all' | 'dotnet' | 'fastapi' | 'threejs' | 'ai-rag';
+
 export type LicenseTier = 'standard' | 'full-source';
 
 export type PaymentMode = 'full' | 'deposit-30';

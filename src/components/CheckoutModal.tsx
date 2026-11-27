@@ -87,13 +87,13 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   );
   const [paymentRef, setPaymentRef] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [client, setClient] = useState<ClientOrderForm>({
-    fullName: '',
-    phoneOrZalo: '',
-    email: '',
-    brandOrDomain: '',
-    notes: '',
-  });
+  const [client, setClient] = useState<ClientOrderForm>(() => ({
+    fullName: clientProfile?.fullName || '',
+    phoneOrZalo: clientProfile?.phoneOrZalo || '',
+    email: clientProfile?.email || authSession?.email || '',
+    brandOrDomain: clientProfile?.brandOrDomain || '',
+    notes: clientProfile?.billingNote || '',
+  }));
   const [formError, setFormError] = useState<string | null>(null);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [confirmedOrder, setConfirmedOrder] = useState<OrderSnapshot | null>(null);
@@ -1150,7 +1150,14 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 }
               >
                 <div className="flex items-start gap-3">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-black/20" style={{ color: 'var(--emerald)' }}>
+                  <div
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border"
+                    style={{
+                      backgroundColor: 'var(--bg-surface)',
+                      borderColor: 'var(--emerald)',
+                      color: 'var(--emerald)',
+                    }}
+                  >
                     <IconCheck className="h-5 w-5" />
                   </div>
                   <div>

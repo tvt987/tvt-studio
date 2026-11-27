@@ -1,6 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import {
+  countCatalogStacks,
   filterAndSortCatalog,
+  filterCatalogByStack,
   formatDeliveryRange,
   formatMoney,
   getCategoryCounts,
@@ -14,6 +16,7 @@ import type {
   LicenseTier,
   Locale,
   ProductCategory,
+  TechStackFilter,
   TemplateProduct,
 } from '../engines/types';
 import {
@@ -21,6 +24,7 @@ import {
   IconCart,
   IconCheck,
   IconExternal,
+  IconLayers,
   IconSearch,
 } from './Icons';
 
@@ -50,6 +54,7 @@ export const CatalogSection: React.FC<CatalogSectionProps> = ({
   onOpenInquiry,
 }) => {
   const [category, setCategory] = useState<ProductCategory>('all');
+  const [stackFilter, setStackFilter] = useState<TechStackFilter>('all');
   const [vipOnly, setVipOnly] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<CatalogSort>('featured');
@@ -57,12 +62,28 @@ export const CatalogSection: React.FC<CatalogSectionProps> = ({
   const [recentlyAddedId, setRecentlyAddedId] = useState<string | null>(null);
 
   const counts = useMemo(() => getCategoryCounts(products), [products]);
+  const stackCounts = useMemo(() => countCatalogStacks(products), [products]);
   const vipCount = useMemo(() => products.filter((p) => p.priceVnd >= 10_000_000).length, [products]);
 
   const visibleProducts = useMemo(() => {
-    const base = filterAndSortCatalog(products, category, searchQuery, sortBy);
-    return vipOnly ? base.filter((p) => p.priceVnd >= 10_000_000) : base;
-  }, [products, category, searchQuery, sortBy, vipOnly]);
+    const byCategoryAndQuery = filterAndSortCatalog(products, category, searchQuery, sortBy);
+    const byStack = filterCatalogByStack(byCategoryAndQuery, stackFilter);
+    return vipOnly ? byStack.filter((p) => p.priceVnd >= 10_000_000) : byStack;
+  }, [products, category, stackFilter, searchQuery, sortBy, vipOnly]);
+
+  const hasActiveFilters =
+    category !== 'all' ||
+    stackFilter !== 'all' ||
+    vipOnly ||
+    searchQuery.trim().length > 0;
+
+  const stackTabs: Array<{ id: TechStackFilter; label: string }> = [
+    { id: 'all', label: locale === 'vi' ? 'All Stacks' : 'All Stacks' },
+    { id: 'dotnet', label: '.NET 10 Backend' },
+    { id: 'fastapi', label: 'Python FastAPI' },
+    { id: 'threejs', label: 'Three.js 3D PBR' },
+    { id: 'ai-rag', label: 'AI / RAG / MCP' },
+  ];
 
   const categoryTabs: Array<{ id: ProductCategory; label: string }> = [
     { id: 'all', label: locale === 'vi' ? 'Tất Cả' : 'All' },
@@ -194,6 +215,95 @@ export const CatalogSection: React.FC<CatalogSectionProps> = ({
         </div>
       </div>
 
+      {/* Architectural Tech-Stack Filter Pill Strip */}
+      <div
+        className="flex flex-col justify-between gap-2.5 border-b py-3 sm:flex-row sm:items-center"
+        style={{ borderColor: 'var(--border-hairline)' }}
+        data-testid="tech-stack-filter-bar"
+      >
+        <div
+          className="flex flex-wrap items-center gap-1.5"
+          role="group"
+          aria-label={locale === 'vi' ? 'Lọc theo kiến trúc công nghệ' : 'Filter by engineering stack'}
+        >
+          <span
+            className="font-mono-num mr-1 inline-flex items-center gap-1.5 text-[10px] font-bold tracking-[0.14em] uppercase"
+            style={{ color: 'var(--ink-muted)' }}
+          >
+            <IconLayers className="h-3.5 w-3.5" style={{ color: 'var(--cyan)' }} />
+            <span>{locale === 'vi' ? 'KIẾN TRÚC' : 'STACK'}</span>
+          </span>
+
+          {stackTabs.map((chip) => {
+            const active = stackFilter === chip.id;
+            return (
+              <button
+                key={chip.id}
+                type="button"
+                aria-pressed={active}
+                data-testid={`stack-filter-${chip.id}`}
+                onClick={() => setStackFilter(chip.id)}
+                className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-semibold transition-all"
+                style={{
+                  backgroundColor: active ? 'var(--ink-primary)' : 'var(--bg-surface)',
+                  borderColor: active ? 'var(--ink-primary)' : 'var(--border-hairline)',
+                  color: active ? 'var(--bg-surface)' : 'var(--ink-secondary)',
+                }}
+              >
+                {active && (
+                  <span
+                    className="h-1.5 w-1.5 rounded-full"
+                    style={{ backgroundColor: 'var(--cyan)' }}
+                  />
+                )}
+                <span>{chip.label}</span>
+                <span
+                  className="font-mono-num text-[10px]"
+                  style={{
+                    color: active ? 'var(--bg-surface)' : 'var(--ink-muted)',
+                    opacity: active ? 0.85 : 1,
+                  }}
+                >
+                  ({stackCounts[chip.id]})
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="flex shrink-0 items-center gap-2.5 text-[11px]">
+          <span
+            className="font-mono-num font-semibold"
+            style={{ color: 'var(--ink-secondary)' }}
+            data-testid="catalog-visible-count"
+          >
+            {locale === 'vi'
+              ? `Hiển thị ${visibleProducts.length}/${products.length} hệ thống`
+              : `Showing ${visibleProducts.length}/${products.length} systems`}
+          </span>
+          {hasActiveFilters && (
+            <button
+              type="button"
+              data-testid="catalog-reset-filters-btn"
+              onClick={() => {
+                setCategory('all');
+                setStackFilter('all');
+                setVipOnly(false);
+                setSearchQuery('');
+              }}
+              className="font-mono-num rounded-full border px-2.5 py-0.5 text-[10px] font-bold transition-colors hover:border-[var(--accent)] hover:text-[var(--accent)]"
+              style={{
+                borderColor: 'var(--border-strong)',
+                color: 'var(--ink-secondary)',
+                backgroundColor: 'var(--bg-surface)',
+              }}
+            >
+              {locale === 'vi' ? 'Đặt lại' : 'Reset'}
+            </button>
+          )}
+        </div>
+      </div>
+
       {/* Active Compare Strip */}
       {compareIds.length > 0 && (
         <div
@@ -229,6 +339,7 @@ export const CatalogSection: React.FC<CatalogSectionProps> = ({
             type="button"
             onClick={() => {
               setCategory('all');
+              setStackFilter('all');
               setVipOnly(false);
               setSearchQuery('');
             }}
@@ -442,6 +553,7 @@ export const CatalogSection: React.FC<CatalogSectionProps> = ({
                     <button
                       type="button"
                       onClick={() => onInspectDetails(product, selectedLicense)}
+                      data-testid={`product-specs-${product.id}`}
                       className="btn-ghost col-span-4 inline-flex items-center justify-center rounded-xl px-2 py-2.5 text-xs font-semibold"
                     >
                       {locale === 'vi' ? 'Chi Tiết' : 'Specs'}

@@ -165,6 +165,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             type="button"
             onClick={onToggleTheme}
+            data-testid="navbar-theme-toggle"
             className="btn-ghost flex h-8 w-8 shrink-0 items-center justify-center rounded-lg sm:h-9 sm:w-9"
             aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
             title={theme === 'dark' ? 'Light mode' : 'Dark mode'}

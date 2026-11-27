@@ -1,12 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import {
   CATALOG_PRODUCTS,
+  countCatalogStacks,
   filterAndSortCatalog,
+  filterCatalogByStack,
   formatDeliveryRange,
   formatMoney,
   getCategoryCounts,
   getLicensePrice,
   getSavingsPercent,
+  matchesTechStack,
 } from '../catalog';
 
 describe('Catalog Engine', () => {
@@ -124,5 +127,88 @@ describe('Catalog Engine', () => {
     const engCount = PRO_TOOLS.filter((t) => t.group === 'ENGINEERING').length;
     expect(bizCount).toBe(6);
     expect(engCount).toBe(6);
+  });
+
+  it('counts architectural tech stacks accurately across all 26 monorepos (26 / 18 / 8 / 5 / 4)', () => {
+    const stackCounts = countCatalogStacks(CATALOG_PRODUCTS);
+    expect(stackCounts.all).toBe(26);
+    expect(stackCounts.dotnet).toBe(18);
+    expect(stackCounts.fastapi).toBe(8);
+    expect(stackCounts.threejs).toBe(5);
+    expect(stackCounts['ai-rag']).toBe(4);
+  });
+
+  it('filters catalog by .NET 10 Backend and Python FastAPI as mutually exclusive partition of 26', () => {
+    const dotnet = filterCatalogByStack(CATALOG_PRODUCTS, 'dotnet');
+    const fastapi = filterCatalogByStack(CATALOG_PRODUCTS, 'fastapi');
+
+    expect(dotnet).toHaveLength(18);
+    expect(fastapi).toHaveLength(8);
+    expect(dotnet.length + fastapi.length).toBe(26);
+
+    const overlap = dotnet.filter((p) => fastapi.some((f) => f.id === p.id));
+    expect(overlap).toHaveLength(0);
+    expect(dotnet.some((p) => p.id === 'velox-ev-motors')).toBe(true);
+    expect(fastapi.some((p) => p.id === 'vectradoc-rag')).toBe(true);
+  });
+
+  it('filters Three.js 3D PBR systems (5) and AI / RAG / MCP systems (4) deterministically', () => {
+    const threejsIds = filterCatalogByStack(CATALOG_PRODUCTS, 'threejs')
+      .map((p) => p.id)
+      .sort();
+    expect(threejsIds).toEqual([
+      'aeroforge-digital-twin',
+      'aether-acoustics',
+      'chronos-horology',
+      'maison-vera',
+      'velox-ev-motors',
+    ]);
+
+    const aiRagIds = filterCatalogByStack(CATALOG_PRODUCTS, 'ai-rag')
+      .map((p) => p.id)
+      .sort();
+    expect(aiRagIds).toEqual([
+      'aegispulse',
+      'nexus-lake',
+      'vectradoc-rag',
+      'verdict-graph',
+    ]);
+  });
+
+  it('returns a fresh shallow copy when stack filter is "all" without mutating source array', () => {
+    const allResult = filterCatalogByStack(CATALOG_PRODUCTS, 'all');
+    expect(allResult).toHaveLength(26);
+    expect(allResult).not.toBe(CATALOG_PRODUCTS);
+  });
+
+  it('composes stack filtering smoothly with category, search query, sort order, and VIP 10M+ toggle', () => {
+    const saasSorted = filterAndSortCatalog(CATALOG_PRODUCTS, 'saas-ai', '', 'price-desc');
+    const saasFastApi = filterCatalogByStack(saasSorted, 'fastapi');
+    expect(saasFastApi.map((p) => p.id)).toEqual([
+      'vectradoc-rag',
+      'verdict-graph',
+      'nexus-lake',
+    ]);
+
+    const commerceThreeJsVip = filterCatalogByStack(
+      filterAndSortCatalog(CATALOG_PRODUCTS, 'commerce-3d', '', 'featured'),
+      'threejs'
+    ).filter((p) => p.priceVnd >= 10_000_000);
+    expect(commerceThreeJsVip).toHaveLength(4);
+    expect(commerceThreeJsVip[0].id).toBe('velox-ev-motors');
+  });
+
+  it('classifies dynamically created CMS products cleanly by stack metadata without hardcoded IDs', () => {
+    const customProduct = {
+      ...CATALOG_PRODUCTS[0],
+      id: 'quantum-mcp-studio',
+      name: 'Quantum MCP Studio v1.0',
+      stack: ['React 19', 'FastAPI', 'Three.js WebGL', 'MCP Server'],
+      metricsBadge: '3D PBR · HYBRID RAG',
+    };
+    expect(matchesTechStack(customProduct, 'fastapi')).toBe(true);
+    expect(matchesTechStack(customProduct, 'dotnet')).toBe(false);
+    expect(matchesTechStack(customProduct, 'threejs')).toBe(true);
+    expect(matchesTechStack(customProduct, 'ai-rag')).toBe(true);
   });
 });
