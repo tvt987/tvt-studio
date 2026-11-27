@@ -141,6 +141,36 @@ export const App: React.FC = () => {
     });
   }, []);
 
+  // Dedicated 10,000 VND Live Real-Time VietQR test link (`?test10k=1`) without cluttering the 19-web catalog
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('test10k') === '1') {
+      const testItem: CartItem = {
+        kind: 'template',
+        cartKey: 'tpl:vietqr-test-10k:standard',
+        productId: 'vietqr-test-10k',
+        sku: 'TVT-TEST-10K',
+        title: 'Gói Test VietQR Real-Time (10.000₫)',
+        subtitle: {
+          vi: 'Kiểm thử thanh toán tự động MBBank ↔ SePay ↔ Supabase (1–3 giây)',
+          en: 'Live MBBank ↔ SePay ↔ Supabase Real-Time Webhook Test (1–3s)',
+        },
+        previewImage: './media/studio-emblem.webp',
+        license: 'standard',
+        unitVnd: 10_000,
+        unitUsd: 1,
+        quantity: 1,
+        deliveryDaysLabel: '1–3 giây (Auto-Verified)',
+      };
+      setCartItems([testItem]);
+      setActiveVoucherCode(null);
+      setPaymentMode('full');
+      setIsCheckoutOpen(true);
+      window.history.replaceState(null, '', window.location.pathname);
+    }
+  }, []);
+
   // Hydrate persistent IndexedDB order & inquiry ledger on mount (and merge Cloud Account orders when signed in)
   useEffect(() => {
     let active = true;

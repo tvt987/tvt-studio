@@ -46,8 +46,9 @@ const ALLOWED_CHANNELS = new Set([
   'b2b-usd',
 ]);
 
-// Authoritative server-side standard template prices (VND) across ALL 19 commercial websites
+// Authoritative server-side standard template prices (VND) across ALL 19 commercial websites (+ 10k live VietQR test SKU)
 const SERVER_TEMPLATE_VND: Record<string, number> = {
+  'vietqr-test-10k': 10_000,
   'lumina-medspa': 2_490_000,
   'aurelia-resort': 3_290_000,
   'kuro-omakase': 2_990_000,
@@ -186,7 +187,10 @@ Deno.serve(async (req: Request) => {
   const discountVnd = computeServerVoucherDiscount(body.voucherCode, serverSubtotalVnd);
   const netTotalVnd = Math.max(0, serverSubtotalVnd - discountVnd);
   const paymentMode = body.paymentMode === 'full' ? 'full' : 'deposit-30';
-  const payableNowVnd = paymentMode === 'full' ? netTotalVnd : roundVnd10k(netTotalVnd * 0.3);
+  const payableNowVnd =
+    paymentMode === 'full' || netTotalVnd <= 20_000
+      ? netTotalVnd
+      : roundVnd10k(netTotalVnd * 0.3);
   const netTotalUsd = Math.round(netTotalVnd / 25_000);
   const payableNowUsd = Math.round(payableNowVnd / 25_000);
   const rawChannel = String(body.paymentChannel || 'consult-first').trim().toLowerCase();
