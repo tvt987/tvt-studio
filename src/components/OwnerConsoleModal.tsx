@@ -700,7 +700,7 @@ export const OwnerConsoleModal: React.FC<OwnerConsoleModalProps> = ({
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <span className="font-mono-num text-[11px] font-bold uppercase" style={{ color: 'var(--accent)' }}>
-                EXECUTIVE ADMIN CMS v5.0 · {ADMIN_OWNER_EMAIL}
+                EXECUTIVE ADMIN CMS v8.0 · {ADMIN_OWNER_EMAIL}
               </span>
               <span
                 className="font-mono-num rounded-full border px-2 py-0.5 text-[10px] font-bold"
@@ -1205,7 +1205,7 @@ export const OwnerConsoleModal: React.FC<OwnerConsoleModalProps> = ({
                     className="btn-secondary inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold"
                   >
                     <IconLayers className="h-3.5 w-3.5" />
-                    <span>Đồng Bộ 22 Mẫu Chuẩn</span>
+                    <span>Đồng Bộ 26 Mẫu Chuẩn</span>
                   </button>
                   <button
                     type="button"

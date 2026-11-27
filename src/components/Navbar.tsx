@@ -53,7 +53,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   const navLinks = [
     { href: '#catalog', label: locale === 'vi' ? '26 Hệ Thống' : '26 Systems' },
-    { href: '#pro-tools', label: locale === 'vi' ? '10 Pro Tools' : '10 Pro Tools' },
+    { href: '#pro-tools', label: locale === 'vi' ? '12 Pro Tools' : '12 Pro Tools' },
     { href: '#estimator', label: locale === 'vi' ? 'Code Riêng' : 'Custom Build' },
     { href: '#payment-flow', label: locale === 'vi' ? 'Thanh Toán' : 'Payment' },
     { href: '#faq', label: 'FAQ' },

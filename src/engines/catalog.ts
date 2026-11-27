@@ -26,7 +26,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
   {
     id: 'maison-vera',
     sku: 'TVT-3D-01',
-    name: 'Maison Véra v4.0',
+    name: 'Maison Véra 3D v5.0',
     subtitle: {
       vi: 'Website Thời Trang & Kính Mắt 3D HDRI, Tròng UV & Đo Khuôn Mặt',
       en: 'Luxury 3D HDRI Eyewear, UV Polarized Lens Lab & Bespoke Fit',
@@ -49,7 +49,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
     liveUrl: 'https://tvt987.github.io/maison-vera/',
     previewImage: './media/maison-vera.webp',
     featuredRank: 14,
-    stack: ['React 19', 'Three.js PBR', 'TypeScript', 'Tailwind v4'],
+    stack: ['.NET 10', 'Optical Rx Lab', '1.50 vs 1.74', 'PMREM 3D'],
     deliverables: {
       vi: [
         'Tùy biến toàn bộ nhận diện thương hiệu, màu sắc, bộ ảnh và SKU sản phẩm',
@@ -65,15 +65,15 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
       ],
     },
     architectureNote: {
-      vi: 'Kiến trúc tách lớp 3D Scene + Pricing Engine thuần giúp mở rộng danh mục hàng trăm SKU không giật khung hình.',
-      en: 'Decoupled 3D PBR scene graph and pure pricing engine built to scale cleanly across flagship SKUs.',
+      vi: 'Full-Stack Monorepo .NET 10 + Three.js PMREM HDRI & Optical Rx Lab (1.50 vs 1.74), OpenAPI 3.1 + Docker sẵn sàng vận hành.',
+      en: 'Full-Stack .NET 10 monorepo pairing PMREM 3D eyewear, Optical Rx Lab (1.50 vs 1.74), OpenAPI 3.1 & multi-stage Docker.',
     },
     metricsBadge: '3D HDRI TITANIUM · UV LENS LAB',
   },
   {
     id: 'aether-acoustics',
     sku: 'TVT-3D-02',
-    name: 'Aether Acoustics v3.0',
+    name: 'Aether Acoustics 3D v4.0',
     subtitle: {
       vi: 'Website Âm Thanh 3D, Radar Không Gian HRTF & Phòng RT60',
       en: '3D Spatial Audio, Binaural HRTF Radar & Room RT60 Acoustic Lab',
@@ -96,7 +96,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
     liveUrl: 'https://tvt987.github.io/aether-acoustics/',
     previewImage: './media/aether-acoustics.webp',
     featuredRank: 16,
-    stack: ['React 19', 'WebGL PBR', 'Web Audio DSP', 'Vitest'],
+    stack: ['.NET 10', 'Room Modes Lab', 'Sabine RT60', 'Biquad DSP'],
     deliverables: {
       vi: [
         'Bản dựng sản phẩm 3D vật liệu nhôm/titan và chuyển đổi phiên bản màu trực tiếp',
@@ -112,15 +112,15 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
       ],
     },
     architectureNote: {
-      vi: 'Tối ưu shader vật liệu nhẹ cho GPU mobile kết hợp Web Audio API không phụ thuộc thư viện nặng.',
-      en: 'Lightweight PBR shaders paired with zero-dependency Web Audio DSP acoustics.',
+      vi: 'Full-Stack Monorepo .NET 10 + Room Modes Lab, mô phỏng Sabine RT60 & Web Audio Biquad DSP không phụ thuộc thư viện nặng.',
+      en: 'Full-Stack .NET 10 monorepo combining Room Modes Lab, Sabine RT60 physics & zero-dependency Biquad Web Audio DSP.',
     },
     metricsBadge: '3D FFT AUDIO · ROOM RT60 EQ',
   },
   {
     id: 'lumina-medspa',
     sku: 'TVT-MED-03',
-    name: 'Lumina MedSpa v2.0',
+    name: 'Lumina MedSpa Clinic v3.0',
     subtitle: {
       vi: 'Website Phòng Khám Nha Khoa / Thẩm Mỹ & Đặt Lịch',
       en: 'Aesthetic Clinic, Dental & Smart Booking Platform',
@@ -144,7 +144,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
     previewImage: './media/lumina-medspa.webp',
     previewBadge: 'PATIENT VAULT · 0% INSTALLMENT',
     featuredRank: 20,
-    stack: ['React 19', 'Booking Engine', 'TypeScript', 'SEO Medical'],
+    stack: ['.NET 10', '12W Roadmap', 'Fitzpatrick Guard', 'Slot Lock'],
     deliverables: {
       vi: [
         'Luồng đặt lịch khám 3 bước chọn chi nhánh, chuyên khoa, bác sĩ & khung giờ trống',
@@ -160,15 +160,15 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
       ],
     },
     architectureNote: {
-      vi: 'Bộ lọc lịch trống thuần logic có kiểm thử đơn vị chống đặt trùng giờ và tính toán gói liệu trình chính xác.',
-      en: 'Unit-tested slot conflict prevention and treatment bundle pricing engine.',
+      vi: 'Full-Stack Monorepo .NET 10 với lộ trình 12 tuần, cảnh báo Fitzpatrick an toàn da & khóa khung giờ chống đặt trùng.',
+      en: 'Full-Stack .NET 10 clinic monorepo with 12-week treatment roadmap, Fitzpatrick safety guard & atomic slot conflict lock.',
     },
     metricsBadge: 'PATIENT VAULT · 0% INSTALLMENT',
   },
   {
     id: 'kinetix-proptech',
     sku: 'TVT-PROP-04',
-    name: 'Kinetix PropTech v2.0',
+    name: 'Kinetix PropTech v3.0',
     subtitle: {
       vi: 'Sàn Bất Động Sản 3D & Máy Tính Lãi Vay',
       en: '3D Real Estate Portal & Mortgage Simulator',
@@ -192,7 +192,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
     previewImage: './media/kinetix-proptech.webp',
     previewBadge: 'TOWER 3D · +4% RATE STRESS',
     featuredRank: 15,
-    stack: ['React 19', 'Mortgage Engine', 'Interactive Map', 'TypeScript'],
+    stack: ['.NET 10', 'Saigon Sun-Path', '10Y IRR Lab', 'Escrow 409'],
     deliverables: {
       vi: [
         'Bộ lọc dự án/căn hộ theo khu vực, diện tích, hướng ban công & tầm tài chính',
@@ -208,15 +208,15 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
       ],
     },
     architectureNote: {
-      vi: 'Động cơ tài chính tính lãi suất gốc-lãi theo chuẩn ngân hàng Việt Nam không sai số làm tròn.',
-      en: 'Precision amortization math engine verified with automated financial unit tests.',
+      vi: 'Full-Stack Monorepo .NET 10 tích hợp biểu đồ nắng Sài Gòn, phân tích IRR 10 năm & khóa ký quỹ HTTP 409 chống trùng cọc.',
+      en: 'Full-Stack .NET 10 PropTech monorepo featuring Saigon sun-path telemetry, 10Y IRR modeling & HTTP 409 escrow lock.',
     },
     metricsBadge: 'TOWER 3D · +4% RATE STRESS',
   },
   {
     id: 'pulse-pos-fnb',
     sku: 'TVT-POS-05',
-    name: 'PulsePOS F&B v2.0',
+    name: 'PulsePOS F&B v3.0',
     subtitle: {
       vi: 'Hệ Thống POS Quán Café / Nhà Hàng & Bếp KDS',
       en: 'Café & Restaurant POS Terminal with Live KDS',
@@ -240,7 +240,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
     previewImage: './media/pulse-pos-fnb.webp',
     previewBadge: 'TABLE QR · LIVE KDS · AUTO-PO',
     featuredRank: 13,
-    stack: ['React 19', 'POS Engine', 'KDS Real-Time', 'VietQR Ready'],
+    stack: ['.NET 10', '2-Tab Live KDS', 'Floorplan CAD', 'Atomic Stock'],
     deliverables: {
       vi: [
         'Giao diện POS chọn món, size, mức đường/đá, topping & sơ đồ bàn trực quan',
@@ -256,15 +256,15 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
       ],
     },
     architectureNote: {
-      vi: 'Kế thừa kinh nghiệm vận hành POS thực chiến cho 700+ siêu thị, chống lệch đơn và nhân đôi giao dịch.',
-      en: 'Engineered from real 700+ retail store POS lessons with strict transactional consistency.',
+      vi: 'Full-Stack Monorepo .NET 10 kế thừa vận hành 700+ cửa hàng: đồng bộ bếp KDS 2-tab thời gian thực, Floorplan CAD & trừ kho Atomic.',
+      en: 'Full-Stack .NET 10 hospitality POS with 2-tab live KDS sync, CAD floorplan & atomic stock deduction proven at 700+ store scale.',
     },
     metricsBadge: 'TABLE QR · LIVE KDS · AUTO-PO',
   },
   {
     id: 'atelier-canvas',
     sku: 'TVT-SAAS-06',
-    name: 'Atelier Canvas v4.0',
+    name: 'Atelier Canvas Pro v5.0',
     subtitle: {
       vi: 'Công Cụ Thiết Kế Vector, Design Tokens & Trình Chạy Prototype',
       en: 'Browser Vector Studio, Design Tokens & Interactive Prototype Player',
@@ -287,7 +287,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
     liveUrl: 'https://tvt987.github.io/atelier-canvas/',
     previewImage: './media/atelier-canvas.webp',
     featuredRank: 12,
-    stack: ['React 19', 'Canvas / SVG', 'Command Stack', 'TypeScript'],
+    stack: ['.NET 10', '2-Tab Collab', '4-Target Tokens', 'Optimistic Lock'],
     deliverables: {
       vi: [
         'Khung vẽ vector tương tác tốc độ cao: pan/zoom, hình khối, văn bản, biến đổi tọa độ',
@@ -303,15 +303,15 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
       ],
     },
     architectureNote: {
-      vi: 'Kiến trúc state bất biến kết hợp spatial hit-testing mang lại trải nghiệm ngang ngửa ứng dụng desktop.',
-      en: 'Immutable scene state with precision hit-testing for desktop-class browser responsiveness.',
+      vi: 'Full-Stack Monorepo .NET 10 hỗ trợ cộng tác 2-tab, xuất 4 hệ Design Tokens (CSS/Tailwind/iOS/Android) & Optimistic Lock chống ghi đè.',
+      en: 'Full-Stack .NET 10 vector studio with 2-tab collaboration, 4-target Design Tokens export & optimistic concurrency locking.',
     },
     metricsBadge: 'BROWSER FIGMA · YJS CRDT',
   },
   {
     id: 'nexus-lake',
     sku: 'TVT-DATA-07',
-    name: 'Nexus Lake v3.0',
+    name: 'Nexus Lake OLAP v4.0',
     subtitle: {
       vi: 'Nền Tảng BI & Kho Dữ Liệu SQL DuckDB-WASM, Notebook Đa Ô & Pivot',
       en: 'In-Browser DuckDB-WASM Lakehouse, SQL Notebook & Cohort Heatmap',
@@ -334,7 +334,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
     liveUrl: 'https://tvt987.github.io/nexus-lake/',
     previewImage: './media/nexus-lake.webp',
     featuredRank: 11,
-    stack: ['React 19', 'DuckDB-WASM', 'SQL Engine', 'BI Charts'],
+    stack: ['FastAPI + MCP', 'DuckDB-WASM', 'Medallion SVG', 'SQL AST Guard'],
     deliverables: {
       vi: [
         'Trình soạn thảo truy vấn SQL thông minh kèm bộ truy vấn mẫu KPI doanh nghiệp',
@@ -350,15 +350,15 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
       ],
     },
     architectureNote: {
-      vi: 'Chạy WebAssembly trên Web Worker tách biệt hoàn toàn khỏi luồng UI giúp giao diện luôn mượt mà.',
-      en: 'Isolated Web Worker WASM execution keeps UI rendering completely lock-free.',
+      vi: 'Full-Stack Monorepo FastAPI + MCP kết hợp DuckDB-WASM trên Web Worker, sơ đồ Medallion SVG & lá chắn SQL AST chống truy vấn độc hại.',
+      en: 'Full-Stack FastAPI + MCP lakehouse pairing worker-isolated DuckDB-WASM, Medallion SVG lineage & strict SQL AST guard.',
     },
     metricsBadge: 'DUCKDB-WASM · KAFKA CDC · MCP',
   },
   {
     id: 'verdict-graph',
     sku: 'TVT-AI-08',
-    name: 'Verdict Graph v3.0',
+    name: 'Verdict Graph AI v4.0',
     subtitle: {
       vi: 'Hệ Thống Điều Phối Multi-Agent DAG, Time-Travel Diff & FinOps',
       en: 'Multi-Agent DAG Builder, Time-Travel Diff & LLM FinOps Router',
@@ -381,7 +381,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
     liveUrl: 'https://tvt987.github.io/verdict-graph/',
     previewImage: './media/verdict-graph.webp',
     featuredRank: 6,
-    stack: ['React 19', 'DAG Engine', 'AI Guardrails', 'Telemetry'],
+    stack: ['FastAPI', 'OWASP Firewall', 'Token Breaker', 'DAG Replay'],
     deliverables: {
       vi: [
         'Đồ thị trực quan điều phối các nút Agent, Tool-Calling, Reranker & Human-in-the-Loop',
@@ -397,15 +397,15 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
       ],
     },
     architectureNote: {
-      vi: 'Thiết kế theo chuẩn AI Engineering thực chiến: schema validation chặt chẽ, retry backoff và kiểm soát ngân sách token.',
-      en: 'Built around production AI Ops standards: strict schema validation, backoff retries & token budgets.',
+      vi: 'Full-Stack Monorepo FastAPI chuẩn AI Ops: tường lửa OWASP LLM Top-10, ngắt mạch Token Breaker & phát lại DAG Time-Travel.',
+      en: 'Full-Stack FastAPI AI Ops monorepo with OWASP LLM firewall, automatic Token Circuit Breaker & deterministic DAG replay.',
     },
     metricsBadge: 'MULTI-AGENT DAG · RED-TEAM',
   },
   {
     id: 'aegispulse',
     sku: 'TVT-ENT-09',
-    name: 'AegisPulse v3.0',
+    name: 'AegisPulse SRE Engine v4.0',
     subtitle: {
       vi: 'Kiến Trúc SRE Phân Tán .NET 10, Chaos Raft & Flamegraph',
       en: 'Distributed .NET 10 SRE, Raft Chaos Injector & GC Flamegraph',
@@ -428,7 +428,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
     liveUrl: 'https://tvt987.github.io/aegispulse-distributed-sre/',
     previewImage: './media/aegispulse.webp',
     featuredRank: 5,
-    stack: ['.NET 10 / C#', 'Redis Lock', 'Hybrid RAG', 'OpenTelemetry'],
+    stack: ['.NET 10', '500-Req Race', '0.00% Leak', 'k6 5K RPS'],
     deliverables: {
       vi: [
         'Kiến trúc phân tán chịu tải cao kế thừa thực chiến hệ thống 700+ siêu thị',
@@ -444,15 +444,15 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
       ],
     },
     architectureNote: {
-      vi: 'Giảm p99 latency từ 800ms xuống dưới 45ms bằng Dapper + Redis Optimistic Concurrency + OpenTelemetry.',
-      en: 'Engineered for sub-45ms p99 latency via Dapper, Redis Optimistic Concurrency, and OpenTelemetry.',
+      vi: 'Full-Stack Monorepo .NET 10 kiểm chứng thực chiến 500-request concurrency race (0.00% double-spend leak) & kịch bản chịu tải k6 5K RPS.',
+      en: 'Full-Stack .NET 10 distributed SRE engine verified against 500-request race storms (0.00% leak) & k6 5K RPS load benchmarks.',
     },
     metricsBadge: '139K RPS .NET 10 · HYBRID RAG',
   },
   {
     id: 'aurelia-resort',
     sku: 'TVT-HOSP-10',
-    name: 'Aurelia Resort v2.0',
+    name: 'Aurelia Resort PMS v3.0',
     subtitle: {
       vi: 'Website Resort 5 Sao & Đặt Phòng Villa Trực Tiếp',
       en: '5-Star Beachfront Resort & Direct Villa Booking Engine',
@@ -473,7 +473,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
     previewImage: './media/aurelia-resort.webp',
     previewBadge: '5-STAR HEATMAP · MICE PLANNER',
     featuredRank: 10,
-    stack: ['React 19', 'SVG Masterplan', 'VietQR EMVCo', 'ICS Pass'],
+    stack: ['.NET 10', 'RevPAR Studio', 'Itinerary Sync', 'Overlap Lock'],
     deliverables: {
       vi: [
         'Bản đồ resort SVG tương tác 10 khu biệt thự kèm sơ đồ mặt bằng CAD chi tiết',
@@ -489,15 +489,15 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
       ],
     },
     architectureNote: {
-      vi: 'Giúp khách sạn & resort tiết kiệm 15–22% phí hoa hồng OTA nhờ trải nghiệm đặt phòng trực tiếp đẳng cấp.',
-      en: 'Captures direct zero-commission bookings with deterministic seasonal rate and occupancy math.',
+      vi: 'Full-Stack Monorepo .NET 10 PMS với RevPAR Studio, đồng bộ lịch trình khách VIP & khóa trùng lịch Overlap Lock tiết kiệm 15–22% phí OTA.',
+      en: 'Full-Stack .NET 10 Resort PMS with RevPAR yield studio, VIP itinerary sync & date-overlap locking eliminating 15–22% OTA fees.',
     },
     metricsBadge: '5-STAR HEATMAP · MICE PLANNER',
   },
   {
     id: 'velox-ev-motors',
     sku: 'TVT-EV-11',
-    name: 'Velox EV Motors v3.0',
+    name: 'Velox EV Motors v4.0',
     subtitle: {
       vi: 'Showroom Hypercar Điện 3D HDRI, Cửa Cánh Chim & Launch 0–100',
       en: '3D HDRI Hypercar Showroom, Gullwing Doors & 0–100 Launch Telemetry',
@@ -518,7 +518,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
     previewImage: './media/velox-ev-motors.webp',
     previewBadge: '3D HDRI HYPERCAR · GULLWING · 20M VIP',
     featuredRank: 1,
-    stack: ['React 19', 'Three.js HDRI', 'Wind Tunnel', 'Launch Synth'],
+    stack: ['.NET 10', 'Three.js HDRI', '3-Circuit Lab', 'Idempotent Lock'],
     deliverables: {
       vi: [
         'Sân khấu 3D PBR xoay 360 độ cho 3 dòng xe, 6 màu sơn kim loại, 3 bộ mâm & 3 nội thất',
@@ -534,15 +534,15 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
       ],
     },
     architectureNote: {
-      vi: 'Tự động tạm dừng render WebGL khi cuộn ra khỏi khung nhìn (IntersectionObserver) giữ pin tối ưu trên mobile.',
-      en: 'IntersectionObserver GPU throttling paired with calibrated automotive lighting and TCO math.',
+      vi: 'Full-Stack Monorepo .NET 10 + Three.js PMREM HDRI, mô phỏng 3 trường đua (3-Circuit Lab) & Idempotent Lock đặt cọc xe chống trùng đơn.',
+      en: 'Full-Stack .NET 10 flagship pairing Three.js PMREM HDRI, 3-Circuit telemetry lab & idempotent EV reservation locking.',
     },
     metricsBadge: '3D PBR EV · X-RAY 800V · 20M VIP',
   },
   {
     id: 'solaris-academy',
     sku: 'TVT-EDU-12',
-    name: 'Solaris Academy LMS',
+    name: 'Solaris Academy LMS v2.0',
     subtitle: {
       vi: 'Nền Tảng E-Learning, Chấm Code Sandbox & Cấp Chứng Chỉ',
       en: 'Interactive Coding LMS, Zero-Eval Sandbox & Verifiable Certificates',
@@ -563,7 +563,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
     previewImage: './media/solaris-academy.webp',
     previewBadge: 'ZERO-EVAL AST SANDBOX · SM-2',
     featuredRank: 18,
-    stack: ['React 19', 'AST Sandbox', 'SM-2 SRS', 'Cert QR PDF'],
+    stack: ['FastAPI', 'Zero-Eval AST', 'Algo Visualizer', 'Oxford UI'],
     deliverables: {
       vi: [
         '6 lộ trình khóa học công nghệ kèm theo dõi tiến độ từng bài học & chuỗi XP bền vững',
@@ -579,15 +579,15 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
       ],
     },
     architectureNote: {
-      vi: 'Bộ thông dịch AST tự viết chặn 100% mã độc hại thay vì dùng eval(), an toàn tuyệt đối cho LMS thương mại.',
-      en: 'Custom AST sandbox blocks arbitrary code execution while grading student labs instantaneously.',
+      vi: 'Full-Stack Monorepo FastAPI với trình chấm code Zero-Eval AST an toàn 100%, trực quan hóa thuật toán (Algo Visualizer) & giao diện Oxford UI.',
+      en: 'Full-Stack FastAPI EdTech monorepo with zero-eval AST grader, interactive Algo Visualizer & editorial Oxford UI.',
     },
     metricsBadge: 'ZERO-EVAL AST SANDBOX · SM-2',
   },
   {
     id: 'kuro-omakase',
     sku: 'TVT-FINE-13',
-    name: 'Kuro Omakase',
+    name: 'Kuro Omakase Hinoki v2.0',
     subtitle: {
       vi: 'Nhà Hàng Fine Dining & Sơ Đồ Quầy Hinoki 14 Chỗ',
       en: 'Michelin Omakase & Interactive 14-Seat Hinoki Counter Booking',
@@ -608,7 +608,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
     previewImage: './media/kuro-omakase.webp',
     previewBadge: '14-SEAT HINOKI MAP · ALLERGEN',
     featuredRank: 21,
-    stack: ['React 19', 'SVG Seat Lock', 'Allergen Engine', 'VietQR'],
+    stack: ['.NET 10', '14-Seat Anti-Orphan', 'Allergen Swap', 'Flavor Arc'],
     deliverables: {
       vi: [
         'Sơ đồ quầy Sushi Hinoki chữ U 14 ghế + phòng Tatami riêng với tia tầm nhìn tới bếp trưởng',
@@ -624,15 +624,15 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
       ],
     },
     architectureNote: {
-      vi: 'Tối ưu tỷ lệ lấp đầy ghế nhà hàng cao cấp bằng thuật toán gợi ý ghế liền kề & khóa chỗ chống trùng.',
-      en: 'Maximizes fine-dining cover utilization with adjacency checks and real-time wave locking.',
+      vi: 'Full-Stack Monorepo .NET 10 chống ghế lẻ 14 chỗ Hinoki (Anti-Orphan), tự đổi món dị ứng Allergen Swap & biểu đồ vị giác Flavor Arc.',
+      en: 'Full-Stack .NET 10 fine-dining engine with 14-seat anti-orphan allocation, live allergen swaps & Kaiseki flavor-arc profiling.',
     },
     metricsBadge: '14-SEAT HINOKI MAP · ALLERGEN',
   },
   {
     id: 'vanguard-fitness',
     sku: 'TVT-FIT-14',
-    name: 'Vanguard Fitness Club',
+    name: 'Vanguard Fitness Club v2.0',
     subtitle: {
       vi: 'CLB Gym, Pilates & Mô Phỏng Chuyển Hóa 12 Tuần',
       en: 'Luxury Gym, Pilates & 12-Week Metabolic Transformation Portal',
@@ -653,7 +653,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
     previewImage: './media/vanguard-fitness.webp',
     previewBadge: '12W METABOLIC · WAITLIST LOCK',
     featuredRank: 22,
-    stack: ['React 19', 'Metabolic Math', 'Waitlist Lock', 'QR Pass'],
+    stack: ['.NET 10', '12W Periodization', 'FIFO Waitlist', 'ACWR Guard'],
     deliverables: {
       vi: [
         'Máy tính chỉ số trao đổi chất Mifflin-St Jeor + chia gram Đạm/Tinh bột/Béo & đồ thị 12 tuần',
@@ -669,15 +669,15 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
       ],
     },
     architectureNote: {
-      vi: 'Kết hợp công cụ tính dinh dưỡng tương tác ngay trang chủ giúp tăng mạnh tỷ lệ đăng ký tư vấn gói PT.',
-      en: 'Interactive metabolic lead magnet engineered to convert high-LTV personal training memberships.',
+      vi: 'Full-Stack Monorepo .NET 10 lập chu kỳ tập luyện 12 tuần (Periodization), hàng chờ lớp FIFO tự động & cảnh báo quá tải chấn thương ACWR Guard.',
+      en: 'Full-Stack .NET 10 club platform with 12-week periodization planner, atomic FIFO class waitlist & ACWR injury-load guard.',
     },
     metricsBadge: '12W METABOLIC · WAITLIST LOCK',
   },
   {
     id: 'meridian-logistics',
     sku: 'TVT-LOG-15',
-    name: 'Meridian Logistics v2.0',
+    name: 'Meridian Logistics v3.0',
     subtitle: {
       vi: 'Nền Tảng Vận Tải Quốc Tế, Tính CBM & Tra Cứu Vận Đơn',
       en: 'Global Freight Control Tower, CBM Quoter & Waybill Tracker',
@@ -698,7 +698,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
     previewImage: './media/meridian-logistics.webp',
     previewBadge: 'CONTAINER 3D PACK · HS/EVFTA',
     featuredRank: 9,
-    stack: ['React 19', 'CBM Freight Math', 'SVG Corridors', 'Bill of Lading'],
+    stack: ['.NET 10', 'Port Reroute', '3D CG + SOLAS', 'EVFTA Duty'],
     deliverables: {
       vi: [
         'Bản đồ tuyến Cát Lái/Hải Phòng đi Mỹ/Châu Âu/Nhật kèm theo dõi nhiệt độ container & ETA',
@@ -714,15 +714,15 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
       ],
     },
     architectureNote: {
-      vi: 'Chuẩn hóa quy tắc tính cước W/M, hệ số thể tích hàng không và tính toán phát thải CO2e minh bạch.',
-      en: 'Strict international freight chargeable-weight math with verified customs audit trails.',
+      vi: 'Full-Stack Monorepo .NET 10 định tuyến tránh nghẽn cảng (Port Reroute), tính trọng tâm container 3D CG + SOLAS & biểu thuế EVFTA.',
+      en: 'Full-Stack .NET 10 freight control tower with live port rerouting, 3D container CG + SOLAS compliance & EVFTA duty engine.',
     },
     metricsBadge: 'CONTAINER 3D PACK · HS/EVFTA',
   },
   {
     id: 'coda-hr-payroll',
     sku: 'TVT-HR-16',
-    name: 'CodaHR Enterprise v2.0',
+    name: 'CodaHR Payroll 2026 v3.0',
     subtitle: {
       vi: 'Phần Mềm Tính Lương Luật 2026 (5 Bậc) & Tuyển Dụng ATS',
       en: 'Vietnam 2026 Law Payroll Calculator, Batch Excel & Kanban ATS',
@@ -743,7 +743,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
     previewImage: './media/coda-hr-payroll.webp',
     previewBadge: 'LAW 2026 · PIT FINALIZATION · ATS',
     featuredRank: 8,
-    stack: ['React 19', 'VN Payroll 2026', 'Kanban ATS', 'CSV BOM'],
+    stack: ['.NET 10', 'Kanban ATS', 'Law 109/2025', 'Salary Heatmap'],
     deliverables: {
       vi: [
         'Tính lương Gross→Net & Net→Gross theo Luật 109/2025 (5 bậc mới) so sánh trực tiếp Luật 2025 cũ',
@@ -759,15 +759,15 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
       ],
     },
     architectureNote: {
-      vi: 'Thuật toán tìm kiếm nhị phân Net→Gross hội tụ sai số <= 1₫ và tự động áp trần BHTN 4 vùng 2026.',
-      en: 'Binary-search Net→Gross inverse solver with Decree 293/2025 regional BHTN caps.',
+      vi: 'Full-Stack Monorepo .NET 10 chuẩn Luật 109/2025 (5 bậc mới), Kanban ATS tuyển dụng & bản đồ nhiệt quỹ lương Salary Heatmap.',
+      en: 'Full-Stack .NET 10 HRIS monorepo implementing 2026 Law 109/2025 payroll, Kanban ATS & department Salary Heatmap.',
     },
     metricsBadge: 'LAW 2026 · PIT FINALIZATION · ATS',
   },
   {
     id: 'veritas-legal-firm',
     sku: 'TVT-LAW-17',
-    name: 'Veritas Legal Studio',
+    name: 'Veritas Legal Studio v2.0',
     subtitle: {
       vi: 'Website Hãng Luật & Trình Soạn Hợp Đồng Chấm Điểm Rủi Ro',
       en: 'Corporate Law Firm & Bilingual Contract Risk Analyzer Studio',
@@ -788,7 +788,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
     previewImage: './media/veritas-legal-firm.webp',
     previewBadge: 'DECREE 13 PDPD RISK · A4 PDF',
     featuredRank: 19,
-    stack: ['React 19', 'Contract Engine', 'PDPD Risk 0–100', 'A4 Legal PDF'],
+    stack: ['FastAPI', 'Clause Redline', 'Decree 13 PDPD', 'Conflict Check'],
     deliverables: {
       vi: [
         '4 bộ mẫu hợp đồng thương mại song ngữ Việt–Anh bật/tắt 8 điều khoản bảo vệ sở hữu trí tuệ & thanh toán',
@@ -804,15 +804,15 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
       ],
     },
     architectureNote: {
-      vi: 'Tạo lợi thế chuyển đổi vượt trội cho hãng luật và cố vấn pháp chế nhờ trải nghiệm kiểm tra rủi ro ngay trên web.',
-      en: 'Transforms a passive law firm brochure into an interactive high-trust LegalTech client acquisition engine.',
+      vi: 'Full-Stack Monorepo FastAPI so sánh Redline điều khoản, chấm rủi ro Nghị định 13 PDPD & kiểm tra xung đột lợi ích Conflict Check.',
+      en: 'Full-Stack FastAPI LegalTech monorepo featuring clause redline diffing, Decree 13 PDPD risk scoring & conflict-of-interest checks.',
     },
     metricsBadge: 'DECREE 13 PDPD RISK · A4 PDF',
   },
   {
     id: 'nordic-home-atelier',
     sku: 'TVT-INT-18',
-    name: 'Nordic Atelier Interior',
+    name: 'Nordic Home Atelier v2.0',
     subtitle: {
       vi: 'Nội Thất Cao Cấp & Công Cụ Thiết Kế Mặt Bằng 2D',
       en: 'Bespoke Scandinavian Furniture & 2D Floorplan Room Designer',
@@ -833,7 +833,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
     previewImage: './media/nordic-home-atelier.webp',
     previewBadge: '2D CAD PLANNER · BOQ PRO',
     featuredRank: 17,
-    stack: ['React 19', '2D CAD Planner', 'Swatch Pricing', 'A4 Proposal'],
+    stack: ['.NET 10', '2D AABB Check', 'Kelvin/Carbon', 'Budget Fit'],
     deliverables: {
       vi: [
         'Trình kéo thả, xoay 90° & sắp xếp 10 món nội thất trên lưới 50mm kèm kiểm tra va chạm & lối đi >= 60cm',
@@ -849,15 +849,15 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
       ],
     },
     architectureNote: {
-      vi: 'Toán học hình học AABB chính xác đến từng centimet giúp khách hàng tự bố trí phòng trước khi đặt đóng nội thất.',
-      en: 'Centimeter-accurate AABB collision & circulation math empowering self-serve interior design quotes.',
+      vi: 'Full-Stack Monorepo .NET 10 kiểm tra va chạm 2D AABB chính xác từng cm, mô phỏng ánh sáng Kelvin/Carbon & tối ưu ngân sách Budget Fit.',
+      en: 'Full-Stack .NET 10 interior configurator with cm-accurate 2D AABB collision, Kelvin/carbon metrics & smart budget fitting.',
     },
     metricsBadge: '2D CAD PLANNER · BOQ PRO',
   },
   {
     id: 'zenith-wealth-fintech',
     sku: 'TVT-FIN-19',
-    name: 'Zenith Wealth v2.0',
+    name: 'Zenith Wealth FinTech v3.0',
     subtitle: {
       vi: 'Cổng Quản Lý Tài Sản, Monte Carlo FIRE & Tái Cân Bằng Danh Mục',
       en: 'Private Wealth Terminal, Monte Carlo FIRE & Portfolio Optimizer',
@@ -878,7 +878,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
     previewImage: './media/zenith-wealth-fintech.webp',
     previewBadge: 'QUANT FIRE · CRISIS STRESS-TEST',
     featuredRank: 7,
-    stack: ['React 19', 'Monte Carlo', 'Sharpe Frontier', 'Rebalancer'],
+    stack: ['FastAPI', 'Tax-Loss Harvest', '4-FX Hedge', '30Y Glide'],
     deliverables: {
       vi: [
         'Mô phỏng 200 đường Monte Carlo tức thì (<5ms) tính mốc tự do tài chính FIRE P10/P50/P90',
@@ -894,15 +894,15 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
       ],
     },
     architectureNote: {
-      vi: 'Toán tài chính định lượng thuần chạy tức thì trên trình duyệt, sẵn sàng nối API chứng khoán hoặc quỹ mở.',
-      en: 'Deterministic quantitative finance engine running sub-5ms client-side, ready for brokerage APIs.',
+      vi: 'Full-Stack Monorepo FastAPI mô phỏng tối ưu thuế Tax-Loss Harvesting, phòng hộ 4 ngoại tệ (4-FX Hedge) & lộ trình 30 năm (30Y Glide).',
+      en: 'Full-Stack FastAPI WealthTech monorepo with Tax-Loss Harvesting, 4-currency FX hedging & 30-year FIRE glide-path engine.',
     },
     metricsBadge: 'QUANT FIRE · CRISIS STRESS-TEST',
   },
   {
     id: 'aeroforge-digital-twin',
     sku: 'TVT-IOT-22',
-    name: 'AeroForge 3D Digital Twin',
+    name: 'AeroForge 3D Digital Twin v2.0',
     subtitle: {
       vi: 'Bản Sao Số Nhà Máy 4.0 3D, Robot 6 Trục Kinematics & AI Dự Báo Lỗi FFT',
       en: 'Industry 4.0 Smart Factory 3D Twin, 6-Axis Robot Kinematics & Vibration FFT AI',
@@ -923,7 +923,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
     previewImage: './media/aeroforge-digital-twin.webp',
     previewBadge: '3D FACTORY TWIN · 6-AXIS IK · 29.9M ULTRA',
     featuredRank: 2,
-    stack: ['React 19', 'Three.js HDRI', '6-Axis FK/IK', 'Vibration FFT'],
+    stack: ['.NET 10', '6-Axis G-Code', 'Collision Guard', 'FFT ROI'],
     deliverables: {
       vi: [
         'Sàn nhà máy 3D Three.js HDRI: cánh tay robot CNC 6 trục FK/IK thật, băng chuyền QA quang học & đội xe AGV',
@@ -939,15 +939,15 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
       ],
     },
     architectureNote: {
-      vi: 'Động học thuận/nghịch 6 trục thuần TypeScript kết hợp phổ FFT tách biệt sẵn sàng nối cảm biến OPC-UA / MQTT thật.',
-      en: 'Pure TypeScript 6-axis FK/IK kinematics and FFT diagnostics architected for live OPC-UA / MQTT industrial telemetry.',
+      vi: 'Full-Stack Monorepo .NET 10 + động học robot 6 trục G-Code, cảnh báo va chạm Collision Guard & phân tích ROI bảo trì rung động FFT.',
+      en: 'Full-Stack .NET 10 Industry 4.0 twin with 6-axis G-Code kinematics, real-time Collision Guard & predictive FFT maintenance ROI.',
     },
     metricsBadge: '3D FACTORY TWIN · 6-AXIS IK · 29.9M ULTRA',
   },
   {
     id: 'helios-quant-terminal',
     sku: 'TVT-QNT-21',
-    name: 'Helios Quant Terminal',
+    name: 'Helios Quant Terminal v2.0',
     subtitle: {
       vi: 'Sàn Khớp Lệnh L2 Orderbook, Biểu Đồ Nến Canvas & Backtest Thuật Toán Quant',
       en: 'Institutional L2 Orderbook Matching Engine, Canvas Candlestick & Algo Backtester',
@@ -968,7 +968,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
     previewImage: './media/helios-quant-terminal.webp',
     previewBadge: 'L2 MATCHING ENGINE · ALGO QUANT · 28.9M',
     featuredRank: 3,
-    stack: ['React 19', 'FIFO LOB Engine', 'Canvas 2D TA', 'Quant Backtest'],
+    stack: ['FastAPI', 'FIFO LOB', '6x6 Sharpe Map', 'Depth OFI'],
     deliverables: {
       vi: [
         'Nhân khớp lệnh Limit Order Book chuẩn FIFO 15×15 cấp giá cho 6 thị trường (BTC, ETH, SOL, VN30F1M, XAU, NVDA)',
@@ -984,15 +984,15 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
       ],
     },
     architectureNote: {
-      vi: 'Toán học tài chính định lượng & sổ lệnh L2 chạy 0ms trên client với 103 bài kiểm thử tự động, sẵn sàng nối FIX / WebSocket.',
-      en: 'Zero-latency deterministic LOB & quantitative engine verified by 103 CI tests, ready for FIX / WebSocket feeds.',
+      vi: 'Full-Stack Monorepo FastAPI với nhân khớp lệnh FIFO LOB, bản đồ nhiệt Sharpe 6×6 & phân tích mất cân bằng sổ lệnh Depth OFI.',
+      en: 'Full-Stack FastAPI quant trading terminal combining deterministic FIFO LOB, 6x6 Sharpe heatmap & order-flow imbalance (OFI).',
     },
     metricsBadge: 'L2 MATCHING ENGINE · ALGO QUANT · 28.9M',
   },
   {
     id: 'chronos-horology',
     sku: 'TVT-LUX-20',
-    name: 'Chronos Horology 3D',
+    name: 'Chronos 3D Horology v2.0',
     subtitle: {
       vi: 'Bộ Máy Đồng Hồ Cơ Tourbillon 3D Chạy Thật, Âm Thanh 4Hz & Boutique Thụy Sĩ',
       en: 'Working 3D Mechanical Tourbillon Calibre, 4Hz Escapement Synth & Swiss Boutique',
@@ -1013,7 +1013,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
     previewImage: './media/chronos-horology.webp',
     previewBadge: '3D TOURBILLON CALIBRE · 4HZ AUDIO · 26.9M',
     featuredRank: 4,
-    stack: ['React 19', 'Three.js HDRI', 'Tourbillon 3D', 'Web Audio 4Hz'],
+    stack: ['.NET 10', 'Timegrapher', '7-Layer Caliber', 'HMAC Vault'],
     deliverables: {
       vi: [
         'Bộ máy Tourbillon 3D Three.js HDRI chạy thật: bánh răng ăn khớp tỷ số chính xác, tách 7 tầng máy & 7 góc camera macro',
@@ -1029,15 +1029,15 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
       ],
     },
     architectureNote: {
-      vi: 'Tích hợp vật lý chuyển động cơ khí thuần 60fps & HDRI Studio giúp định vị đẳng cấp thương hiệu đồng hồ/trang sức xa xỉ.',
-      en: '60fps procedural mechanical gear kinematics and PMREM HDRI reflections tailored for luxury watchmaking houses.',
+      vi: 'Full-Stack Monorepo .NET 10 mô phỏng máy đo Timegrapher COSC, tách 7 tầng bộ máy Tourbillon 3D & kho chứng nhận bảo mật HMAC Vault.',
+      en: 'Full-Stack .NET 10 haute-horlogerie platform with COSC Timegrapher, 7-layer 3D Tourbillon caliber & HMAC Collector Vault.',
     },
     metricsBadge: '3D TOURBILLON CALIBRE · 4HZ AUDIO · 26.9M',
   },
   {
     id: 'orbitalflow-saas',
     sku: 'TVT-SAAS-23',
-    name: 'OrbitalFlow B2B SaaS',
+    name: 'OrbitalFlow B2B SaaS v2.0',
     subtitle: {
       vi: 'Nền Tảng B2B SaaS Đa Tenant, RBAC, Gantt Đường Găng & Stripe Metering',
       en: 'Multi-Tenant B2B SaaS, RBAC Matrix, Gantt CPM & Stripe Proration Billing',
@@ -1058,7 +1058,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
     previewImage: './media/orbitalflow-saas.webp',
     previewBadge: 'MULTI-TENANT RBAC · GANTT CPM · STRIPE',
     featuredRank: 5,
-    stack: ['React 19', 'RBAC Matrix', 'Gantt CPM', 'HMAC-SHA256'],
+    stack: ['.NET 10', 'Drag-Drop + Undo', 'Gantt SVG', 'Stripe Metering'],
     deliverables: {
       vi: [
         'Quản lý đa tổ chức (Multi-Tenant) kèm ma trận phân quyền RBAC 4 vai trò khóa hành động thực tế',
@@ -1074,15 +1074,15 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
       ],
     },
     architectureNote: {
-      vi: 'Tích hợp sẵn bản thiết kế backend .NET 10 + PostgreSQL Row-Level Security (tenant_id) + Redis khóa idempotency.',
-      en: 'Includes production .NET 10 + PostgreSQL Row-Level Security (tenant_id) + Redis idempotency blueprint.',
+      vi: 'Full-Stack Monorepo .NET 10 đa tenant RLS: Sprint Kanban Drag-Drop + Undo, biểu đồ Gantt SVG & tính cước Stripe Metering/Proration.',
+      en: 'Full-Stack .NET 10 multi-tenant SaaS featuring Drag-Drop + Undo Kanban, CPM Gantt SVG & graduated Stripe Metering billing.',
     },
     metricsBadge: 'MULTI-TENANT RBAC · GANTT CPM · STRIPE',
   },
   {
     id: 'vectradoc-rag',
     sku: 'TVT-AI-24',
-    name: 'VectraDoc AI RAG',
+    name: 'VectraDoc Enterprise RAG v2.0',
     subtitle: {
       vi: 'AI Đọc Tài Liệu Hybrid RAG (BM25 + Vector RRF), Trích Dẫn & Che PII',
       en: 'Enterprise Document Intelligence, Live Hybrid BM25+Vector RRF RAG & PII Guard',
@@ -1103,7 +1103,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
     previewImage: './media/vectradoc-rag.webp',
     previewBadge: 'OKAPI BM25 + RRF · 100% RECALL · PII',
     featuredRank: 6,
-    stack: ['React 19', 'Okapi BM25', 'RRF Hybrid RAG', 'PII Luhn Guard'],
+    stack: ['FastAPI', 'PDF FlateDecode', '4-Way A/B RAG', 'PII Guard'],
     deliverables: {
       vi: [
         'Nạp tài liệu thật (.txt/.md/.json/.csv) + 3 chiến lược chia Chunk hiển thị ranh giới vị trí chính xác',
@@ -1119,15 +1119,15 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
       ],
     },
     architectureNote: {
-      vi: 'Kiến trúc truy xuất lai tối ưu cho tiếng Việt & tiếng Anh, sẵn sàng nối Qdrant / pgvector / FastAPI hoặc Gemini API.',
-      en: 'Bilingual VI/EN hybrid IR architecture architected to plug directly into Qdrant, pgvector, or FastAPI.',
+      vi: 'Full-Stack Monorepo FastAPI giải nén PDF FlateDecode trực tiếp, so sánh A/B 4 chiến lược RAG & lá chắn PII Guard bảo mật doanh nghiệp.',
+      en: 'Full-Stack FastAPI Document AI monorepo with native PDF FlateDecode ingestion, 4-way A/B RAG benchmarking & Luhn PII Guard.',
     },
     metricsBadge: 'OKAPI BM25 + RRF · 100% RECALL · PII',
   },
   {
     id: 'fleetpulse-gis',
     sku: 'TVT-GIS-25',
-    name: 'FleetPulse GIS Fleet',
+    name: 'FleetPulse GIS Dispatch v2.0',
     subtitle: {
       vi: 'Điều Phối Đội Xe Bản Đồ Vector, Tối Ưu Tuyến CVRP & Chuỗi Lạnh -18°C',
       en: 'Real-Time GIS Vector Fleet Control, CVRP 2-Opt Route Optimizer & Cold-Chain IoT',
@@ -1148,7 +1148,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
     previewImage: './media/fleetpulse-gis.webp',
     previewBadge: 'CVRP -28.6% KM · VECTOR GIS · -18°C',
     featuredRank: 7,
-    stack: ['React 19', 'CVRP 2-Opt', 'Vector GIS Map', 'Cold-Chain IoT'],
+    stack: ['.NET 10', 'CVRP <1ms', 'Shift Scrub', 'PostGIS/MQTT'],
     deliverables: {
       vi: [
         'Bản đồ vector hành lang TP.HCM – Bình Dương – Đồng Nai có phóng to/thu nhỏ, vùng Geofence & xe di chuyển thật',
@@ -1164,15 +1164,15 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
       ],
     },
     architectureNote: {
-      vi: 'Toán học Haversine + ray-casting Geofence + tối ưu CVRP thuần TypeScript sẵn sàng nối GPS MQTT / Mapbox.',
-      en: 'Pure TypeScript Haversine, polygon geofence & CVRP optimization ready for live MQTT GPS / Mapbox feeds.',
+      vi: 'Full-Stack Monorepo .NET 10 tối ưu tuyến CVRP <1ms, tua lại ca chạy Shift Scrub & kiến trúc PostGIS/MQTT chuỗi lạnh -18°C.',
+      en: 'Full-Stack .NET 10 GIS dispatch engine solving CVRP in <1ms with live Shift Scrub replay & PostGIS/MQTT cold-chain telemetry.',
     },
     metricsBadge: 'CVRP -28.6% KM · VECTOR GIS · -18°C',
   },
   {
     id: 'medcore-ehr',
     sku: 'TVT-MED-26',
-    name: 'MedCore Clinical EHR',
+    name: 'MedCore Clinical EHR v2.0',
     subtitle: {
       vi: 'Bệnh Án Điện Tử EHR, Sóng ECG/SpO2 Canvas, NEWS2 & Chuẩn HL7 FHIR R4',
       en: 'Clinical EHR Workstation, Live Canvas ECG/SpO2, RCP NEWS2 & HL7 FHIR R4 Interop',
@@ -1193,7 +1193,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
     previewImage: './media/medcore-ehr.webp',
     previewBadge: 'LIVE ECG/SPO2 · NEWS2 · HL7 FHIR R4',
     featuredRank: 8,
-    stack: ['React 19', 'Canvas ECG/PPG', 'CPOE Drug Guard', 'HL7 FHIR R4'],
+    stack: ['FastAPI', 'HL7 FHIR R4', '3-Ch ECG/EtCO2', 'Safe Drug Sub'],
     deliverables: {
       vi: [
         'Hàng đợi nội trú tự sắp theo mức độ nặng RCP NEWS2 (0–20) cùng dải cảnh báo dị ứng & hồ sơ SOAP',
@@ -1209,8 +1209,8 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
       ],
     },
     architectureNote: {
-      vi: 'Thiết kế tách bạch logic dược lâm sàng & chuẩn trao đổi HL7 FHIR R4 giúp tích hợp trực tiếp hệ thống HIS / HIPAA.',
-      en: 'Decoupled clinical decision support & HL7 FHIR R4 serialization architected for HIPAA / HIS integrations.',
+      vi: 'Full-Stack Monorepo FastAPI chuẩn liên thông HL7 FHIR R4, màn hình 3 kênh ECG/SpO2/EtCO2 & gợi ý thay thế thuốc an toàn Safe Drug Sub.',
+      en: 'Full-Stack FastAPI Clinical EHR with HL7 FHIR R4 interoperability, 3-channel ECG/SpO2/EtCO2 monitor & safe drug substitution.',
     },
     metricsBadge: 'LIVE ECG/SPO2 · NEWS2 · HL7 FHIR R4',
   },

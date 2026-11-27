@@ -6,9 +6,9 @@ interface ProToolsSuiteSectionProps {
   locale: Locale;
 }
 
-const TOOLS_BASE_URL = 'https://tvt987.github.io/tvt-tools/';
+export const TOOLS_BASE_URL = 'https://tvt987.github.io/tvt-tools/';
 
-const PRO_TOOLS = [
+export const PRO_TOOLS = [
   {
     slug: 'vietqr-pro',
     group: 'BUSINESS',
@@ -52,6 +52,15 @@ const PRO_TOOLS = [
     desc: {
       vi: 'Lịch trả nợ dư nợ giảm dần vs cố định, LTV:CAC, Runway & xuất Excel CSV BOM.',
       en: 'Amortization schedule, startup unit economics, runway chart & UTF-8 BOM CSV.',
+    },
+  },
+  {
+    slug: 'freelance-b2b-calc',
+    group: 'BUSINESS',
+    title: { vi: 'Tính Rate Freelance B2B & Phí Deel/Wise', en: 'B2B Freelance Rate & Deel/Wise Margin' },
+    desc: {
+      vi: 'Tính thu nhập ròng USD/EUR -> VNĐ sau phí Deel/Wise/SWIFT, thuế 2026 & báo giá Retainer.',
+      en: 'Net USD/EUR contractor take-home after Deel/Wise/SWIFT FX fees, tax & retainer quote.',
     },
   },
   {
@@ -99,6 +108,15 @@ const PRO_TOOLS = [
       en: '11-shade OKLCH palette, WCAG 2.1 AAA contrast auto-fix & Tailwind v4 export.',
     },
   },
+  {
+    slug: 'api-diff-lab',
+    group: 'ENGINEERING',
+    title: { vi: 'So Sánh JSON/OpenAPI & SLA Latency', en: 'JSON/OpenAPI Diff & SLA Latency' },
+    desc: {
+      vi: 'Bắt lỗi Breaking Change giữa 2 payload JSON/OpenAPI và chia ngân sách độ trễ P99.',
+      en: 'Structural JSON/OpenAPI breaking-change diff & P50/P95/P99 latency budget waterfall.',
+    },
+  },
 ];
 
 export const ProToolsSuiteSection: React.FC<ProToolsSuiteSectionProps> = ({ locale }) => {
@@ -115,17 +133,17 @@ export const ProToolsSuiteSection: React.FC<ProToolsSuiteSectionProps> = ({ loca
         <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-12">
           <div className="lg:col-span-7">
             <div className="font-mono-num text-xs font-semibold tracking-widest uppercase" style={{ color: 'var(--cyan)' }}>
-              {locale === 'vi' ? 'BỘ 10 CÔNG CỤ MIỄN PHÍ · 100% LOCAL-FIRST' : 'FREE 10 PRO TOOLS SUITE · 100% LOCAL-FIRST'}
+              {locale === 'vi' ? 'BỘ 12 CÔNG CỤ MIỄN PHÍ · 100% LOCAL-FIRST' : 'FREE 12 PRO TOOLS SUITE · 100% LOCAL-FIRST'}
             </div>
             <h2 className="font-display mt-2 text-2xl font-extrabold tracking-tight sm:text-4xl">
               {locale === 'vi'
-                ? '10 Pro Tools Miễn Phí Trọn Đời'
-                : '10 Free Business & Dev Tools'}
+                ? '12 Pro Tools Miễn Phí Trọn Đời'
+                : '12 Free Business & Dev Tools'}
             </h2>
             <p className="mt-3 max-w-xl text-sm leading-relaxed sm:text-base" style={{ color: 'var(--ink-secondary)' }}>
               {locale === 'vi'
-                ? 'Chạy 100% cục bộ trên trình duyệt — bảo mật dữ liệu tuyệt đối, 41/41 bài test xanh.'
-                : '100% client-side in your browser — zero server uploads, 41/41 tests passing.'}
+                ? 'Chạy 100% cục bộ trên trình duyệt — bảo mật dữ liệu tuyệt đối, 12 engine chuẩn sản xuất.'
+                : '100% client-side in your browser — zero server uploads, 12 production-grade engines.'}
             </p>
             <div className="mt-5 flex flex-wrap items-center gap-3">
               <a
@@ -135,7 +153,7 @@ export const ProToolsSuiteSection: React.FC<ProToolsSuiteSectionProps> = ({ loca
                 className="btn-primary inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold"
               >
                 <IconCode className="h-4 w-4" />
-                <span>{locale === 'vi' ? 'Mở Toàn Bộ 10 Pro Tools' : 'Launch All 10 Pro Tools'}</span>
+                <span>{locale === 'vi' ? 'Mở Toàn Bộ 12 Pro Tools' : 'Launch All 12 Pro Tools'}</span>
                 <IconArrowUpRight className="h-4 w-4" />
               </a>
               <span
@@ -162,24 +180,24 @@ export const ProToolsSuiteSection: React.FC<ProToolsSuiteSectionProps> = ({ loca
               <div className="relative aspect-[16/10] w-full overflow-hidden bg-[#090b10]">
                 <img
                   src="./media/tvt-tools.webp"
-                  alt="TVT Pro Tools Suite — 10 Business & Engineering Utilities"
+                  alt="TVT Pro Tools Suite — 12 Business & Engineering Utilities"
                   decoding="async"
                   className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                 />
                 <span className="font-mono-num absolute right-3 bottom-3 rounded-md border border-white/20 bg-black/75 px-2.5 py-1 text-[10px] font-bold text-white backdrop-blur-md">
-                  41/41 CI · 10 TOOLS LIVE ↗
+                  12 PRO ENGINES · v2.0 ↗
                 </span>
               </div>
             </a>
           </div>
         </div>
 
-        {/* 10 Clickable Direct Tool Deep-Link Cards */}
-        <div className="mt-8 grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-5">
+        {/* 12 Clickable Direct Tool Deep-Link Cards (3 Balanced Rows of 4) */}
+        <div className="mt-8 grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
           {PRO_TOOLS.map((tool, index) => (
             <a
               key={tool.slug}
-              href={`${TOOLS_BASE_URL}#/tool/${tool.slug}`}
+              href={`${TOOLS_BASE_URL}#/${tool.slug}`}
               target="_blank"
               rel="noopener noreferrer"
               className="group flex flex-col justify-between rounded-2xl border p-4 transition-all hover:-translate-y-0.5 hover:border-[var(--accent)]"

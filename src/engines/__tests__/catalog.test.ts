@@ -86,4 +86,43 @@ describe('Catalog Engine', () => {
     expect(formatDeliveryRange(aegis, 'vi')).toBe('5–10 ngày');
     expect(formatDeliveryRange(aegis, 'en')).toBe('5–10 days');
   });
+
+  it('verifies all 26 full-stack monorepos carry .NET 10 or FastAPI backend tags and 20 VIP 10M+ tiers', () => {
+    const vipCount = CATALOG_PRODUCTS.filter((p) => p.priceVnd >= 10_000_000).length;
+    expect(vipCount).toBe(20);
+
+    for (const product of CATALOG_PRODUCTS) {
+      expect(product.name).toMatch(/v\d+\.\d+$/);
+      const hasBackendTag = product.stack.some(
+        (tag) => tag.includes('.NET 10') || tag.includes('FastAPI')
+      );
+      expect(hasBackendTag, `Missing backend tag on ${product.id}`).toBe(true);
+    }
+
+    const dotnetCount = CATALOG_PRODUCTS.filter((p) =>
+      p.stack.some((t) => t.includes('.NET 10'))
+    ).length;
+    const fastapiCount = CATALOG_PRODUCTS.filter((p) =>
+      p.stack.some((t) => t.includes('FastAPI'))
+    ).length;
+    expect(dotnetCount + fastapiCount).toBe(26);
+    expect(dotnetCount).toBe(18);
+    expect(fastapiCount).toBe(8);
+  });
+
+  it('exposes all 12 Free Pro Tools with balanced Business/Engineering groups and direct hash slugs', async () => {
+    const { PRO_TOOLS, TOOLS_BASE_URL } = await import('../../components/ProToolsSuiteSection');
+    expect(PRO_TOOLS).toHaveLength(12);
+    expect(TOOLS_BASE_URL).toBe('https://tvt987.github.io/tvt-tools/');
+
+    const slugs = PRO_TOOLS.map((t) => t.slug);
+    expect(new Set(slugs).size).toBe(12);
+    expect(slugs).toContain('freelance-b2b-calc');
+    expect(slugs).toContain('api-diff-lab');
+
+    const bizCount = PRO_TOOLS.filter((t) => t.group === 'BUSINESS').length;
+    const engCount = PRO_TOOLS.filter((t) => t.group === 'ENGINEERING').length;
+    expect(bizCount).toBe(6);
+    expect(engCount).toBe(6);
+  });
 });

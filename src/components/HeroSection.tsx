@@ -78,7 +78,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ locale, onPreviewLive 
                 className="font-mono-num text-[11px] font-semibold tracking-[0.14em] uppercase"
                 style={{ color: 'var(--ink-secondary)' }}
               >
-                TVT STUDIO · FLAGSHIP EDITION
+                TVT STUDIO v8.0 · FLAGSHIP EDITION
               </span>
             </div>
 

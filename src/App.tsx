@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react';
 import { isAdminSession } from './engines/adminOps';
 import { fetchLiveCatalogProducts, trackSiteEvent } from './engines/analyticsAndCms';
 import {
@@ -47,24 +47,51 @@ import type {
   TemplateProduct,
   ThemeMode,
 } from './engines/types';
-import { AccountPortalModal } from './components/AccountPortalModal';
-import { CartDrawer } from './components/CartDrawer';
 import { CatalogSection } from './components/CatalogSection';
-import { CheckoutModal } from './components/CheckoutModal';
-import { CompareDrawer } from './components/CompareDrawer';
-import { CustomEstimatorSection } from './components/CustomEstimatorSection';
 import { Footer } from './components/Footer';
 import { HeroSection } from './components/HeroSection';
 import { IconCart, IconCheck } from './components/Icons';
-import { LiveSandboxModal } from './components/LiveSandboxModal';
 import { Navbar } from './components/Navbar';
-import { OrderTrackerModal } from './components/OrderTrackerModal';
-import { OwnerConsoleModal } from './components/OwnerConsoleModal';
 import { PaymentJourneySection } from './components/PaymentJourneySection';
 import { ProcessSlaSection } from './components/ProcessSlaSection';
-import { ProToolsSuiteSection } from './components/ProToolsSuiteSection';
-import { ProductDetailModal } from './components/ProductDetailModal';
-import { QuickInquiryModal } from './components/QuickInquiryModal';
+
+const AccountPortalModal = lazy(() =>
+  import('./components/AccountPortalModal').then((m) => ({ default: m.AccountPortalModal }))
+);
+const CartDrawer = lazy(() =>
+  import('./components/CartDrawer').then((m) => ({ default: m.CartDrawer }))
+);
+const CheckoutModal = lazy(() =>
+  import('./components/CheckoutModal').then((m) => ({ default: m.CheckoutModal }))
+);
+const CompareDrawer = lazy(() =>
+  import('./components/CompareDrawer').then((m) => ({ default: m.CompareDrawer }))
+);
+const CustomEstimatorSection = lazy(() =>
+  import('./components/CustomEstimatorSection').then((m) => ({
+    default: m.CustomEstimatorSection,
+  }))
+);
+const LiveSandboxModal = lazy(() =>
+  import('./components/LiveSandboxModal').then((m) => ({ default: m.LiveSandboxModal }))
+);
+const OrderTrackerModal = lazy(() =>
+  import('./components/OrderTrackerModal').then((m) => ({ default: m.OrderTrackerModal }))
+);
+const OwnerConsoleModal = lazy(() =>
+  import('./components/OwnerConsoleModal').then((m) => ({ default: m.OwnerConsoleModal }))
+);
+const ProToolsSuiteSection = lazy(() =>
+  import('./components/ProToolsSuiteSection').then((m) => ({
+    default: m.ProToolsSuiteSection,
+  }))
+);
+const ProductDetailModal = lazy(() =>
+  import('./components/ProductDetailModal').then((m) => ({ default: m.ProductDetailModal }))
+);
+const QuickInquiryModal = lazy(() =>
+  import('./components/QuickInquiryModal').then((m) => ({ default: m.QuickInquiryModal }))
+);
 
 const CART_STORAGE_KEY = 'tvt_studio_cart_v1';
 
@@ -518,13 +545,17 @@ export const App: React.FC = () => {
             }}
           />
 
-          <ProToolsSuiteSection locale={locale} />
+          <Suspense fallback={<div id="pro-tools" className="min-h-[240px]" />}>
+            <ProToolsSuiteSection locale={locale} />
+          </Suspense>
 
-          <CustomEstimatorSection
-            locale={locale}
-            currency={currency}
-            onAddCustomToCart={handleAddCustomScope}
-          />
+          <Suspense fallback={<div id="estimator" className="min-h-[240px]" />}>
+            <CustomEstimatorSection
+              locale={locale}
+              currency={currency}
+              onAddCustomToCart={handleAddCustomScope}
+            />
+          </Suspense>
 
           <PaymentJourneySection
             locale={locale}
@@ -552,133 +583,169 @@ export const App: React.FC = () => {
       </div>
 
       {/* Live Sandbox Modal */}
-      <LiveSandboxModal
-        product={sandboxProduct}
-        locale={locale}
-        currency={currency}
-        onClose={() => setSandboxProduct(null)}
-        onAddToCart={handleAddTemplate}
-      />
+      {sandboxProduct !== null && (
+        <Suspense fallback={null}>
+          <LiveSandboxModal
+            product={sandboxProduct}
+            locale={locale}
+            currency={currency}
+            onClose={() => setSandboxProduct(null)}
+            onAddToCart={handleAddTemplate}
+          />
+        </Suspense>
+      )}
 
       {/* Product Specification Modal */}
-      <ProductDetailModal
-        product={detailTarget?.product ?? null}
-        initialLicense={detailTarget?.license ?? 'standard'}
-        locale={locale}
-        currency={currency}
-        onClose={() => setDetailTarget(null)}
-        onOpenSandbox={(product) => setSandboxProduct(product)}
-        onAddToCart={handleAddTemplate}
-      />
+      {detailTarget !== null && (
+        <Suspense fallback={null}>
+          <ProductDetailModal
+            product={detailTarget.product}
+            initialLicense={detailTarget.license}
+            locale={locale}
+            currency={currency}
+            onClose={() => setDetailTarget(null)}
+            onOpenSandbox={(product) => setSandboxProduct(product)}
+            onAddToCart={handleAddTemplate}
+          />
+        </Suspense>
+      )}
 
       {/* Side-by-Side Template Comparison Modal */}
-      <CompareDrawer
-        isOpen={isCompareOpen}
-        products={comparedProducts}
-        locale={locale}
-        currency={currency}
-        onClose={() => setIsCompareOpen(false)}
-        onRemoveProduct={(id) => setCompareIds((prev) => prev.filter((item) => item !== id))}
-        onPreviewLive={(product) => setSandboxProduct(product)}
-        onAddToCart={handleAddTemplate}
-      />
+      {isCompareOpen && (
+        <Suspense fallback={null}>
+          <CompareDrawer
+            isOpen={isCompareOpen}
+            products={comparedProducts}
+            locale={locale}
+            currency={currency}
+            onClose={() => setIsCompareOpen(false)}
+            onRemoveProduct={(id) => setCompareIds((prev) => prev.filter((item) => item !== id))}
+            onPreviewLive={(product) => setSandboxProduct(product)}
+            onAddToCart={handleAddTemplate}
+          />
+        </Suspense>
+      )}
 
       {/* Quick Consultation / Negotiation Modal */}
-      <QuickInquiryModal
-        isOpen={inquiryOpen}
-        targetProduct={inquiryProduct}
-        locale={locale}
-        onClose={() => setInquiryOpen(false)}
-        onInquirySaved={handleInquirySaved}
-      />
+      {inquiryOpen && (
+        <Suspense fallback={null}>
+          <QuickInquiryModal
+            isOpen={inquiryOpen}
+            targetProduct={inquiryProduct}
+            locale={locale}
+            onClose={() => setInquiryOpen(false)}
+            onInquirySaved={handleInquirySaved}
+          />
+        </Suspense>
+      )}
 
       {/* Slide-Over Cart Drawer */}
-      <CartDrawer
-        isOpen={isCartOpen}
-        items={cartItems}
-        totals={totals}
-        locale={locale}
-        currency={currency}
-        activeVoucherCode={activeVoucherCode}
-        onClose={() => setIsCartOpen(false)}
-        onUpdateQuantity={handleUpdateQuantity}
-        onRemoveItem={handleRemoveItem}
-        onSwitchLicense={handleSwitchLicense}
-        onApplyVoucher={setActiveVoucherCode}
-        onChangePaymentMode={setPaymentMode}
-        onProceedToCheckout={() => {
-          setIsCartOpen(false);
-          setIsCheckoutOpen(true);
-          void trackSiteEvent('checkout_start', { locale });
-        }}
-      />
+      {isCartOpen && (
+        <Suspense fallback={null}>
+          <CartDrawer
+            isOpen={isCartOpen}
+            items={cartItems}
+            totals={totals}
+            locale={locale}
+            currency={currency}
+            activeVoucherCode={activeVoucherCode}
+            onClose={() => setIsCartOpen(false)}
+            onUpdateQuantity={handleUpdateQuantity}
+            onRemoveItem={handleRemoveItem}
+            onSwitchLicense={handleSwitchLicense}
+            onApplyVoucher={setActiveVoucherCode}
+            onChangePaymentMode={setPaymentMode}
+            onProceedToCheckout={() => {
+              setIsCartOpen(false);
+              setIsCheckoutOpen(true);
+              void trackSiteEvent('checkout_start', { locale });
+            }}
+          />
+        </Suspense>
+      )}
 
       {/* 3-Step Hybrid Payment Checkout Modal */}
-      <CheckoutModal
-        isOpen={isCheckoutOpen}
-        items={cartItems}
-        totals={totals}
-        locale={locale}
-        currency={currency}
-        bankConfig={bankConfig}
-        authSession={authSession}
-        clientProfile={clientProfile}
-        onClose={() => setIsCheckoutOpen(false)}
-        onOrderCompleted={handleOrderCompleted}
-        onAutoVerifiedPayment={handleAutoVerifiedPayment}
-        onOpenTracker={(orderCode) => {
-          setTrackerInitialCode(orderCode);
-          setIsTrackerOpen(true);
-        }}
-        onOpenAccount={() => setIsAccountOpen(true)}
-      />
+      {isCheckoutOpen && (
+        <Suspense fallback={null}>
+          <CheckoutModal
+            isOpen={isCheckoutOpen}
+            items={cartItems}
+            totals={totals}
+            locale={locale}
+            currency={currency}
+            bankConfig={bankConfig}
+            authSession={authSession}
+            clientProfile={clientProfile}
+            onClose={() => setIsCheckoutOpen(false)}
+            onOrderCompleted={handleOrderCompleted}
+            onAutoVerifiedPayment={handleAutoVerifiedPayment}
+            onOpenTracker={(orderCode) => {
+              setTrackerInitialCode(orderCode);
+              setIsTrackerOpen(true);
+            }}
+            onOpenAccount={() => setIsAccountOpen(true)}
+          />
+        </Suspense>
+      )}
 
       {/* Client Email Auth & Permanent Source Recovery Vault */}
-      <AccountPortalModal
-        isOpen={isAccountOpen}
-        locale={locale}
-        currency={currency}
-        session={authSession}
-        profile={clientProfile}
-        orders={persistedOrders}
-        onClose={() => setIsAccountOpen(false)}
-        onAuthenticated={handleAuthenticated}
-        onLogout={handleLogout}
-        onProfileSaved={setClientProfile}
-        onOpenOrderTracker={(orderCode) => {
-          setTrackerInitialCode(orderCode);
-          setIsTrackerOpen(true);
-        }}
-      />
+      {isAccountOpen && (
+        <Suspense fallback={null}>
+          <AccountPortalModal
+            isOpen={isAccountOpen}
+            locale={locale}
+            currency={currency}
+            session={authSession}
+            profile={clientProfile}
+            orders={persistedOrders}
+            onClose={() => setIsAccountOpen(false)}
+            onAuthenticated={handleAuthenticated}
+            onLogout={handleLogout}
+            onProfileSaved={setClientProfile}
+            onOpenOrderTracker={(orderCode) => {
+              setTrackerInitialCode(orderCode);
+              setIsTrackerOpen(true);
+            }}
+          />
+        </Suspense>
+      )}
 
       {/* Persistent Order Tracker Modal (IndexedDB) */}
-      <OrderTrackerModal
-        isOpen={isTrackerOpen}
-        orders={persistedOrders}
-        locale={locale}
-        currency={currency}
-        initialOrderCode={trackerInitialCode}
-        onClose={() => setIsTrackerOpen(false)}
-        onSubmitPaymentProof={handleSubmitPaymentProof}
-      />
+      {isTrackerOpen && (
+        <Suspense fallback={null}>
+          <OrderTrackerModal
+            isOpen={isTrackerOpen}
+            orders={persistedOrders}
+            locale={locale}
+            currency={currency}
+            initialOrderCode={trackerInitialCode}
+            onClose={() => setIsTrackerOpen(false)}
+            onSubmitPaymentProof={handleSubmitPaymentProof}
+          />
+        </Suspense>
+      )}
 
       {/* Owner Admin Console (Executive Analytics, Product CMS CRUD, Orders, Live Bank VietQR) */}
-      <OwnerConsoleModal
-        isOpen={isOwnerConsoleOpen}
-        locale={locale}
-        authSession={authSession}
-        orders={persistedOrders}
-        inquiries={persistedInquiries}
-        bankConfig={bankConfig}
-        catalogProducts={catalogProducts}
-        onClose={() => setIsOwnerConsoleOpen(false)}
-        onUpdateOrderStatus={handleUpdateOrderStatus}
-        onUpdateOrderDeliveryUrl={handleUpdateOrderDeliveryUrl}
-        onSimulateRealtimeWebhook={handleSimulateRealtimeWebhook}
-        onBankConfigChange={setBankConfig}
-        onCatalogProductsChange={setCatalogProducts}
-        onLaunch10kLiveTest={handleLaunch10kLiveTest}
-      />
+      {isOwnerConsoleOpen && (
+        <Suspense fallback={null}>
+          <OwnerConsoleModal
+            isOpen={isOwnerConsoleOpen}
+            locale={locale}
+            authSession={authSession}
+            orders={persistedOrders}
+            inquiries={persistedInquiries}
+            bankConfig={bankConfig}
+            catalogProducts={catalogProducts}
+            onClose={() => setIsOwnerConsoleOpen(false)}
+            onUpdateOrderStatus={handleUpdateOrderStatus}
+            onUpdateOrderDeliveryUrl={handleUpdateOrderDeliveryUrl}
+            onSimulateRealtimeWebhook={handleSimulateRealtimeWebhook}
+            onBankConfigChange={setBankConfig}
+            onCatalogProductsChange={setCatalogProducts}
+            onLaunch10kLiveTest={handleLaunch10kLiveTest}
+          />
+        </Suspense>
+      )}
 
       {/* Subtle Bottom-Left Confirmation Toast (never collides with open modals/drawers) */}
       {toastText && !isCartOpen && !isCheckoutOpen && !isTrackerOpen && !isAccountOpen && !isOwnerConsoleOpen && (
