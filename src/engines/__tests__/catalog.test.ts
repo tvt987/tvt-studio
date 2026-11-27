@@ -45,40 +45,44 @@ describe('Catalog Engine', () => {
     expect(byVietnamese[0].id).toBe('maison-vera');
   });
 
-  it('sorts products accurately by price ascending, descending, and fastest delivery', () => {
+  it('sorts products accurately by featured VIP order, price ascending/descending, and fastest delivery', () => {
+    const featured = filterAndSortCatalog(CATALOG_PRODUCTS, 'all', '', 'featured');
+    expect(featured[0].id).toBe('velox-ev-motors');
+    expect(featured[0].priceVnd).toBe(20_000_000);
+
     const asc = filterAndSortCatalog(CATALOG_PRODUCTS, 'all', '', 'price-asc');
-    expect(asc[0].id).toBe('lumina-medspa');
+    expect(asc[0].id).toBe('vanguard-fitness');
     expect(asc[asc.length - 1].id).toBe('aegispulse');
 
     const desc = filterAndSortCatalog(CATALOG_PRODUCTS, 'all', '', 'price-desc');
     expect(desc[0].id).toBe('aegispulse');
-    expect(desc[desc.length - 1].id).toBe('lumina-medspa');
+    expect(desc[desc.length - 1].id).toBe('vanguard-fitness');
 
     const fastest = filterAndSortCatalog(CATALOG_PRODUCTS, 'all', '', 'fastest');
     expect(fastest[0].deliveryDaysMin).toBe(2);
   });
 
   it('formats VND and USD currency strings deterministically', () => {
-    expect(formatMoney(3_490_000, 'VND')).toBe('3.490.000₫');
-    expect(formatMoney(6_990_000, 'VND')).toBe('6.990.000₫');
-    expect(formatMoney(139, 'USD')).toBe('$139');
+    expect(formatMoney(20_000_000, 'VND')).toBe('20.000.000₫');
+    expect(formatMoney(11_900_000, 'VND')).toBe('11.900.000₫');
+    expect(formatMoney(799, 'USD')).toBe('$799');
     expect(formatMoney(1_450, 'USD')).toBe('$1,450');
     expect(formatMoney(-500, 'VND')).toBe('0₫');
   });
 
   it('calculates Standard vs Full Source (+30%) license pricing cleanly', () => {
-    const maison = CATALOG_PRODUCTS.find((p) => p.id === 'maison-vera')!;
-    expect(getLicensePrice(maison, 'standard', 'VND')).toBe(3_490_000);
-    expect(getLicensePrice(maison, 'standard', 'USD')).toBe(139);
-    // 3,490,000 * 1.3 = 4,537,000 -> rounded to nearest 10k = 4,540,000
-    expect(getLicensePrice(maison, 'full-source', 'VND')).toBe(4_540_000);
-    // 139 * 1.3 = 180.7 -> rounded = 181
-    expect(getLicensePrice(maison, 'full-source', 'USD')).toBe(181);
+    const velox = CATALOG_PRODUCTS.find((p) => p.id === 'velox-ev-motors')!;
+    expect(getLicensePrice(velox, 'standard', 'VND')).toBe(20_000_000);
+    expect(getLicensePrice(velox, 'standard', 'USD')).toBe(799);
+    // 20,000,000 * 1.3 = 26,000,000
+    expect(getLicensePrice(velox, 'full-source', 'VND')).toBe(26_000_000);
+    // 799 * 1.3 = 1038.7 -> rounded = 1039
+    expect(getLicensePrice(velox, 'full-source', 'USD')).toBe(1_039);
   });
 
   it('computes savings percentage and localized delivery ranges', () => {
     const aegis = CATALOG_PRODUCTS.find((p) => p.id === 'aegispulse')!;
-    expect(getSavingsPercent(aegis, 'VND')).toBe(46);
+    expect(getSavingsPercent(aegis, 'VND')).toBe(36);
     expect(formatDeliveryRange(aegis, 'vi')).toBe('5–10 ngày');
     expect(formatDeliveryRange(aegis, 'en')).toBe('5–10 days');
   });

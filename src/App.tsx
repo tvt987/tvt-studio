@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { isAdminSession } from './engines/adminOps';
 import {
   createDefaultProfile,
   ensureOrderDeliverable,
@@ -412,6 +413,30 @@ export const App: React.FC = () => {
     );
   };
 
+  const handleLaunch10kLiveTest = () => {
+    const testItem: CartItem = {
+      kind: 'template',
+      cartKey: 'tpl:vietqr-test-10k:standard',
+      productId: 'vietqr-test-10k',
+      sku: 'TVT-TEST-10K',
+      title: 'Gói Test VietQR Real-Time (10.000₫)',
+      subtitle: {
+        vi: 'Kiểm thử thanh toán tự động MBBank ↔ SePay ↔ Supabase (1–3 giây)',
+        en: 'Live MBBank ↔ SePay ↔ Supabase Real-Time Webhook Test (1–3s)',
+      },
+      previewImage: './media/studio-emblem.webp',
+      license: 'standard',
+      unitVnd: 10_000,
+      unitUsd: 1,
+      quantity: 1,
+      deliveryDaysLabel: '1–3 giây (Auto-Verified)',
+    };
+    setCartItems([testItem]);
+    setActiveVoucherCode(null);
+    setPaymentMode('full');
+    setIsCheckoutOpen(true);
+  };
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-canvas)', color: 'var(--ink-primary)' }}>
       <div className="no-print">
@@ -423,6 +448,7 @@ export const App: React.FC = () => {
           cartPayableNow={currency === 'VND' ? totals.payableNowVnd : totals.payableNowUsd}
           savedOrderCount={persistedOrders.length}
           accountEmail={authSession?.email ?? null}
+          isAdmin={isAdminSession(authSession)}
           onToggleLocale={setLocale}
           onToggleCurrency={setCurrency}
           onToggleTheme={() => setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))}
@@ -432,6 +458,7 @@ export const App: React.FC = () => {
             setIsTrackerOpen(true);
           }}
           onOpenAccount={() => setIsAccountOpen(true)}
+          onOpenAdmin={() => setIsOwnerConsoleOpen(true)}
         />
 
         <main>
@@ -600,6 +627,7 @@ export const App: React.FC = () => {
       <OwnerConsoleModal
         isOpen={isOwnerConsoleOpen}
         locale={locale}
+        authSession={authSession}
         orders={persistedOrders}
         inquiries={persistedInquiries}
         bankConfig={bankConfig}
@@ -608,6 +636,7 @@ export const App: React.FC = () => {
         onUpdateOrderDeliveryUrl={handleUpdateOrderDeliveryUrl}
         onSimulateRealtimeWebhook={handleSimulateRealtimeWebhook}
         onBankConfigChange={setBankConfig}
+        onLaunch10kLiveTest={handleLaunch10kLiveTest}
       />
 
       {/* Subtle Bottom-Left Confirmation Toast (never collides with open modals/drawers) */}

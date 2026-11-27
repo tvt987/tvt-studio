@@ -8,6 +8,7 @@ import {
   IconMenu,
   IconMoon,
   IconSearch,
+  IconShield,
   IconSun,
   IconUser,
 } from './Icons';
@@ -20,12 +21,14 @@ interface NavbarProps {
   cartPayableNow: number;
   savedOrderCount: number;
   accountEmail: string | null;
+  isAdmin: boolean;
   onToggleLocale: (next: Locale) => void;
   onToggleCurrency: (next: Currency) => void;
   onToggleTheme: () => void;
   onOpenCart: () => void;
   onOpenTracker: () => void;
   onOpenAccount: () => void;
+  onOpenAdmin: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -36,12 +39,14 @@ export const Navbar: React.FC<NavbarProps> = ({
   cartPayableNow,
   savedOrderCount,
   accountEmail,
+  isAdmin,
   onToggleLocale,
   onToggleCurrency,
   onToggleTheme,
   onOpenCart,
   onOpenTracker,
   onOpenAccount,
+  onOpenAdmin,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -184,6 +189,25 @@ export const Navbar: React.FC<NavbarProps> = ({
             {theme === 'dark' ? <IconSun className="h-4 w-4" /> : <IconMoon className="h-4 w-4" />}
           </button>
 
+          {/* Admin Portal Trigger (ONLY visible when signed in as tinhkun102@gmail.com) */}
+          {isAdmin && (
+            <button
+              type="button"
+              onClick={onOpenAdmin}
+              className="hidden h-9 shrink-0 items-center gap-1.5 rounded-lg border px-2.5 text-xs font-bold transition-colors md:flex"
+              style={{
+                borderColor: 'var(--emerald)',
+                backgroundColor: 'var(--emerald-soft)',
+                color: 'var(--emerald)',
+              }}
+              data-testid="navbar-admin-btn"
+              aria-label="Admin Management Portal"
+            >
+              <IconShield className="h-3.5 w-3.5" />
+              <span className="hidden xl:inline">Admin</span>
+            </button>
+          )}
+
           {/* Account / Source Vault Trigger */}
           <button
             type="button"
@@ -273,6 +297,24 @@ export const Navbar: React.FC<NavbarProps> = ({
                 {link.label}
               </a>
             ))}
+            {isAdmin && (
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onOpenAdmin();
+                }}
+                className="flex items-center justify-between rounded-lg border px-3 py-2 text-left text-sm font-bold"
+                style={{
+                  borderColor: 'var(--emerald)',
+                  color: 'var(--emerald)',
+                  backgroundColor: 'var(--emerald-soft)',
+                }}
+              >
+                <span>Admin Portal (tinhkun102)</span>
+                <IconShield className="h-4 w-4" />
+              </button>
+            )}
             <button
               type="button"
               onClick={() => {

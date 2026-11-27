@@ -39,17 +39,26 @@ interface CatalogSectionProps {
   onOpenInquiry: (product: TemplateProduct) => void;
 }
 
-function getComplexityBadge(priceVnd: number, locale: Locale): { label: string; colorVar: string } {
-  if (priceVnd <= 2_990_000) {
-    return { label: locale === 'vi' ? 'Mức Tiêu Chuẩn' : 'Standard Tier', colorVar: 'var(--emerald)' };
+function getComplexityBadge(priceVnd: number, locale: Locale): { label: string; colorVar: string; vip: boolean } {
+  if (priceVnd >= 15_000_000) {
+    return {
+      label: locale === 'vi' ? 'VIP PRO 15M–23M' : 'FLAGSHIP VIP PRO',
+      colorVar: 'var(--accent)',
+      vip: true,
+    };
   }
-  if (priceVnd <= 4_490_000) {
-    return { label: locale === 'vi' ? 'Mức Trung - Cao' : 'Mid-High Tier', colorVar: 'var(--cyan)' };
+  if (priceVnd >= 10_000_000) {
+    return {
+      label: locale === 'vi' ? 'Enterprise 10M+' : 'Enterprise 10M+',
+      colorVar: 'var(--cyan)',
+      vip: true,
+    };
   }
-  if (priceVnd <= 5_990_000) {
-    return { label: locale === 'vi' ? 'Mức Chuyên Sâu' : 'Advanced Tier', colorVar: 'var(--accent)' };
-  }
-  return { label: 'Enterprise', colorVar: 'var(--accent)' };
+  return {
+    label: locale === 'vi' ? 'Pro Commerce' : 'Pro Commerce',
+    colorVar: 'var(--emerald)',
+    vip: false,
+  };
 }
 
 export const CatalogSection: React.FC<CatalogSectionProps> = ({
@@ -65,17 +74,19 @@ export const CatalogSection: React.FC<CatalogSectionProps> = ({
   onOpenInquiry,
 }) => {
   const [category, setCategory] = useState<ProductCategory>('all');
+  const [vipOnly, setVipOnly] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<CatalogSort>('featured');
   const [cardLicenses, setCardLicenses] = useState<Record<string, LicenseTier>>({});
   const [recentlyAddedId, setRecentlyAddedId] = useState<string | null>(null);
 
   const counts = useMemo(() => getCategoryCounts(products), [products]);
+  const vipCount = useMemo(() => products.filter((p) => p.priceVnd >= 10_000_000).length, [products]);
 
-  const visibleProducts = useMemo(
-    () => filterAndSortCatalog(products, category, searchQuery, sortBy),
-    [products, category, searchQuery, sortBy]
-  );
+  const visibleProducts = useMemo(() => {
+    const base = filterAndSortCatalog(products, category, searchQuery, sortBy);
+    return vipOnly ? base.filter((p) => p.priceVnd >= 10_000_000) : base;
+  }, [products, category, searchQuery, sortBy, vipOnly]);
 
   const categoryTabs: Array<{ id: ProductCategory; label: string }> = [
     { id: 'all', label: locale === 'vi' ? 'Tất Cả' : 'All' },
@@ -178,9 +189,22 @@ export const CatalogSection: React.FC<CatalogSectionProps> = ({
           })}
         </div>
 
-        {/* Search + Sort */}
+        {/* Search + VIP 10M+ Toggle + Sort */}
         <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center">
-          <div className="relative flex-1 sm:w-60">
+          <button
+            type="button"
+            onClick={() => setVipOnly((v) => !v)}
+            data-testid="filter-vip-10m-btn"
+            className="inline-flex h-10 shrink-0 items-center justify-center gap-1.5 rounded-lg border px-3 text-xs font-bold transition-all"
+            style={{
+              backgroundColor: vipOnly ? 'var(--accent)' : 'var(--accent-soft)',
+              borderColor: 'var(--accent)',
+              color: vipOnly ? '#ffffff' : 'var(--accent)',
+            }}
+          >
+            <span>{locale === 'vi' ? `VIP PRO 10M+ (${vipCount})` : `VIP 10M+ (${vipCount})`}</span>
+          </button>
+          <div className="relative flex-1 sm:w-52">
             <IconSearch
               className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2"
               aria-hidden="true"
@@ -286,9 +310,19 @@ export const CatalogSection: React.FC<CatalogSectionProps> = ({
 
                   {/* Top Badges */}
                   <div className="absolute top-3 right-3 left-3 flex items-center justify-between gap-2">
-                    <span className="rounded-md border border-white/15 bg-black/65 px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur-md">
-                      {product.categoryLabel[locale]}
-                    </span>
+                    <div className="flex items-center gap-1.5">
+                      {product.priceVnd >= 15_000_000 && (
+                        <span
+                          className="font-mono-num rounded-md px-2 py-1 text-[10px] font-extrabold text-white shadow-md"
+                          style={{ backgroundColor: 'var(--accent)' }}
+                        >
+                          VIP PRO
+                        </span>
+                      )}
+                      <span className="rounded-md border border-white/15 bg-black/65 px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur-md">
+                        {product.categoryLabel[locale]}
+                      </span>
+                    </div>
                     <span className="font-mono-num inline-flex items-center gap-1 rounded-md border border-white/15 bg-black/65 px-2 py-1 text-[10px] font-medium text-white/90 backdrop-blur-md">
                       <IconClock className="h-3 w-3" />
                       {formatDeliveryRange(product, locale)}
