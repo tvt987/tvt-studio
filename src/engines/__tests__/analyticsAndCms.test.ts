@@ -197,7 +197,7 @@ describe('Executive Analytics & Cloud Product CMS Engine', () => {
 
   it('converts TemplateProduct to AdminMutationInput cleanly and sorts bundled catalog by featuredRank', () => {
     const bundled = getBundledCmsProducts();
-    expect(bundled).toHaveLength(22);
+    expect(bundled).toHaveLength(26);
     expect(bundled[0].id).toBe('velox-ev-motors');
     expect(bundled[0].featuredRank).toBe(1);
     expect(bundled[1].id).toBe('aeroforge-digital-twin');

@@ -95,7 +95,7 @@ export const CatalogSection: React.FC<CatalogSectionProps> = ({
             01 · {locale === 'vi' ? 'BỘ SƯU TẬP FLAGSHIP' : 'FLAGSHIP COLLECTION'}
           </div>
           <h2 className="font-display mt-2 text-2xl font-extrabold tracking-tight sm:text-4xl">
-            {locale === 'vi' ? '22 Website Thương Mại Live' : '22 Live Commercial Websites'}
+            {locale === 'vi' ? `${products.length} Hệ Thống & Website Live` : `${products.length} Live Commercial Systems`}
           </h2>
         </div>
 

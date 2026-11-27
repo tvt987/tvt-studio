@@ -15,11 +15,11 @@ interface HeroSectionProps {
 
 const FEATURED_SLIDE_IDS = [
   'velox-ev-motors',
-  'aeroforge-digital-twin',
-  'helios-quant-terminal',
+  'orbitalflow-saas',
+  'vectradoc-rag',
+  'fleetpulse-gis',
+  'medcore-ehr',
   'chronos-horology',
-  'aurelia-resort',
-  'pulse-pos-fnb',
 ];
 
 export const HeroSection: React.FC<HeroSectionProps> = ({ locale, onPreviewLive }) => {
@@ -32,11 +32,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ locale, onPreviewLive 
 
   const trustStats = [
     {
-      value: '25',
-      label: locale === 'vi' ? 'Web Mẫu & Pro Tools Live' : 'Live Apps & Pro Tools',
+      value: '29',
+      label: locale === 'vi' ? 'Hệ Thống & Pro Tools Live' : 'Live Apps & Pro Tools',
     },
     {
-      value: '1,271',
+      value: '1,547',
       label: locale === 'vi' ? 'Bài Test Tự Động Xanh' : 'Automated CI Tests',
     },
     {
@@ -107,8 +107,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ locale, onPreviewLive 
               style={{ color: 'var(--ink-secondary)' }}
             >
               {locale === 'vi'
-                ? '22 sản phẩm live đa phong cách từ 3D HDRI, FinTech đến F&B — bàn giao 2–10 ngày, tùy biến theo mọi ngôn ngữ.'
-                : '22 diverse live products across 3D HDRI, FinTech & Hospitality — delivered in 2–10 days, custom-built in any stack.'}
+                ? '26 hệ thống live từ B2B SaaS, AI RAG, GIS Logistics, Bệnh Án EHR đến 3D HDRI — bàn giao 2–10 ngày.'
+                : '26 live systems across B2B SaaS, Hybrid AI RAG, GIS Fleet, Clinical EHR & 3D HDRI — delivered in 2–10 days.'}
             </p>
 
             {/* Primary CTA Cluster */}
@@ -117,7 +117,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ locale, onPreviewLive 
                 href="#catalog"
                 className="btn-primary inline-flex items-center gap-2 rounded-xl px-6 py-3.5 text-sm font-semibold"
               >
-                <span>{locale === 'vi' ? 'Khám Phá 22 Mẫu Live' : 'Explore 22 Live Demos'}</span>
+                <span>{locale === 'vi' ? 'Khám Phá 26 Hệ Thống Live' : 'Explore 26 Live Systems'}</span>
                 <IconArrowDown className="h-4 w-4" />
               </a>
 

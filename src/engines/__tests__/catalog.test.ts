@@ -10,8 +10,8 @@ import {
 } from '../catalog';
 
 describe('Catalog Engine', () => {
-  it('contains all 22 real commercial products with valid live URLs and relative media paths', () => {
-    expect(CATALOG_PRODUCTS).toHaveLength(22);
+  it('contains all 26 real commercial products with valid live URLs and relative media paths', () => {
+    expect(CATALOG_PRODUCTS).toHaveLength(26);
     for (const product of CATALOG_PRODUCTS) {
       expect(product.liveUrl).toMatch(/^https:\/\/tvt987\.github\.io\/.+\/$/);
       expect(product.previewImage).toMatch(/^\.\/media\/.+\.(webp|jpg)$/);
@@ -23,12 +23,12 @@ describe('Catalog Engine', () => {
 
   it('computes accurate category counts across all 5 vertical segments', () => {
     const counts = getCategoryCounts(CATALOG_PRODUCTS);
-    expect(counts.all).toBe(22);
+    expect(counts.all).toBe(26);
     expect(counts['commerce-3d']).toBe(5);
-    expect(counts['clinic-proptech']).toBe(3);
+    expect(counts['clinic-proptech']).toBe(4);
     expect(counts['pos-fnb']).toBe(3);
-    expect(counts['enterprise-b2b']).toBe(6);
-    expect(counts['saas-ai']).toBe(5);
+    expect(counts['enterprise-b2b']).toBe(7);
+    expect(counts['saas-ai']).toBe(7);
   });
 
   it('filters catalog by category and search query across VI/EN and tech stack', () => {
