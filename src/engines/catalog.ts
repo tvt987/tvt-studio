@@ -216,7 +216,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
   {
     id: 'pulse-pos-fnb',
     sku: 'TVT-POS-05',
-    name: 'PulsePOS F&B v3.0',
+    name: 'PulsePOS F&B v4.0',
     subtitle: {
       vi: 'Hệ Thống POS Quán Café / Nhà Hàng & Bếp KDS',
       en: 'Café & Restaurant POS Terminal with Live KDS',
@@ -405,7 +405,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
   {
     id: 'aegispulse',
     sku: 'TVT-ENT-09',
-    name: 'AegisPulse SRE Engine v4.0',
+    name: 'AegisPulse SRE v5.0',
     subtitle: {
       vi: 'Kiến Trúc SRE Phân Tán .NET 10, Chaos Raft & Flamegraph',
       en: 'Distributed .NET 10 SRE, Raft Chaos Injector & GC Flamegraph',
@@ -497,7 +497,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
   {
     id: 'velox-ev-motors',
     sku: 'TVT-EV-11',
-    name: 'Velox EV Motors v4.0',
+    name: 'Velox EV Motors v5.0',
     subtitle: {
       vi: 'Showroom Hypercar Điện 3D HDRI, Cửa Cánh Chim & Launch 0–100',
       en: '3D HDRI Hypercar Showroom, Gullwing Doors & 0–100 Launch Telemetry',
@@ -902,7 +902,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
   {
     id: 'aeroforge-digital-twin',
     sku: 'TVT-IOT-22',
-    name: 'AeroForge 3D Digital Twin v2.0',
+    name: 'AeroForge 3D Twin v3.0',
     subtitle: {
       vi: 'Bản Sao Số Nhà Máy 4.0 3D, Robot 6 Trục Kinematics & AI Dự Báo Lỗi FFT',
       en: 'Industry 4.0 Smart Factory 3D Twin, 6-Axis Robot Kinematics & Vibration FFT AI',
@@ -947,7 +947,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
   {
     id: 'helios-quant-terminal',
     sku: 'TVT-QNT-21',
-    name: 'Helios Quant Terminal v2.0',
+    name: 'Helios Quant Terminal v3.0',
     subtitle: {
       vi: 'Sàn Khớp Lệnh L2 Orderbook, Biểu Đồ Nến Canvas & Backtest Thuật Toán Quant',
       en: 'Institutional L2 Orderbook Matching Engine, Canvas Candlestick & Algo Backtester',
@@ -992,7 +992,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
   {
     id: 'chronos-horology',
     sku: 'TVT-LUX-20',
-    name: 'Chronos 3D Horology v2.0',
+    name: 'Chronos 3D Watch v3.0',
     subtitle: {
       vi: 'Bộ Máy Đồng Hồ Cơ Tourbillon 3D Chạy Thật, Âm Thanh 4Hz & Boutique Thụy Sĩ',
       en: 'Working 3D Mechanical Tourbillon Calibre, 4Hz Escapement Synth & Swiss Boutique',
@@ -1037,7 +1037,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
   {
     id: 'orbitalflow-saas',
     sku: 'TVT-SAAS-23',
-    name: 'OrbitalFlow B2B SaaS v2.0',
+    name: 'OrbitalFlow B2B SaaS v3.0',
     subtitle: {
       vi: 'Nền Tảng B2B SaaS Đa Tenant, RBAC, Gantt Đường Găng & Stripe Metering',
       en: 'Multi-Tenant B2B SaaS, RBAC Matrix, Gantt CPM & Stripe Proration Billing',
@@ -1082,7 +1082,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
   {
     id: 'vectradoc-rag',
     sku: 'TVT-AI-24',
-    name: 'VectraDoc Enterprise RAG v2.0',
+    name: 'VectraDoc AI RAG v3.0',
     subtitle: {
       vi: 'AI Đọc Tài Liệu Hybrid RAG (BM25 + Vector RRF), Trích Dẫn & Che PII',
       en: 'Enterprise Document Intelligence, Live Hybrid BM25+Vector RRF RAG & PII Guard',
@@ -1127,7 +1127,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
   {
     id: 'fleetpulse-gis',
     sku: 'TVT-GIS-25',
-    name: 'FleetPulse GIS Dispatch v2.0',
+    name: 'FleetPulse GIS Fleet v3.0',
     subtitle: {
       vi: 'Điều Phối Đội Xe Bản Đồ Vector, Tối Ưu Tuyến CVRP & Chuỗi Lạnh -18°C',
       en: 'Real-Time GIS Vector Fleet Control, CVRP 2-Opt Route Optimizer & Cold-Chain IoT',
@@ -1172,7 +1172,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
   {
     id: 'medcore-ehr',
     sku: 'TVT-MED-26',
-    name: 'MedCore Clinical EHR v2.0',
+    name: 'MedCore Clinical EHR v3.0',
     subtitle: {
       vi: 'Bệnh Án Điện Tử EHR, Sóng ECG/SpO2 Canvas, NEWS2 & Chuẩn HL7 FHIR R4',
       en: 'Clinical EHR Workstation, Live Canvas ECG/SpO2, RCP NEWS2 & HL7 FHIR R4 Interop',

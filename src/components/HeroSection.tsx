@@ -36,7 +36,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ locale, onPreviewLive 
       label: locale === 'vi' ? 'Hệ Thống & Pro Tools Live' : 'Live Apps & Pro Tools',
     },
     {
-      value: '2,003',
+      value: '3,294',
       label: locale === 'vi' ? 'Tests Xanh (.NET 10 / FastAPI / UI)' : 'Green Tests (.NET 10 / FastAPI / UI)',
     },
     {
@@ -78,7 +78,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ locale, onPreviewLive 
                 className="font-mono-num text-[11px] font-semibold tracking-[0.14em] uppercase"
                 style={{ color: 'var(--ink-secondary)' }}
               >
-                TVT STUDIO v8.0 · FLAGSHIP EDITION
+                TVT STUDIO v8.5 · 26/26 MONOREPOS
               </span>
             </div>
 
