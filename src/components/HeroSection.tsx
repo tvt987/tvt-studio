@@ -5,7 +5,6 @@ import {
   IconArrowDown,
   IconArrowUpRight,
   IconPhone,
-  IconShield,
   IconSliders,
 } from './Icons';
 
@@ -17,90 +16,91 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ locale }) => {
   const trustStats = [
     {
       value: '25',
-      label: locale === 'vi' ? 'Website & 10 Pro Tools Live' : 'Live Apps & 10 Pro Tools',
-      detail: locale === 'vi' ? '22 Web Mẫu + 10 Công cụ · Demo thật 100%' : '22 Commercial Sites + 10 Free Tools',
+      label: locale === 'vi' ? 'Web Mẫu & Pro Tools Live' : 'Live Apps & Pro Tools',
     },
     {
       value: '1,271',
-      label: locale === 'vi' ? 'CI Automated Tests Green' : 'CI Automated Tests Green',
-      detail: locale === 'vi' ? 'Vitest + Pytest + .NET xUnit · 0 Error' : 'Vitest + Pytest + .NET xUnit · 0 Errors',
+      label: locale === 'vi' ? 'Bài Test Tự Động Xanh' : 'Automated CI Tests',
     },
     {
       value: '700+',
-      label: locale === 'vi' ? 'Siêu Thị Production' : 'Production Retail Stores',
-      detail: locale === 'vi' ? 'Kinh nghiệm lõi .NET 8/10 · 5.000+ RPS' : 'Battle-tested .NET / 5,000+ RPS',
+      label: locale === 'vi' ? 'Siêu Thị Thực Chiến' : 'Retail Stores Scale',
     },
     {
       value: locale === 'vi' ? '2–10 Ngày' : '2–10 Days',
-      label: locale === 'vi' ? 'Thời Gian Bàn Giao' : 'Deployment Turnaround',
-      detail: locale === 'vi' ? 'Giá hợp lý · Hỗ trợ xuyên suốt khi dùng' : 'Fair pricing · Ongoing usage support',
+      label: locale === 'vi' ? 'Bàn Giao Trọn Gói' : 'Turnkey Delivery',
     },
   ];
 
   return (
-    <section id="top" className="studio-grid-bg relative overflow-hidden border-b" style={{ borderColor: 'var(--border-hairline)' }}>
-      {/* Subtle architectural copper glow */}
+    <section
+      id="top"
+      className="studio-grid-bg relative overflow-hidden border-b"
+      style={{ borderColor: 'var(--border-hairline)' }}
+    >
+      {/* Subtle architectural vermilion studio glow */}
       <div
-        className="pointer-events-none absolute -top-40 right-0 h-[460px] w-[460px] rounded-full opacity-20 blur-[120px]"
+        className="pointer-events-none absolute -top-36 right-1/4 h-[460px] w-[460px] rounded-full opacity-20 blur-[130px]"
         style={{ background: 'radial-gradient(circle, var(--accent) 0%, transparent 70%)' }}
         aria-hidden="true"
       />
 
-      <div className="mx-auto max-w-[1360px] px-4 pt-12 pb-14 sm:px-6 lg:px-8 lg:pt-16 lg:pb-20">
-        <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-12 lg:gap-12">
-          {/* Left Editorial Column */}
+      <div className="mx-auto max-w-[1360px] px-4 pt-12 pb-12 sm:px-6 lg:px-8 lg:pt-16 lg:pb-16">
+        <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-12 lg:gap-14">
+          {/* Left Editorial Column — Crisp, High-Impact, Zero Wall-of-Text */}
           <div className="lg:col-span-6">
             <div
-              className="mb-6 inline-flex items-center gap-2.5 rounded-full border px-3.5 py-1.5"
+              className="mb-6 inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5"
               style={{
                 backgroundColor: 'var(--bg-surface)',
                 borderColor: 'var(--border-strong)',
               }}
             >
-              <span className="h-2 w-2 rounded-full" style={{ backgroundColor: 'var(--emerald)' }} />
-              <span className="font-mono-num text-[11px] font-medium tracking-wider uppercase" style={{ color: 'var(--ink-secondary)' }}>
-                {locale === 'vi'
-                  ? 'NHẬN TRIỂN KHAI THÁNG NÀY · TP.HCM / GLOBAL REMOTE'
-                  : 'BOOKING OPEN · HO CHI MINH CITY / GLOBAL REMOTE'}
+              <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: 'var(--emerald)' }} />
+              <span
+                className="font-mono-num text-[11px] font-semibold tracking-[0.14em] uppercase"
+                style={{ color: 'var(--ink-secondary)' }}
+              >
+                {locale === 'vi' ? 'TVT STUDIO · FLAGSHIP EDITION' : 'TVT STUDIO · FLAGSHIP EDITION'}
               </span>
             </div>
 
-            <h1 className="font-display text-3xl leading-[1.12] font-extrabold tracking-tight sm:text-5xl lg:text-[52px]">
+            <h1 className="font-display text-4xl leading-[1.08] font-extrabold tracking-tight sm:text-5xl lg:text-[56px]">
               {locale === 'vi' ? (
                 <>
-                  Kho Website Mẫu Chuẩn{' '}
+                  Website{' '}
                   <span className="font-editorial font-normal italic" style={{ color: 'var(--accent)' }}>
                     Flagship
                   </span>{' '}
-                  &amp; Code Phần Mềm Theo Yêu Cầu.
+                  &amp; Hệ Thống 3D Đẳng Cấp.
                 </>
               ) : (
                 <>
-                  Flagship Website{' '}
+                  Flagship{' '}
                   <span className="font-editorial font-normal italic" style={{ color: 'var(--accent)' }}>
-                    Marketplace
+                    Websites
                   </span>{' '}
-                  &amp; Custom IT Engineering.
+                  &amp; Bespoke 3D Systems.
                 </>
               )}
             </h1>
 
             <p
-              className="mt-5 max-w-xl text-base leading-relaxed sm:text-lg"
+              className="mt-5 max-w-lg text-base leading-relaxed sm:text-[17px]"
               style={{ color: 'var(--ink-secondary)' }}
             >
               {locale === 'vi'
-                ? 'Kho Website mẫu chuẩn quốc tế với mức giá hợp lý theo độ phức tạp — nhận thiết kế & tinh chỉnh theo yêu cầu với BẤT KỲ ngôn ngữ lập trình nào (React, Next.js, Vue, Angular, Node.js, Python, .NET, Java, Go, PHP...) và hỗ trợ đồng hành trong suốt quá trình sử dụng.'
-                : 'Flagship ready-to-launch websites at fair complexity-based pricing — plus custom design, iterative tuning in ANY programming language/stack you need, and dedicated support throughout real-world usage.'}
+                ? '22 sản phẩm live từ 3D HDRI, FinTech đến AI — bàn giao 2–10 ngày, tùy biến theo mọi ngôn ngữ.'
+                : '22 live commercial products across 3D HDRI, FinTech & AI — delivered in 2–10 days, custom-built in any stack.'}
             </p>
 
             {/* Primary CTA Cluster */}
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <a
                 href="#catalog"
-                className="btn-primary inline-flex items-center gap-2 rounded-xl px-5 py-3.5 text-sm font-semibold"
+                className="btn-primary inline-flex items-center gap-2 rounded-xl px-6 py-3.5 text-sm font-semibold"
               >
-                <span>{locale === 'vi' ? 'Khám Phá Kho Website Mẫu' : 'Explore Ready Templates'}</span>
+                <span>{locale === 'vi' ? 'Khám Phá 22 Mẫu Live' : 'Explore 22 Live Demos'}</span>
                 <IconArrowDown className="h-4 w-4" />
               </a>
 
@@ -109,112 +109,57 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ locale }) => {
                 className="btn-secondary inline-flex items-center gap-2 rounded-xl px-5 py-3.5 text-sm font-semibold"
               >
                 <IconSliders className="h-4 w-4" />
-                <span>{locale === 'vi' ? 'Tính Báo Giá Dự Án Riêng' : 'Estimate Custom Scope'}</span>
+                <span>{locale === 'vi' ? 'Báo Giá Riêng' : 'Custom Scope'}</span>
               </a>
 
               <a
                 href={STUDIO_CONTACT.zaloUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn-ghost inline-flex items-center gap-2 rounded-xl px-4 py-3.5 text-sm font-medium"
+                className="inline-flex items-center gap-1.5 px-2.5 py-2 text-sm font-medium transition-colors hover:text-[var(--accent)]"
+                style={{ color: 'var(--ink-secondary)' }}
               >
                 <IconPhone className="h-4 w-4" style={{ color: 'var(--accent)' }} />
                 <span className="font-mono-num">Zalo {STUDIO_CONTACT.phoneDisplay}</span>
                 <IconArrowUpRight className="h-3.5 w-3.5" />
               </a>
             </div>
-
-            {/* Direct Architectural Credentials Strip */}
-            <div
-              className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-2 border-t pt-5 text-xs"
-              style={{ borderColor: 'var(--border-hairline)', color: 'var(--ink-muted)' }}
-            >
-              <span className="inline-flex items-center gap-1.5">
-                <IconShield className="h-3.5 w-3.5" style={{ color: 'var(--emerald)' }} />
-                {locale === 'vi'
-                  ? 'Hỗ trợ kỹ thuật xuyên suốt khi sử dụng & nhận tinh chỉnh theo yêu cầu'
-                  : 'Ongoing operational support & custom tuning included'}
-              </span>
-              <span className="inline-flex items-center gap-1.5">
-                <IconShield className="h-3.5 w-3.5" style={{ color: 'var(--cyan)' }} />
-                {locale === 'vi'
-                  ? 'Nhận code mọi ngôn ngữ (React, Vue, Angular, Node, Python, .NET, Java, Go, PHP...)'
-                  : 'Polyglot builds: any language or framework you prefer'}
-              </span>
-            </div>
           </div>
 
-          {/* Right Architectural Showcase Frame */}
+          {/* Right Frameless Museum Monolith Visual */}
           <div className="lg:col-span-6">
-            <div className="surface-card overflow-hidden rounded-2xl">
-              {/* Top Window Telemetry Bar */}
-              <div
-                className="flex items-center justify-between gap-2 border-b px-3.5 py-2.5 sm:px-4"
-                style={{
-                  backgroundColor: 'var(--bg-elevated)',
-                  borderColor: 'var(--border-hairline)',
-                }}
-              >
-                <div className="flex min-w-0 items-center gap-1.5 sm:gap-2">
-                  <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: 'var(--accent)' }} />
-                  <span className="h-2.5 w-2.5 shrink-0 rounded-full opacity-40" style={{ backgroundColor: 'var(--ink-secondary)' }} />
-                  <span className="h-2.5 w-2.5 shrink-0 rounded-full opacity-25" style={{ backgroundColor: 'var(--ink-secondary)' }} />
-                  <span className="font-mono-num ml-1.5 truncate text-[10px] sm:text-[11px]" style={{ color: 'var(--ink-muted)' }}>
-                    TVT.STUDIO // ENGINE
-                  </span>
-                </div>
-                <span
-                  className="font-mono-num shrink-0 whitespace-nowrap rounded-md px-2 py-0.5 text-[10px] font-semibold"
-                  style={{
-                    backgroundColor: 'var(--emerald-soft)',
-                    color: 'var(--emerald)',
-                  }}
-                >
-                  PRODUCTION READY
-                </span>
-              </div>
-
-              {/* Hero Studio Visual */}
-              <div className="relative aspect-[16/9] w-full overflow-hidden bg-[#090a0d]">
+            <div
+              className="card-luxury card-ultra group relative overflow-hidden rounded-3xl"
+            >
+              <div className="relative aspect-[16/10] w-full overflow-hidden bg-[#07080b]">
                 <img
                   src="./media/studio-hero.webp"
-                  alt="TVT Studio Architectural Engineering Workspace"
+                  alt="TVT Studio Flagship Architectural Engineering"
                   width={1400}
                   height={788}
-                  className="h-full w-full object-cover"
+                  className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
                 />
                 <div
                   className="pointer-events-none absolute inset-0"
                   style={{
                     background:
-                      'linear-gradient(180deg, rgba(9,10,13,0.06) 0%, rgba(9,10,13,0.18) 60%, rgba(9,10,13,0.82) 100%)',
+                      'linear-gradient(180deg, rgba(7,8,11,0.04) 0%, rgba(7,8,11,0) 68%, rgba(7,8,11,0.58) 100%)',
                   }}
                 />
-                <div className="absolute right-4 bottom-4 left-4 flex flex-wrap items-end justify-between gap-3">
-                  <div>
-                    <p className="font-mono-num text-[10px] tracking-widest text-white/70 uppercase">
-                      {locale === 'vi' ? 'TRỰC TIẾP TỪ SOLUTION ARCHITECT' : 'DIRECT FROM PRINCIPAL ARCHITECT'}
-                    </p>
-                    <p className="mt-0.5 text-sm font-semibold text-white sm:text-base">
-                      {locale === 'vi'
-                        ? 'Không qua trung gian sale — Code chuẩn doanh nghiệp ngay từ dòng đầu.'
-                        : 'Zero agency middlemen — Enterprise-grade code from commit one.'}
-                    </p>
-                  </div>
-                  <div className="rounded-lg border border-white/15 bg-black/60 px-3 py-1.5 backdrop-blur-md">
-                    <span className="font-mono-num text-[11px] font-semibold text-white">
-                      CWV 98+ · 0 CONSOLE ERR
-                    </span>
-                  </div>
+                <div className="absolute right-4 bottom-4 flex items-center gap-2">
+                  <span className="font-mono-num inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-black/55 px-3 py-1.5 text-[11px] font-semibold text-white/95 backdrop-blur-md">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#22c55e]" />
+                    <span>{locale === 'vi' ? '22 LIVE DEMOS · 100% PRODUCTION' : '22 LIVE DEMOS · 100% PRODUCTION'}</span>
+                  </span>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Executive Trust Telemetry Strip */}
+        {/* Minimalist Executive KPI Bar */}
         <div
-          className="mt-12 grid grid-cols-2 overflow-hidden rounded-2xl border lg:mt-16 lg:grid-cols-4"
+          className="mt-10 grid grid-cols-2 overflow-hidden rounded-2xl border lg:mt-14 lg:grid-cols-4"
           style={{
             backgroundColor: 'var(--bg-surface)',
             borderColor: 'var(--border-hairline)',
@@ -223,19 +168,22 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ locale }) => {
           {trustStats.map((stat, idx) => (
             <div
               key={stat.label}
-              className={`p-5 sm:p-6 ${idx < 3 ? 'border-b lg:border-r lg:border-b-0' : ''} ${
+              className={`px-5 py-4 sm:px-6 sm:py-5 ${idx < 3 ? 'border-b lg:border-r lg:border-b-0' : ''} ${
                 idx % 2 === 0 ? 'border-r lg:border-r' : ''
               }`}
               style={{ borderColor: 'var(--border-hairline)' }}
             >
-              <div className="font-mono-num text-2xl font-bold tracking-tight sm:text-3xl" style={{ color: 'var(--ink-primary)' }}>
+              <div
+                className="font-mono-num text-2xl font-bold tracking-tight sm:text-[28px]"
+                style={{ color: 'var(--ink-primary)' }}
+              >
                 {stat.value}
               </div>
-              <div className="mt-1.5 text-xs font-semibold sm:text-sm" style={{ color: 'var(--ink-primary)' }}>
+              <div
+                className="mt-1 text-xs font-medium sm:text-[13px]"
+                style={{ color: 'var(--ink-muted)' }}
+              >
                 {stat.label}
-              </div>
-              <div className="mt-1 text-[11px] leading-snug sm:text-xs" style={{ color: 'var(--ink-muted)' }}>
-                {stat.detail}
               </div>
             </div>
           ))}

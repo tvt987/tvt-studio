@@ -17,12 +17,10 @@ import type {
   TemplateProduct,
 } from '../engines/types';
 import {
+  IconArrowUpRight,
   IconCart,
   IconCheck,
-  IconClock,
   IconExternal,
-  IconLayers,
-  IconMonitor,
   IconSearch,
 } from './Icons';
 
@@ -37,28 +35,6 @@ interface CatalogSectionProps {
   onToggleCompare: (productId: string) => void;
   onOpenCompare: () => void;
   onOpenInquiry: (product: TemplateProduct) => void;
-}
-
-function getComplexityBadge(priceVnd: number, locale: Locale): { label: string; colorVar: string; vip: boolean } {
-  if (priceVnd >= 15_000_000) {
-    return {
-      label: locale === 'vi' ? 'VIP PRO 15M–30M' : 'FLAGSHIP VIP PRO',
-      colorVar: 'var(--accent)',
-      vip: true,
-    };
-  }
-  if (priceVnd >= 10_000_000) {
-    return {
-      label: locale === 'vi' ? 'Enterprise 10M+' : 'Enterprise 10M+',
-      colorVar: 'var(--cyan)',
-      vip: true,
-    };
-  }
-  return {
-    label: locale === 'vi' ? 'Pro Commerce' : 'Pro Commerce',
-    colorVar: 'var(--emerald)',
-    vip: false,
-  };
 }
 
 export const CatalogSection: React.FC<CatalogSectionProps> = ({
@@ -90,10 +66,10 @@ export const CatalogSection: React.FC<CatalogSectionProps> = ({
 
   const categoryTabs: Array<{ id: ProductCategory; label: string }> = [
     { id: 'all', label: locale === 'vi' ? 'Tất Cả' : 'All' },
-    { id: 'commerce-3d', label: locale === 'vi' ? '3D & Nội Thất' : '3D & Interior' },
-    { id: 'clinic-proptech', label: locale === 'vi' ? 'Y Tế, BĐS & Gym' : 'Clinic & Wellness' },
-    { id: 'pos-fnb', label: locale === 'vi' ? 'Resort, F&B & POS' : 'Resort & F&B' },
-    { id: 'enterprise-b2b', label: locale === 'vi' ? 'HR, Luật & FinTech' : 'B2B & FinTech' },
+    { id: 'commerce-3d', label: locale === 'vi' ? '3D & Nội Thất' : '3D & Luxury' },
+    { id: 'clinic-proptech', label: locale === 'vi' ? 'Y Tế & BĐS' : 'Clinic & PropTech' },
+    { id: 'pos-fnb', label: locale === 'vi' ? 'Resort & F&B' : 'Resort & F&B' },
+    { id: 'enterprise-b2b', label: locale === 'vi' ? 'FinTech & B2B' : 'FinTech & B2B' },
     { id: 'saas-ai', label: 'SaaS & AI' },
   ];
 
@@ -111,53 +87,40 @@ export const CatalogSection: React.FC<CatalogSectionProps> = ({
   };
 
   return (
-    <section id="catalog" className="mx-auto max-w-[1360px] scroll-mt-20 px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
-      {/* Section Header */}
-      <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
-        <div className="max-w-2xl">
-          <div className="font-mono-num text-xs font-semibold tracking-widest uppercase" style={{ color: 'var(--accent)' }}>
-            01 // {locale === 'vi' ? 'KHO WEBSITE MẪU THƯƠNG MẠI' : 'READY-TO-DEPLOY STOREFRONT'}
+    <section id="catalog" className="mx-auto max-w-[1360px] scroll-mt-20 px-4 py-14 sm:px-6 lg:px-8 lg:py-20">
+      {/* Crisp Editorial Section Header */}
+      <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
+        <div>
+          <div className="font-mono-num text-[11px] font-semibold tracking-[0.16em] uppercase" style={{ color: 'var(--accent)' }}>
+            01 · {locale === 'vi' ? 'BỘ SƯU TẬP FLAGSHIP' : 'FLAGSHIP COLLECTION'}
           </div>
           <h2 className="font-display mt-2 text-2xl font-extrabold tracking-tight sm:text-4xl">
-            {locale === 'vi'
-              ? '22 Sản Phẩm Live — Chọn Mẫu, Tùy Biến Thương Hiệu & Chạy Ngay.'
-              : '22 Live Commercial Products — Rebrand, Deploy & Launch Fast.'}
+            {locale === 'vi' ? '22 Website Thương Mại Live' : '22 Live Commercial Websites'}
           </h2>
-          <p className="mt-3 text-sm leading-relaxed sm:text-base" style={{ color: 'var(--ink-secondary)' }}>
-            {locale === 'vi'
-              ? 'Mỗi mẫu được định giá vừa phải theo đúng độ phức tạp, đều có Demo Live thật 100%, bao gồm hỗ trợ trong quá trình sử dụng và nhận tinh chỉnh giao diện/tính năng theo yêu cầu. Chọn Standard Deploy hoặc Full Source + Tinh Chỉnh Sâu (+30%).'
-              : 'Fairly priced by actual complexity with live interactive sandboxes, ongoing usage support, and custom refinements. Pick Standard Deploy or Full Source + Deep Customization (+30%).'}
-          </p>
         </div>
 
-        {/* License Legend Pill */}
+        {/* Compact Promo Pill */}
         <div
-          className="surface-elevated flex shrink-0 items-center gap-3 rounded-xl px-4 py-3 text-xs"
+          className="surface-elevated inline-flex w-fit items-center gap-2 rounded-full px-4 py-2 text-xs"
           style={{ color: 'var(--ink-secondary)' }}
         >
-          <IconLayers className="h-4 w-4 shrink-0" style={{ color: 'var(--accent)' }} />
-          <div>
-            <span className="font-semibold" style={{ color: 'var(--ink-primary)' }}>
-              {locale === 'vi' ? 'Mã ưu đãi khai trương: ' : 'Launch promo codes: '}
-            </span>
-            <span className="font-mono-num font-semibold" style={{ color: 'var(--accent)' }}>
-              TVTLAUNCH15
-            </span>
-            <span> · </span>
-            <span className="font-mono-num font-semibold" style={{ color: 'var(--ink-primary)' }}>
-              VIP500K
-            </span>
-          </div>
+          <span>{locale === 'vi' ? 'Ưu đãi:' : 'Promo:'}</span>
+          <span className="font-mono-num font-bold" style={{ color: 'var(--accent)' }}>
+            TVTLAUNCH15
+          </span>
+          <span style={{ color: 'var(--ink-muted)' }}>·</span>
+          <span className="font-mono-num font-bold" style={{ color: 'var(--ink-primary)' }}>
+            VIP500K
+          </span>
         </div>
       </div>
 
-      {/* Filter & Search Toolbar */}
+      {/* Clean Filter & Search Bar */}
       <div
-        className="mt-8 flex flex-col justify-between gap-4 border-y py-4 lg:flex-row lg:items-center"
+        className="mt-7 flex flex-col justify-between gap-3.5 border-y py-3.5 lg:flex-row lg:items-center"
         style={{ borderColor: 'var(--border-hairline)' }}
       >
-        {/* Category Pills */}
-        <div className="flex flex-wrap items-center gap-2" role="tablist" aria-label="Product categories">
+        <div className="flex flex-wrap items-center gap-1.5" role="tablist" aria-label="Product categories">
           {categoryTabs.map((tab) => {
             const active = category === tab.id;
             return (
@@ -167,20 +130,17 @@ export const CatalogSection: React.FC<CatalogSectionProps> = ({
                 role="tab"
                 aria-selected={active}
                 onClick={() => setCategory(tab.id)}
-                className="inline-flex items-center gap-2 rounded-lg border px-3.5 py-2 text-xs font-semibold transition-all sm:text-sm"
+                className="inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-all"
                 style={{
-                  backgroundColor: active ? 'var(--accent)' : 'var(--bg-surface)',
+                  backgroundColor: active ? 'var(--accent)' : 'transparent',
                   borderColor: active ? 'var(--accent)' : 'var(--border-hairline)',
                   color: active ? '#ffffff' : 'var(--ink-secondary)',
                 }}
               >
                 <span>{tab.label}</span>
                 <span
-                  className="font-mono-num rounded px-1.5 py-0.5 text-[10px]"
-                  style={{
-                    backgroundColor: active ? 'rgba(0,0,0,0.22)' : 'var(--bg-elevated)',
-                    color: active ? '#ffffff' : 'var(--ink-muted)',
-                  }}
+                  className="font-mono-num text-[10px] opacity-75"
+                  style={{ color: active ? '#ffffff' : 'var(--ink-muted)' }}
                 >
                   {counts[tab.id]}
                 </span>
@@ -189,32 +149,33 @@ export const CatalogSection: React.FC<CatalogSectionProps> = ({
           })}
         </div>
 
-        {/* Search + VIP 10M+ Toggle + Sort */}
-        <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center">
+        {/* VIP Toggle + Search + Sort */}
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           <button
             type="button"
             onClick={() => setVipOnly((v) => !v)}
             data-testid="filter-vip-10m-btn"
-            className="inline-flex h-10 shrink-0 items-center justify-center gap-1.5 rounded-lg border px-3 text-xs font-bold transition-all"
+            className="inline-flex h-9 shrink-0 items-center justify-center rounded-full border px-3.5 text-xs font-bold transition-all"
             style={{
               backgroundColor: vipOnly ? 'var(--accent)' : 'var(--accent-soft)',
               borderColor: 'var(--accent)',
               color: vipOnly ? '#ffffff' : 'var(--accent)',
             }}
           >
-            <span>{locale === 'vi' ? `VIP PRO 10M+ (${vipCount})` : `VIP 10M+ (${vipCount})`}</span>
+            {locale === 'vi' ? `VIP 10M+ (${vipCount})` : `VIP 10M+ (${vipCount})`}
           </button>
-          <div className="relative flex-1 sm:w-52">
+
+          <div className="relative flex-1 sm:w-48">
             <IconSearch
-              className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2"
+              className="pointer-events-none absolute top-1/2 left-3 h-3.5 w-3.5 -translate-y-1/2 opacity-60"
               aria-hidden="true"
             />
             <input
               type="search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={locale === 'vi' ? 'Tìm tên mẫu, POS, 3D, .NET...' : 'Search template, POS, 3D, AI...'}
-              className="input-studio h-10 w-full rounded-lg pr-3 pl-9 text-xs sm:text-sm"
+              placeholder={locale === 'vi' ? 'Tìm mẫu 3D, AI, POS...' : 'Search 3D, AI, POS...'}
+              className="input-studio h-9 w-full rounded-full pr-3 pl-8 text-xs"
               aria-label={locale === 'vi' ? 'Tìm kiếm mẫu website' : 'Search templates'}
             />
           </div>
@@ -222,13 +183,13 @@ export const CatalogSection: React.FC<CatalogSectionProps> = ({
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as CatalogSort)}
-            className="input-studio h-10 rounded-lg px-3 text-xs font-medium sm:text-sm"
+            className="input-studio h-9 rounded-full px-3 text-xs font-medium"
             aria-label={locale === 'vi' ? 'Sắp xếp sản phẩm' : 'Sort products'}
           >
-            <option value="featured">{locale === 'vi' ? 'Sắp xếp: Nổi bật' : 'Sort: Featured'}</option>
-            <option value="price-asc">{locale === 'vi' ? 'Giá: Thấp → Cao' : 'Price: Low → High'}</option>
-            <option value="price-desc">{locale === 'vi' ? 'Giá: Cao → Thấp' : 'Price: High → Low'}</option>
-            <option value="fastest">{locale === 'vi' ? 'Bàn giao nhanh nhất' : 'Fastest Delivery'}</option>
+            <option value="featured">{locale === 'vi' ? 'Nổi bật nhất' : 'Featured'}</option>
+            <option value="price-desc">{locale === 'vi' ? 'Giá cao → thấp' : 'Price: High → Low'}</option>
+            <option value="price-asc">{locale === 'vi' ? 'Giá thấp → cao' : 'Price: Low → High'}</option>
+            <option value="fastest">{locale === 'vi' ? 'Bàn giao nhanh' : 'Fastest'}</option>
           </select>
         </div>
       </div>
@@ -236,7 +197,7 @@ export const CatalogSection: React.FC<CatalogSectionProps> = ({
       {/* Active Compare Strip */}
       {compareIds.length > 0 && (
         <div
-          className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border px-4 py-3"
+          className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border px-4 py-3"
           style={{
             backgroundColor: 'var(--accent-soft)',
             borderColor: 'var(--accent-border)',
@@ -244,150 +205,147 @@ export const CatalogSection: React.FC<CatalogSectionProps> = ({
         >
           <div className="text-xs font-semibold sm:text-sm">
             {locale === 'vi'
-              ? `Đang chọn so sánh ${compareIds.length}/3 mẫu website theo độ phức tạp & chi phí.`
-              : `Comparing ${compareIds.length}/3 templates side-by-side.`}
+              ? `Đang chọn so sánh ${compareIds.length}/3 mẫu`
+              : `Comparing ${compareIds.length}/3 templates`}
           </div>
           <button
             type="button"
             onClick={onOpenCompare}
-            className="btn-primary rounded-lg px-3.5 py-2 text-xs font-semibold"
+            className="btn-primary rounded-full px-4 py-1.5 text-xs font-semibold"
             data-testid="open-compare-drawer-btn"
           >
-            {locale === 'vi' ? `Mở Bảng So Sánh (${compareIds.length})` : `Open Comparison (${compareIds.length})`}
+            {locale === 'vi' ? `So Sánh Ngay (${compareIds.length})` : `Compare Now (${compareIds.length})`}
           </button>
         </div>
       )}
 
-      {/* Product Grid */}
+      {/* Luxury Gallery Product Grid */}
       {visibleProducts.length === 0 ? (
         <div className="surface-card mt-8 rounded-2xl p-12 text-center">
-          <p className="text-base font-semibold">
-            {locale === 'vi' ? 'Không tìm thấy sản phẩm phù hợp với từ khóa hiện tại.' : 'No templates match your current filter.'}
+          <p className="text-sm font-semibold">
+            {locale === 'vi' ? 'Không tìm thấy mẫu phù hợp.' : 'No templates match your filter.'}
           </p>
           <button
             type="button"
             onClick={() => {
               setCategory('all');
+              setVipOnly(false);
               setSearchQuery('');
             }}
-            className="btn-secondary mt-4 rounded-lg px-4 py-2 text-xs font-semibold"
+            className="btn-secondary mt-4 rounded-full px-5 py-2 text-xs font-semibold"
           >
             {locale === 'vi' ? 'Đặt lại bộ lọc' : 'Reset filters'}
           </button>
         </div>
       ) : (
-        <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+        <div className="mt-8 grid grid-cols-1 gap-7 md:grid-cols-2 xl:grid-cols-3">
           {visibleProducts.map((product) => {
             const selectedLicense = cardLicenses[product.id] ?? 'standard';
             const activePrice = getLicensePrice(product, selectedLicense, currency);
             const originalPrice = getOriginalLicensePrice(product, selectedLicense, currency);
             const savingsPct = getSavingsPercent(product, currency);
             const isJustAdded = recentlyAddedId === product.id;
-            const complexity = getComplexityBadge(product.priceVnd, locale);
             const isCompared = compareIds.includes(product.id);
+            const isUltra = product.priceVnd >= 20_000_000;
+            const isVip = product.priceVnd >= 10_000_000;
 
             return (
               <article
                 key={product.id}
-                className="surface-card group flex flex-col overflow-hidden rounded-2xl transition-all duration-200 hover:-translate-y-0.5 hover:border-[var(--border-strong)]"
+                className={`card-luxury group flex flex-col overflow-hidden rounded-3xl ${isUltra ? 'card-ultra' : ''}`}
                 data-testid={`product-card-${product.id}`}
               >
-                {/* Preview Media */}
-                <div className="relative aspect-[16/10] w-full overflow-hidden bg-[#0c0e13]">
+                {/* Unobstructed Full-Bleed Subject Artwork */}
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => onPreviewLive(product)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      onPreviewLive(product);
+                    }
+                  }}
+                  aria-label={`Live Demo ${product.name}`}
+                  className="relative aspect-[16/10] w-full cursor-pointer overflow-hidden bg-[#07080b]"
+                >
                   <img
                     src={product.previewImage}
                     alt={`${product.name} — ${product.subtitle[locale]}`}
                     decoding="async"
-                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                    className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.05]"
                   />
+
+                  {/* Whisper-Subtle Bottom Vignette Only — Keeps Subject 100% Clear */}
                   <div
                     className="pointer-events-none absolute inset-0"
                     style={{
                       background:
-                        'linear-gradient(180deg, rgba(9,10,13,0.45) 0%, rgba(9,10,13,0) 42%, rgba(9,10,13,0.72) 100%)',
+                        'linear-gradient(180deg, rgba(7,8,11,0.14) 0%, rgba(7,8,11,0) 32%, rgba(7,8,11,0) 68%, rgba(7,8,11,0.62) 100%)',
                     }}
                   />
 
-                  {/* Top Badges */}
-                  <div className="absolute top-3 right-3 left-3 flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-1.5">
-                      {product.priceVnd >= 15_000_000 && (
-                        <span
-                          className="font-mono-num rounded-md px-2 py-1 text-[10px] font-extrabold text-white shadow-md"
-                          style={{ backgroundColor: 'var(--accent)' }}
-                        >
-                          VIP PRO
-                        </span>
-                      )}
-                      <span className="rounded-md border border-white/15 bg-black/65 px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur-md">
+                  {/* Single Top-Left Tier Pill */}
+                  <div className="absolute top-3.5 left-3.5">
+                    {product.priceVnd >= 25_000_000 ? (
+                      <span className="badge-ultra-gold font-mono-num inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-extrabold tracking-wider uppercase">
+                        ULTRA
+                      </span>
+                    ) : isVip ? (
+                      <span
+                        className="font-mono-num inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-extrabold tracking-wider text-white uppercase shadow-md"
+                        style={{ backgroundColor: 'var(--accent)' }}
+                      >
+                        VIP PRO
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center rounded-full border border-white/15 bg-black/50 px-2.5 py-1 text-[10px] font-semibold text-white/90 backdrop-blur-md">
                         {product.categoryLabel[locale]}
                       </span>
-                    </div>
-                    <span className="font-mono-num inline-flex items-center gap-1 rounded-md border border-white/15 bg-black/65 px-2 py-1 text-[10px] font-medium text-white/90 backdrop-blur-md">
-                      <IconClock className="h-3 w-3" />
-                      {formatDeliveryRange(product, locale)}
-                    </span>
+                    )}
                   </div>
 
-                  {/* Bottom Domain Tag / Quick Live Trigger */}
-                  <div className="absolute right-3 bottom-3 left-3 flex items-center justify-between gap-2">
-                    <span className="font-mono-num truncate rounded bg-black/70 px-2 py-1 text-[10px] font-medium text-white/85 backdrop-blur-md">
-                      {product.previewBadge ?? product.metricsBadge}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => onPreviewLive(product)}
-                      className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-white/25 bg-black/75 px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur-md transition-colors hover:border-[var(--accent)] hover:bg-[var(--accent)]"
-                    >
-                      <IconMonitor className="h-3.5 w-3.5" />
-                      <span>{locale === 'vi' ? 'Live Sandbox' : 'Live Sandbox'}</span>
-                    </button>
-                  </div>
+                  {/* Single Bottom-Right Live Demo Trigger Pill */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onPreviewLive(product);
+                    }}
+                    className="absolute right-3.5 bottom-3.5 inline-flex items-center gap-1 rounded-full border border-white/20 bg-black/55 px-3 py-1.5 text-[11px] font-semibold text-white backdrop-blur-md transition-all hover:border-[var(--accent)] hover:bg-[var(--accent)]"
+                  >
+                    <span>Live Demo</span>
+                    <IconArrowUpRight className="h-3 w-3" />
+                  </button>
                 </div>
 
-                {/* Card Body */}
-                <div className="flex flex-1 flex-col p-5">
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono-num text-[11px] font-semibold" style={{ color: 'var(--ink-muted)' }}>
-                        {product.sku}
-                      </span>
-                      <span
-                        className="font-mono-num rounded border px-1.5 py-0.5 text-[10px] font-semibold"
-                        style={{
-                          borderColor: 'var(--border-hairline)',
-                          backgroundColor: 'var(--bg-elevated)',
-                          color: complexity.colorVar,
-                        }}
-                      >
-                        {complexity.label}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
+                {/* Ultra-Clean 4-Row Luxury Body */}
+                <div className="flex flex-1 flex-col px-5 pt-4 pb-5">
+                  {/* Row 1: Title + Subtle Utility Controls */}
+                  <div className="flex items-start justify-between gap-2">
+                    <h3 className="font-display truncate text-[18px] font-bold tracking-tight" style={{ color: 'var(--ink-primary)' }}>
+                      {product.name}
+                    </h3>
+                    <div className="flex shrink-0 items-center gap-1.5 pt-0.5">
                       <button
                         type="button"
                         onClick={() => onToggleCompare(product.id)}
                         data-testid={`compare-toggle-${product.id}`}
-                        className="rounded-md border px-2 py-0.5 text-[10px] font-semibold transition-colors"
+                        className="rounded-full border px-2 py-0.5 text-[10px] font-semibold transition-colors"
                         style={{
-                          backgroundColor: isCompared ? 'var(--accent)' : 'var(--bg-elevated)',
+                          backgroundColor: isCompared ? 'var(--accent)' : 'transparent',
                           borderColor: isCompared ? 'var(--accent)' : 'var(--border-hairline)',
-                          color: isCompared ? '#ffffff' : 'var(--ink-secondary)',
+                          color: isCompared ? '#ffffff' : 'var(--ink-muted)',
                         }}
+                        title={locale === 'vi' ? 'So sánh mẫu' : 'Compare'}
                       >
-                        {isCompared
-                          ? locale === 'vi'
-                            ? '✓ Đã chọn'
-                            : '✓ Selected'
-                          : locale === 'vi'
-                            ? '+ So sánh'
-                            : '+ Compare'}
+                        {isCompared ? '✓' : locale === 'vi' ? '+ So sánh' : '+ Compare'}
                       </button>
                       <a
                         href={product.liveUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-[11px] font-medium transition-colors hover:text-[var(--accent)]"
+                        className="inline-flex h-6 w-6 items-center justify-center rounded-full transition-colors hover:bg-[var(--bg-elevated)] hover:text-[var(--accent)]"
                         style={{ color: 'var(--ink-muted)' }}
                         aria-label={`Open ${product.name} in new tab`}
                       >
@@ -396,125 +354,106 @@ export const CatalogSection: React.FC<CatalogSectionProps> = ({
                     </div>
                   </div>
 
-                  <h3 className="font-display mt-1.5 text-lg font-bold tracking-tight">
-                    {product.name}
-                  </h3>
-                  <p className="text-xs font-semibold" style={{ color: 'var(--accent)' }}>
+                  {/* Row 2: Single Crisp 1-Line Subject Caption + Quiet Meta */}
+                  <p
+                    className="mt-1 truncate text-[13px]"
+                    style={{ color: 'var(--ink-secondary)' }}
+                    title={product.subtitle[locale]}
+                  >
                     {product.subtitle[locale]}
                   </p>
-                  <p
-                    className="mt-2.5 line-clamp-2 text-xs leading-relaxed sm:text-[13px]"
-                    style={{ color: 'var(--ink-secondary)' }}
+                  <div
+                    className="font-mono-num mt-1.5 text-[11px]"
+                    style={{ color: 'var(--ink-muted)' }}
                   >
-                    {product.tagline[locale]}
-                  </p>
-
-                  {/* Tech Stack Chips */}
-                  <div className="mt-3.5 flex flex-wrap gap-1.5">
-                    {product.stack.map((tech) => (
-                      <span
-                        key={tech}
-                        className="font-mono-num rounded-md border px-2 py-0.5 text-[10px] font-medium"
-                        style={{
-                          backgroundColor: 'var(--bg-elevated)',
-                          borderColor: 'var(--border-hairline)',
-                          color: 'var(--ink-secondary)',
-                        }}
-                      >
-                        {tech}
-                      </span>
-                    ))}
+                    {product.categoryLabel[locale]} · {formatDeliveryRange(product, locale)}
                   </div>
 
-                  {/* License Tier Switcher */}
+                  {/* Row 3: Clean Price + Compact Inline License Toggle */}
                   <div
-                    className="mt-4 grid grid-cols-2 gap-1 rounded-lg border p-1"
-                    style={{
-                      backgroundColor: 'var(--bg-elevated)',
-                      borderColor: 'var(--border-hairline)',
-                    }}
-                  >
-                    <button
-                      type="button"
-                      onClick={() => handleCardLicense(product.id, 'standard')}
-                      className="rounded-md px-2 py-1.5 text-[11px] font-semibold transition-colors"
-                      style={{
-                        backgroundColor: selectedLicense === 'standard' ? 'var(--bg-surface)' : 'transparent',
-                        color: selectedLicense === 'standard' ? 'var(--ink-primary)' : 'var(--ink-muted)',
-                      }}
-                    >
-                      Standard Deploy
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleCardLicense(product.id, 'full-source')}
-                      className="rounded-md px-2 py-1.5 text-[11px] font-semibold transition-colors"
-                      style={{
-                        backgroundColor: selectedLicense === 'full-source' ? 'var(--bg-surface)' : 'transparent',
-                        color: selectedLicense === 'full-source' ? 'var(--accent)' : 'var(--ink-muted)',
-                      }}
-                    >
-                      Full Source +30%
-                    </button>
-                  </div>
-
-                  {/* Pricing Row */}
-                  <div
-                    className="mt-4 flex items-baseline justify-between gap-2 border-t pt-4"
+                    className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t pt-3.5"
                     style={{ borderColor: 'var(--border-hairline)' }}
                   >
-                    <div>
+                    <div className="min-w-0">
                       <div className="flex items-baseline gap-2">
-                        <span className="font-mono-num text-xl font-bold" style={{ color: 'var(--ink-primary)' }}>
+                        <span
+                          className="font-mono-num text-[21px] font-bold tracking-tight"
+                          style={{ color: 'var(--ink-primary)' }}
+                        >
                           {formatMoney(activePrice, currency)}
                         </span>
-                        <span
-                          className="font-mono-num text-xs line-through"
-                          style={{ color: 'var(--ink-muted)' }}
-                        >
-                          {formatMoney(originalPrice, currency)}
-                        </span>
+                        {savingsPct > 0 && (
+                          <span
+                            className="font-mono-num rounded-full px-1.5 py-0.5 text-[10px] font-bold"
+                            style={{
+                              backgroundColor: 'var(--emerald-soft)',
+                              color: 'var(--emerald)',
+                            }}
+                          >
+                            -{savingsPct}%
+                          </span>
+                        )}
                       </div>
-                      <p className="mt-0.5 text-[11px]" style={{ color: 'var(--ink-muted)' }}>
-                        {selectedLicense === 'standard'
-                          ? locale === 'vi'
-                            ? 'Triển khai trọn gói + gắn domain riêng'
-                            : 'Turnkey rebranded live deployment'
-                          : locale === 'vi'
-                            ? 'Bàn giao 100% Source Code + Custom Brand'
-                            : '100% Source Code + Custom Brand Setup'}
-                      </p>
+                      <div
+                        className="font-mono-num text-[11px] line-through opacity-65"
+                        style={{ color: 'var(--ink-muted)' }}
+                      >
+                        {formatMoney(originalPrice, currency)}
+                      </div>
                     </div>
-                    {savingsPct > 0 && (
-                      <span
-                        className="font-mono-num shrink-0 rounded-md px-2 py-0.5 text-[11px] font-bold"
+
+                    {/* Sleek Compact License Pill */}
+                    <div
+                      className="inline-flex shrink-0 items-center rounded-full border p-0.5"
+                      style={{
+                        backgroundColor: 'var(--bg-elevated)',
+                        borderColor: 'var(--border-hairline)',
+                      }}
+                      role="group"
+                      aria-label={`License tier for ${product.name}`}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => handleCardLicense(product.id, 'standard')}
+                        className="rounded-full px-2.5 py-1 text-[10px] font-semibold transition-all"
                         style={{
-                          backgroundColor: 'var(--emerald-soft)',
-                          color: 'var(--emerald)',
+                          backgroundColor: selectedLicense === 'standard' ? 'var(--bg-surface)' : 'transparent',
+                          color: selectedLicense === 'standard' ? 'var(--ink-primary)' : 'var(--ink-muted)',
                         }}
                       >
-                        -{savingsPct}%
-                      </span>
-                    )}
+                        Deploy
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleCardLicense(product.id, 'full-source')}
+                        className="rounded-full px-2.5 py-1 text-[10px] font-semibold transition-all"
+                        style={{
+                          backgroundColor: selectedLicense === 'full-source' ? 'var(--bg-surface)' : 'transparent',
+                          color: selectedLicense === 'full-source' ? 'var(--accent)' : 'var(--ink-muted)',
+                        }}
+                      >
+                        Source +30%
+                      </button>
+                    </div>
                   </div>
 
-                  {/* Action Buttons */}
-                  <div className="mt-4 grid grid-cols-12 gap-2 pt-1">
-                    <button
-                      type="button"
-                      onClick={() => onPreviewLive(product)}
-                      className="btn-ghost col-span-4 inline-flex items-center justify-center gap-1 rounded-xl px-2.5 py-2.5 text-xs font-semibold"
-                    >
-                      <IconMonitor className="h-3.5 w-3.5 shrink-0" />
-                      <span className="truncate">{locale === 'vi' ? 'Demo' : 'Demo'}</span>
-                    </button>
-
+                  {/* Row 4: Crisp Single Action Row */}
+                  <div className="mt-4 grid grid-cols-12 gap-2">
                     <button
                       type="button"
                       onClick={() => onInspectDetails(product, selectedLicense)}
-                      className="btn-ghost col-span-3 inline-flex items-center justify-center rounded-xl px-2 py-2.5 text-xs font-semibold"
+                      className="btn-ghost col-span-4 inline-flex items-center justify-center rounded-xl px-2 py-2.5 text-xs font-semibold"
                     >
                       {locale === 'vi' ? 'Chi Tiết' : 'Specs'}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => onOpenInquiry(product)}
+                      data-testid={`inquire-${product.id}`}
+                      className="btn-ghost col-span-3 inline-flex items-center justify-center rounded-xl px-2 py-2.5 text-xs font-semibold hover:text-[var(--accent)]"
+                    >
+                      {locale === 'vi' ? 'Tư Vấn' : 'Chat'}
                     </button>
 
                     <button
@@ -536,17 +475,6 @@ export const CatalogSection: React.FC<CatalogSectionProps> = ({
                       )}
                     </button>
                   </div>
-
-                  <button
-                    type="button"
-                    onClick={() => onOpenInquiry(product)}
-                    data-testid={`inquire-${product.id}`}
-                    className="btn-ghost mt-2 w-full rounded-xl py-2 text-[11px] font-semibold transition-colors hover:text-[var(--accent)]"
-                  >
-                    {locale === 'vi'
-                      ? 'Tư vấn tinh chỉnh / Thương lượng giá riêng →'
-                      : 'Request custom tuning / Direct negotiation →'}
-                  </button>
                 </div>
               </article>
             );

@@ -119,13 +119,13 @@ export const ProToolsSuiteSection: React.FC<ProToolsSuiteSectionProps> = ({ loca
             </div>
             <h2 className="font-display mt-2 text-2xl font-extrabold tracking-tight sm:text-4xl">
               {locale === 'vi'
-                ? 'TVT Pro Tools — 10 Công Cụ Kinh Doanh & Kỹ Thuật Miễn Phí Trọn Đời.'
-                : 'TVT Pro Tools — 10 Free Business & Engineering Engines.'}
+                ? '10 Pro Tools Miễn Phí Trọn Đời'
+                : '10 Free Business & Dev Tools'}
             </h2>
-            <p className="mt-3 max-w-2xl text-sm leading-relaxed sm:text-base" style={{ color: 'var(--ink-secondary)' }}>
+            <p className="mt-3 max-w-xl text-sm leading-relaxed sm:text-base" style={{ color: 'var(--ink-secondary)' }}>
               {locale === 'vi'
-                ? 'Trải nghiệm trực tiếp năng lực kỹ thuật của TVT Studio qua 10 công cụ thực chiến chạy 100% ngay trên trình duyệt — không gửi dữ liệu nhạy cảm lên máy chủ lạ, 41/41 bài test tự động xanh.'
-                : 'Experience TVT Studio craftsmanship firsthand across 10 production utilities running 100% locally in your browser — zero telemetry leaks, 41/41 Vitest verified.'}
+                ? 'Chạy 100% cục bộ trên trình duyệt — bảo mật dữ liệu tuyệt đối, 41/41 bài test xanh.'
+                : '100% client-side in your browser — zero server uploads, 41/41 tests passing.'}
             </p>
             <div className="mt-5 flex flex-wrap items-center gap-3">
               <a
