@@ -903,7 +903,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
   {
     id: 'aeroforge-digital-twin',
     sku: 'TVT-IOT-22',
-    name: 'AeroForge 3D Twin v3.0',
+    name: 'AeroForge 3D Twin v4.0',
     subtitle: {
       vi: 'Bản Sao Số Nhà Máy 4.0 3D, Robot 6 Trục Kinematics & AI Dự Báo Lỗi FFT',
       en: 'Industry 4.0 Smart Factory 3D Twin, 6-Axis Robot Kinematics & Vibration FFT AI',
@@ -948,7 +948,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
   {
     id: 'helios-quant-terminal',
     sku: 'TVT-QNT-21',
-    name: 'Helios Quant Terminal v3.0',
+    name: 'Helios Quant Terminal v4.0',
     subtitle: {
       vi: 'Sàn Khớp Lệnh L2 Orderbook, Biểu Đồ Nến Canvas & Backtest Thuật Toán Quant',
       en: 'Institutional L2 Orderbook Matching Engine, Canvas Candlestick & Algo Backtester',
@@ -1038,7 +1038,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
   {
     id: 'orbitalflow-saas',
     sku: 'TVT-SAAS-23',
-    name: 'OrbitalFlow B2B SaaS v3.0',
+    name: 'OrbitalFlow B2B SaaS v4.0',
     subtitle: {
       vi: 'Nền Tảng B2B SaaS Đa Tenant, RBAC, Gantt Đường Găng & Stripe Metering',
       en: 'Multi-Tenant B2B SaaS, RBAC Matrix, Gantt CPM & Stripe Proration Billing',
@@ -1083,7 +1083,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
   {
     id: 'vectradoc-rag',
     sku: 'TVT-AI-24',
-    name: 'VectraDoc AI RAG v3.0',
+    name: 'VectraDoc AI RAG v4.0',
     subtitle: {
       vi: 'AI Đọc Tài Liệu Hybrid RAG (BM25 + Vector RRF), Trích Dẫn & Che PII',
       en: 'Enterprise Document Intelligence, Live Hybrid BM25+Vector RRF RAG & PII Guard',
