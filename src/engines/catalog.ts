@@ -29,7 +29,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
     sku: 'TVT-3D-01',
     name: 'Maison Véra 3D v7.0',
     subtitle: {
-      vi: 'Thử Kính 3D Virtual Try-On, Webcam AR, Tròng UV 0–11 & Phân Cực Malus',
+      vi: 'Thử Kính Mắt 3D Virtual Try-On, Webcam AR, Tròng UV 0–11 & Phân Cực Malus',
       en: 'Live 3D Virtual Try-On Studio, Webcam AR, UV 0–11 Photochromic & Malus Glare',
     },
     tagline: {
