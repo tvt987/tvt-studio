@@ -28,6 +28,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ locale, onPreviewLive 
     .filter((p): p is TemplateProduct => Boolean(p));
 
   const [activeSlideIdx, setActiveSlideIdx] = useState(0);
+  const [showUltraReel, setShowUltraReel] = useState(false);
+  const [reelMuted, setReelMuted] = useState(true);
   const activeSlide = slides[activeSlideIdx] ?? CATALOG_PRODUCTS[0];
 
   const trustStats = [
@@ -78,7 +80,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ locale, onPreviewLive 
                 className="font-mono-num text-[11px] font-semibold tracking-[0.14em] uppercase"
                 style={{ color: 'var(--ink-secondary)' }}
               >
-                TVT STUDIO v9.5 · TRỰC TIẾP TỪ KỸ SƯ · CHỈ TỪ 990K
+                TVT STUDIO v10.0 · TRỰC TIẾP TỪ KỸ SƯ · CHỈ TỪ 990K
               </span>
             </div>
 
@@ -143,32 +145,84 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ locale, onPreviewLive 
             </div>
           </div>
 
-          {/* Right Real Live Website Preview Showcase (Zero AI Stock Fluff) */}
+          {/* Right Real Live Website Preview Showcase + Interactive Cinema Showreel */}
           <div className="lg:col-span-6">
             <div className="card-luxury card-ultra overflow-hidden rounded-3xl">
-              {/* Live Product Screenshot */}
+              {/* Live Product Screenshot or Cinema Showreel */}
               <div className="relative aspect-[16/10] w-full overflow-hidden bg-[#090a0d]">
-                <img
-                  src={activeSlide.previewImage}
-                  alt={`${activeSlide.name} — Real Live Interface`}
-                  width={1280}
-                  height={800}
-                  className="h-full w-full object-cover object-top"
-                />
+                {showUltraReel ? (
+                  <video
+                    src="./media/tvt-ultra-showreel.mp4"
+                    poster={activeSlide.previewImage}
+                    autoPlay
+                    loop
+                    muted={reelMuted}
+                    playsInline
+                    preload="metadata"
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <img
+                    src={activeSlide.previewImage}
+                    alt={`${activeSlide.name} — Real Live Interface`}
+                    width={1280}
+                    height={800}
+                    className="h-full w-full object-cover object-top"
+                  />
+                )}
                 <div
                   className="pointer-events-none absolute inset-0"
                   style={{
                     background:
-                      'linear-gradient(180deg, rgba(9,10,13,0.06) 0%, rgba(9,10,13,0) 64%, rgba(9,10,13,0.72) 100%)',
+                      'linear-gradient(180deg, rgba(9,10,13,0.08) 0%, rgba(9,10,13,0) 64%, rgba(9,10,13,0.74) 100%)',
                   }}
                 />
+
+                {/* Top-right Showreel Cinema & 48kHz Audio Toggle */}
+                <div className="absolute top-3.5 right-3.5 flex items-center gap-2">
+                  {showUltraReel && (
+                    <button
+                      type="button"
+                      onClick={() => setReelMuted((m) => !m)}
+                      className="font-mono-num inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-black/75 px-3 py-1 text-[10px] font-semibold text-white backdrop-blur-md transition-colors hover:border-[var(--accent)]"
+                    >
+                      <span>{reelMuted ? (locale === 'vi' ? 'Bật Âm 48kHz' : 'Unmute 48kHz') : (locale === 'vi' ? 'Đang Phát Âm' : 'Sound On')}</span>
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setShowUltraReel((v) => !v)}
+                    className="font-mono-num inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[10px] font-semibold text-white backdrop-blur-md transition-colors"
+                    style={{
+                      backgroundColor: showUltraReel ? 'var(--accent)' : 'rgba(0,0,0,0.72)',
+                      borderColor: showUltraReel ? 'var(--accent)' : 'rgba(255,255,255,0.24)',
+                    }}
+                  >
+                    <span className="h-1.5 w-1.5 rounded-full bg-white" />
+                    <span>
+                      {showUltraReel
+                        ? locale === 'vi'
+                          ? 'Đóng Showreel'
+                          : 'Exit Showreel'
+                        : locale === 'vi'
+                          ? '▶ Showreel Ultra (28s)'
+                          : '▶ Ultra Showreel (28s)'}
+                    </span>
+                  </button>
+                </div>
 
                 {/* Real Product Name + Direct Live Link */}
                 <div className="absolute right-4 bottom-4 left-4 flex items-end justify-between gap-3">
                   <div className="min-w-0">
                     <span className="font-mono-num inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-black/65 px-2.5 py-1 text-[10px] font-semibold text-white/90 backdrop-blur-md">
                       <span className="h-1.5 w-1.5 rounded-full bg-[#22c55e]" />
-                      <span className="truncate">{activeSlide.name}</span>
+                      <span className="truncate">
+                        {showUltraReel
+                          ? locale === 'vi'
+                            ? 'TVT Studio Showreel · Veo 3.1 + 3D Flagships'
+                            : 'TVT Studio Showreel · Veo 3.1 + 3D Flagships'
+                          : activeSlide.name}
+                      </span>
                     </span>
                   </div>
 
@@ -206,14 +260,17 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ locale, onPreviewLive 
                 aria-label="Featured flagship previews"
               >
                 {slides.map((item, idx) => {
-                  const isActive = idx === activeSlideIdx;
+                  const isActive = !showUltraReel && idx === activeSlideIdx;
                   return (
                     <button
                       key={item.id}
                       type="button"
                       role="tab"
                       aria-selected={isActive}
-                      onClick={() => setActiveSlideIdx(idx)}
+                      onClick={() => {
+                        setShowUltraReel(false);
+                        setActiveSlideIdx(idx);
+                      }}
                       className="rounded-full border px-2.5 py-1 text-[11px] font-semibold transition-colors"
                       style={{
                         backgroundColor: isActive ? 'var(--accent)' : 'var(--bg-elevated)',
