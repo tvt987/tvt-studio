@@ -206,7 +206,7 @@ describe('Executive Analytics & Cloud Product CMS Engine', () => {
 
     const input = templateProductToAdminInput(bundled[0], true);
     expect(input.id).toBe('velox-ev-motors');
-    expect(input.priceVnd).toBe(20_000_000);
+    expect(input.priceVnd).toBe(2_990_000);
     expect(input.isActive).toBe(true);
     expect(input.stack.length).toBeGreaterThan(0);
   });

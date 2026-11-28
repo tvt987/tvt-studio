@@ -51,7 +51,7 @@ describe('Catalog Engine', () => {
   it('sorts products accurately by featured VIP order, price ascending/descending, and fastest delivery', () => {
     const featured = filterAndSortCatalog(CATALOG_PRODUCTS, 'all', '', 'featured');
     expect(featured[0].id).toBe('velox-ev-motors');
-    expect(featured[0].priceVnd).toBe(20_000_000);
+    expect(featured[0].priceVnd).toBe(2_990_000);
 
     const asc = filterAndSortCatalog(CATALOG_PRODUCTS, 'all', '', 'price-asc');
     expect(asc[0].id).toBe('vanguard-fitness');
@@ -75,12 +75,12 @@ describe('Catalog Engine', () => {
 
   it('calculates Standard vs Full Source (+30%) license pricing cleanly', () => {
     const velox = CATALOG_PRODUCTS.find((p) => p.id === 'velox-ev-motors')!;
-    expect(getLicensePrice(velox, 'standard', 'VND')).toBe(20_000_000);
-    expect(getLicensePrice(velox, 'standard', 'USD')).toBe(799);
-    // 20,000,000 * 1.3 = 26,000,000
-    expect(getLicensePrice(velox, 'full-source', 'VND')).toBe(26_000_000);
-    // 799 * 1.3 = 1038.7 -> rounded = 1039
-    expect(getLicensePrice(velox, 'full-source', 'USD')).toBe(1_039);
+    expect(getLicensePrice(velox, 'standard', 'VND')).toBe(2_990_000);
+    expect(getLicensePrice(velox, 'standard', 'USD')).toBe(119);
+    // 2,990,000 * 1.3 = 3,887,000 -> roundVnd (10,000) = 3,890,000
+    expect(getLicensePrice(velox, 'full-source', 'VND')).toBe(3_890_000);
+    // 119 * 1.3 = 154.7 -> rounded = 155
+    expect(getLicensePrice(velox, 'full-source', 'USD')).toBe(155);
   });
 
   it('computes savings percentage and localized delivery ranges', () => {
@@ -91,8 +91,9 @@ describe('Catalog Engine', () => {
   });
 
   it('verifies all 26 full-stack monorepos carry .NET 10 or FastAPI backend tags and 20 VIP 10M+ tiers', () => {
-    const vipCount = CATALOG_PRODUCTS.filter((p) => p.priceVnd >= 10_000_000).length;
-    expect(vipCount).toBe(20);
+    const budgetCount = CATALOG_PRODUCTS.filter((p) => p.priceVnd <= 2_000_000).length;
+    expect(budgetCount).toBe(10);
+    expect(CATALOG_PRODUCTS.every((p) => p.priceVnd >= 990_000 && p.priceVnd <= 3_990_000)).toBe(true);
 
     for (const product of CATALOG_PRODUCTS) {
       expect(product.name).toMatch(/v\d+\.\d+$/);
@@ -193,7 +194,7 @@ describe('Catalog Engine', () => {
     const commerceThreeJsVip = filterCatalogByStack(
       filterAndSortCatalog(CATALOG_PRODUCTS, 'commerce-3d', '', 'featured'),
       'threejs'
-    ).filter((p) => p.priceVnd >= 10_000_000);
+    ).filter((p) => p.priceVnd <= 3_990_000);
     expect(commerceThreeJsVip).toHaveLength(4);
     expect(commerceThreeJsVip[0].id).toBe('velox-ev-motors');
   });

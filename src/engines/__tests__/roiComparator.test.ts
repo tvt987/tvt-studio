@@ -44,9 +44,9 @@ describe('Agency vs TVT Studio ROI Comparator Engine', () => {
 
     // 20M tier (5.4x) + Three.js 3D complexity (+0.4x) = 5.8x
     expect(std.agencyMultiplier).toBe(5.8);
-    expect(std.tvtPriceVnd).toBe(20_000_000);
-    expect(std.agencyCostVnd).toBe(116_000_000);
-    expect(std.cashSavedVnd).toBe(96_000_000);
+    expect(std.tvtPriceVnd).toBe(2_990_000);
+    expect(std.agencyCostVnd).toBe(17_340_000);
+    expect(std.cashSavedVnd).toBe(14_350_000);
     expect(std.costReductionPct).toBe(83);
     expect(std.tvtAvgDays).toBe(5);
     expect(std.agencyDaysMin).toBe(83);
@@ -54,9 +54,9 @@ describe('Agency vs TVT Studio ROI Comparator Engine', () => {
     expect(std.timeReductionPct).toBeGreaterThanOrEqual(91);
 
     // Full Source (+30% -> 26M) yields higher absolute cash savings vs custom agency full IP build
-    expect(full.tvtPriceVnd).toBe(26_000_000);
-    expect(full.agencyCostVnd).toBe(150_800_000);
-    expect(full.cashSavedVnd).toBe(124_800_000);
+    expect(full.tvtPriceVnd).toBe(3_890_000);
+    expect(full.agencyCostVnd).toBe(22_560_000);
+    expect(full.cashSavedVnd).toBe(18_670_000);
     expect(full.cashSavedVnd).toBeGreaterThan(std.cashSavedVnd);
     expect(full.cashSavedUsd).toBeGreaterThan(std.cashSavedUsd);
   });

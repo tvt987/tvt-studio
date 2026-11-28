@@ -63,12 +63,12 @@ export const CatalogSection: React.FC<CatalogSectionProps> = ({
 
   const counts = useMemo(() => getCategoryCounts(products), [products]);
   const stackCounts = useMemo(() => countCatalogStacks(products), [products]);
-  const vipCount = useMemo(() => products.filter((p) => p.priceVnd >= 10_000_000).length, [products]);
+  const vipCount = useMemo(() => products.filter((p) => p.priceVnd <= 2_000_000).length, [products]);
 
   const visibleProducts = useMemo(() => {
     const byCategoryAndQuery = filterAndSortCatalog(products, category, searchQuery, sortBy);
     const byStack = filterCatalogByStack(byCategoryAndQuery, stackFilter);
-    return vipOnly ? byStack.filter((p) => p.priceVnd >= 10_000_000) : byStack;
+    return vipOnly ? byStack.filter((p) => p.priceVnd <= 2_000_000) : byStack;
   }, [products, category, stackFilter, searchQuery, sortBy, vipOnly]);
 
   const hasActiveFilters =
@@ -183,7 +183,7 @@ export const CatalogSection: React.FC<CatalogSectionProps> = ({
               color: vipOnly ? '#ffffff' : 'var(--accent)',
             }}
           >
-            {locale === 'vi' ? `VIP 10M+ (${vipCount})` : `VIP 10M+ (${vipCount})`}
+            {locale === 'vi' ? `Gói ≤ 2M₫ (${vipCount})` : `Under $80 (${vipCount})`}
           </button>
 
           <div className="relative flex-1 sm:w-48">

@@ -6,8 +6,8 @@ export const VOUCHER_CATALOG: VoucherDefinition[] = [
     code: 'TVTLAUNCH15',
     type: 'percent',
     percentOff: 15,
-    minSubtotalVnd: 2_000_000,
-    minSubtotalUsd: 80,
+    minSubtotalVnd: 1_200_000,
+    minSubtotalUsd: 48,
     maxDiscountVnd: 2_000_000,
     maxDiscountUsd: 80,
     label: {
@@ -15,8 +15,8 @@ export const VOUCHER_CATALOG: VoucherDefinition[] = [
       en: '15% Studio Launch Offer (up to $80)',
     },
     description: {
-      vi: 'Áp dụng cho đơn từ 2.000.000₫ ($80)',
-      en: 'Valid on orders from $80 (2,000,000₫)',
+      vi: 'Áp dụng cho đơn từ 1.200.000₫ ($48)',
+      en: 'Valid on orders from $48 (1,200,000₫)',
     },
   },
   {
@@ -41,15 +41,15 @@ export const VOUCHER_CATALOG: VoucherDefinition[] = [
     type: 'fixed',
     fixedVnd: 500_000,
     fixedUsd: 20,
-    minSubtotalVnd: 3_000_000,
-    minSubtotalUsd: 120,
+    minSubtotalVnd: 2_600_000,
+    minSubtotalUsd: 105,
     label: {
       vi: 'Giảm Trực Tiếp 500.000₫ ($20)',
       en: 'Flat $20 (500,000₫) Direct Discount',
     },
     description: {
-      vi: 'Áp dụng cho đơn từ 3.000.000₫ ($120)',
-      en: 'Valid on orders from $120 (3,000,000₫)',
+      vi: 'Áp dụng cho đơn từ 2.600.000₫ ($105)',
+      en: 'Valid on orders from $105 (2,600,000₫)',
     },
   },
 ];

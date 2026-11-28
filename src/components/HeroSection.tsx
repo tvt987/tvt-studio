@@ -78,7 +78,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ locale, onPreviewLive 
                 className="font-mono-num text-[11px] font-semibold tracking-[0.14em] uppercase"
                 style={{ color: 'var(--ink-secondary)' }}
               >
-                TVT STUDIO v9.0 · 26/26 MONOREPOS
+                TVT STUDIO v9.5 · TRỰC TIẾP TỪ KỸ SƯ · CHỈ TỪ 990K
               </span>
             </div>
 
@@ -107,8 +107,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ locale, onPreviewLive 
               style={{ color: 'var(--ink-secondary)' }}
             >
               {locale === 'vi'
-                ? '26 hệ thống live từ B2B SaaS, AI RAG, GIS Logistics, Bệnh Án EHR đến 3D HDRI — bàn giao 2–10 ngày.'
-                : '26 live systems across B2B SaaS, Hybrid AI RAG, GIS Fleet, Clinical EHR & 3D HDRI — delivered in 2–10 days.'}
+                ? '26 mẫu website & hệ thống Full-Stack chạy thật 100% (chỉ từ 990K – 3.99M₫) — nhận thiết kế riêng, fix bug & hợp tác Freelance/Remote trực tiếp không qua trung gian.'
+                : '26 live full-stack websites & systems ($39–$159) — direct 1-on-1 engineering for turnkey sites, custom sprints & remote freelance contracts.'}
             </p>
 
             {/* Primary CTA Cluster */}
@@ -122,11 +122,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ locale, onPreviewLive 
               </a>
 
               <a
-                href="#estimator"
+                href="#architecture"
                 className="btn-secondary inline-flex items-center gap-2 rounded-xl px-5 py-3.5 text-sm font-semibold"
               >
                 <IconSliders className="h-4 w-4" />
-                <span>{locale === 'vi' ? 'Báo Giá Riêng' : 'Custom Scope'}</span>
+                <span>{locale === 'vi' ? 'Hồ Sơ Kỹ Sư & Hợp Tác' : 'Engineer Profile & Hire'}</span>
               </a>
 
               <a

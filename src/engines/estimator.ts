@@ -30,16 +30,16 @@ export const PROJECT_TYPES: ProjectTypeOption[] = [
       en: 'Starter Landing / Executive Profile',
     },
     priceRangeDisplay: {
-      vi: '1.8M – 3.9M₫',
-      en: '1.8M – 3.9M VND',
+      vi: '790K – 1.99M₫',
+      en: '790K – 1.99M VND',
     },
-    priceRangeUsdDisplay: '$75 – $159',
+    priceRangeUsdDisplay: '$35 – $85',
     summary: {
       vi: 'Landing page chuyển đổi cao, web giới thiệu công ty hoặc portfolio cá nhân thiết kế sắc nét — bàn giao nhanh, tinh chỉnh theo ý khách và hỗ trợ trong suốt quá trình sử dụng.',
       en: 'High-conversion landing page, company profile, or personal showcase — fast delivery, custom refinements, and ongoing usage support included.',
     },
-    baseVnd: 2_400_000,
-    baseUsd: 95,
+    baseVnd: 1_200_000,
+    baseUsd: 49,
     baseDays: 3,
     idealFor: {
       vi: [
@@ -61,10 +61,10 @@ export const PROJECT_TYPES: ProjectTypeOption[] = [
       en: 'Growth E-Commerce / Booking / Web App',
     },
     priceRangeDisplay: {
-      vi: '4.5M – 11.9M₫',
-      en: '4.5M – 11.9M VND',
+      vi: '2.2M – 4.9M₫',
+      en: '2.2M – 4.9M VND',
     },
-    priceRangeUsdDisplay: '$179 – $479',
+    priceRangeUsdDisplay: '$89 – $199',
     badge: {
       vi: 'PHỔ BIẾN NHẤT',
       en: 'MOST POPULAR',
@@ -73,8 +73,8 @@ export const PROJECT_TYPES: ProjectTypeOption[] = [
       vi: 'Website bán hàng, phòng khám đặt lịch, sàn BĐS hoặc web app quản lý vận hành hoàn chỉnh — lập trình bằng bất kỳ ngôn ngữ nào khách yêu cầu, có thanh toán QR và hỗ trợ lâu dài.',
       en: 'Complete online store, clinic booking, PropTech, or business web app — built in any programming language/stack you prefer with QR checkout & ongoing support.',
     },
-    baseVnd: 5_500_000,
-    baseUsd: 219,
+    baseVnd: 2_900_000,
+    baseUsd: 119,
     baseDays: 6,
     idealFor: {
       vi: [
@@ -96,10 +96,10 @@ export const PROJECT_TYPES: ProjectTypeOption[] = [
       en: 'Enterprise Systems / POS / AI & High-Concurrency',
     },
     priceRangeDisplay: {
-      vi: '12M₫+',
-      en: '12M+ VND',
+      vi: '5.5M₫+',
+      en: '5.5M+ VND',
     },
-    priceRangeUsdDisplay: '$480+',
+    priceRangeUsdDisplay: '$220+',
     badge: {
       vi: 'CUSTOM ARCHITECTURE',
       en: 'CUSTOM ARCHITECTURE',
@@ -108,8 +108,8 @@ export const PROJECT_TYPES: ProjectTypeOption[] = [
       vi: 'Hệ thống phần mềm chuyên sâu theo yêu cầu (POS đa chi nhánh, CRM/ERP, Backend chịu tải cao hoặc AI Chatbot RAG) — xây dựng bằng bất kỳ stack nào doanh nghiệp đang dùng, thương lượng theo Milestone.',
       en: 'Deep custom software (Multi-branch POS, CRM/ERP, high-concurrency APIs, or private AI RAG) built in any stack your organization uses with milestone pricing.',
     },
-    baseVnd: 12_000_000,
-    baseUsd: 480,
+    baseVnd: 5_900_000,
+    baseUsd: 239,
     baseDays: 14,
     idealFor: {
       vi: [
@@ -137,8 +137,8 @@ export const SCOPE_ADDONS: ScopeAddon[] = [
       vi: 'Trình diễn sản phẩm 3D xoay 360°, ánh sáng studio PBR mượt 60fps',
       en: 'Interactive 360° PBR 3D product stage running smoothly at 60fps',
     },
-    priceVnd: 1_500_000,
-    priceUsd: 60,
+    priceVnd: 600_000,
+    priceUsd: 25,
     addedDays: 2,
   },
   {
@@ -151,8 +151,8 @@ export const SCOPE_ADDONS: ScopeAddon[] = [
       vi: 'Trợ lý AI trả lời chuẩn xác theo bảng giá, chính sách & PDF nội bộ doanh nghiệp',
       en: 'Grounded AI assistant trained on your pricing sheets, SOPs & private docs',
     },
-    priceVnd: 2_500_000,
-    priceUsd: 99,
+    priceVnd: 900_000,
+    priceUsd: 36,
     addedDays: 3,
   },
   {
@@ -165,8 +165,8 @@ export const SCOPE_ADDONS: ScopeAddon[] = [
       vi: 'Tự động tạo mã thanh toán, đối soát giao dịch webhook chống trùng đơn',
       en: 'Automated QR checkout, webhook reconciliation & idempotent order ledger',
     },
-    priceVnd: 1_200_000,
-    priceUsd: 49,
+    priceVnd: 500_000,
+    priceUsd: 20,
     addedDays: 2,
   },
   {
@@ -179,8 +179,8 @@ export const SCOPE_ADDONS: ScopeAddon[] = [
       vi: 'Chuyển đổi ngôn ngữ & tỷ giá VNĐ/USD 1 chạm chuẩn thương mại quốc tế',
       en: '1-click locale switcher and dynamic VND/USD pricing engine',
     },
-    priceVnd: 800_000,
-    priceUsd: 32,
+    priceVnd: 400_000,
+    priceUsd: 16,
     addedDays: 1,
   },
   {
@@ -193,8 +193,8 @@ export const SCOPE_ADDONS: ScopeAddon[] = [
       vi: 'Tự cập nhật sản phẩm, bài viết, duyệt đơn hàng & xem biểu đồ doanh thu',
       en: 'Self-service catalog management, order approvals & live revenue telemetry',
     },
-    priceVnd: 1_800_000,
-    priceUsd: 72,
+    priceVnd: 700_000,
+    priceUsd: 28,
     addedDays: 3,
   },
   {
@@ -207,8 +207,8 @@ export const SCOPE_ADDONS: ScopeAddon[] = [
       vi: 'Schema JSON-LD, sitemap tự động, nén ảnh WebP & tối ưu Lighthouse 95+',
       en: 'JSON-LD structured data, automated sitemaps, WebP pipeline & 95+ Lighthouse',
     },
-    priceVnd: 600_000,
-    priceUsd: 24,
+    priceVnd: 300_000,
+    priceUsd: 12,
     addedDays: 1,
   },
   {
@@ -221,8 +221,8 @@ export const SCOPE_ADDONS: ScopeAddon[] = [
       vi: 'Toàn quyền sở hữu mã nguồn GitHub, automated tests & pipeline deploy 1 chạm',
       en: 'Full GitHub repository ownership, Vitest suite & automated deploy workflow',
     },
-    priceVnd: 1_000_000,
-    priceUsd: 40,
+    priceVnd: 500_000,
+    priceUsd: 20,
     addedDays: 1,
   },
 ];

@@ -52,11 +52,11 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navLinks = [
-    { href: '#catalog', label: locale === 'vi' ? '26 Hệ Thống' : '26 Systems' },
+    { href: '#catalog', label: locale === 'vi' ? '26 Mẫu Web' : '26 Systems' },
+    { href: '#architecture', label: locale === 'vi' ? 'Hồ Sơ & Hợp Tác' : 'Profile & Hire' },
+    { href: '#estimator', label: locale === 'vi' ? 'Báo Giá Riêng' : 'Custom Build' },
     { href: '#pro-tools', label: locale === 'vi' ? '12 Pro Tools' : '12 Pro Tools' },
-    { href: '#estimator', label: locale === 'vi' ? 'Code Riêng' : 'Custom Build' },
     { href: '#payment-flow', label: locale === 'vi' ? 'Thanh Toán' : 'Payment' },
-    { href: '#faq', label: 'FAQ' },
   ];
 
   return (

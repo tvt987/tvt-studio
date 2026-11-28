@@ -21,8 +21,8 @@ describe('Custom Scope & Price Estimator Engine', () => {
       selectedAddons: [],
       pace: 'standard',
     });
-    expect(starter.totalVnd).toBe(2_400_000);
-    expect(starter.totalUsd).toBe(95);
+    expect(starter.totalVnd).toBe(1_200_000);
+    expect(starter.totalUsd).toBe(49);
     expect(starter.estimatedDays).toBe(3);
 
     const enterprise = calculateCustomEstimate({
@@ -30,8 +30,8 @@ describe('Custom Scope & Price Estimator Engine', () => {
       selectedAddons: [],
       pace: 'standard',
     });
-    expect(enterprise.totalVnd).toBe(12_000_000);
-    expect(enterprise.totalUsd).toBe(480);
+    expect(enterprise.totalVnd).toBe(5_900_000);
+    expect(enterprise.totalUsd).toBe(239);
     expect(enterprise.estimatedDays).toBe(14);
   });
 
@@ -42,9 +42,9 @@ describe('Custom Scope & Price Estimator Engine', () => {
       pace: 'standard',
     });
     expect(result.addons).toHaveLength(2);
-    expect(result.addonsVnd).toBe(1_500_000 + 1_200_000);
-    expect(result.addonsUsd).toBe(60 + 49);
-    expect(result.totalVnd).toBe(5_500_000 + 2_700_000);
+    expect(result.addonsVnd).toBe(600_000 + 500_000);
+    expect(result.addonsUsd).toBe(25 + 20);
+    expect(result.totalVnd).toBe(2_900_000 + 1_100_000);
     expect(result.estimatedDays).toBe(6 + 2 + 2);
   });
 

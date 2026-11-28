@@ -55,11 +55,11 @@ export function calculateAgencyRoi(
   const isAiRag = matchesTechStack(product, 'ai-rag');
 
   let baseMultiplier = 4.6;
-  if (product.priceVnd >= 24_000_000) {
+  if (product.priceVnd >= 3_400_000) {
     baseMultiplier = 5.8;
-  } else if (product.priceVnd >= 14_000_000) {
+  } else if (product.priceVnd >= 2_400_000) {
     baseMultiplier = 5.4;
-  } else if (product.priceVnd >= 10_000_000) {
+  } else if (product.priceVnd >= 1_690_000) {
     baseMultiplier = 5.0;
   }
 

@@ -12,7 +12,7 @@ describe('Idempotent Voucher Engine', () => {
   });
 
   it('applies TVTLAUNCH15 (-15%) with minimum subtotal and maximum cap enforcement', () => {
-    const belowMin = evaluateVoucher('TVTLAUNCH15', 1_500_000, 60);
+    const belowMin = evaluateVoucher('TVTLAUNCH15', 900_000, 35);
     expect(belowMin.valid).toBe(false);
     expect(belowMin.discountVnd).toBe(0);
 

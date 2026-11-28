@@ -67,6 +67,11 @@ const CheckoutModal = lazy(() =>
 const CompareDrawer = lazy(() =>
   import('./components/CompareDrawer').then((m) => ({ default: m.CompareDrawer }))
 );
+const ArchitectProfileAndLabSection = lazy(() =>
+  import('./components/ArchitectProfileAndLabSection').then((m) => ({
+    default: m.ArchitectProfileAndLabSection,
+  }))
+);
 const CustomEstimatorSection = lazy(() =>
   import('./components/CustomEstimatorSection').then((m) => ({
     default: m.CustomEstimatorSection,
@@ -155,6 +160,16 @@ export const App: React.FC = () => {
   useEffect(() => {
     document.documentElement.setAttribute('lang', locale);
   }, [locale]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (window.location.hash === '#architecture' || window.location.hash === '#profile') {
+      const timer = window.setTimeout(() => {
+        document.getElementById('architecture')?.scrollIntoView({ behavior: 'smooth' });
+      }, 350);
+      return () => window.clearTimeout(timer);
+    }
+  }, []);
 
   useEffect(() => {
     try {
@@ -547,6 +562,17 @@ export const App: React.FC = () => {
 
           <Suspense fallback={<div id="pro-tools" className="min-h-[240px]" />}>
             <ProToolsSuiteSection locale={locale} />
+          </Suspense>
+
+          <Suspense fallback={<div id="architecture" className="min-h-[240px]" />}>
+            <ArchitectProfileAndLabSection
+              locale={locale}
+              currency={currency}
+              onOpenInquiry={() => {
+                setInquiryProduct(null);
+                setInquiryOpen(true);
+              }}
+            />
           </Suspense>
 
           <Suspense fallback={<div id="estimator" className="min-h-[240px]" />}>
