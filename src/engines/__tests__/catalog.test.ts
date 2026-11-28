@@ -130,12 +130,12 @@ describe('Catalog Engine', () => {
     expect(engCount).toBe(6);
   });
 
-  it('counts architectural tech stacks accurately across all 26 monorepos (26 / 18 / 8 / 9 / 4)', () => {
+  it('counts architectural tech stacks accurately across all 26 monorepos (26 / 18 / 8 / 15 / 4)', () => {
     const stackCounts = countCatalogStacks(CATALOG_PRODUCTS);
     expect(stackCounts.all).toBe(26);
     expect(stackCounts.dotnet).toBe(18);
     expect(stackCounts.fastapi).toBe(8);
-    expect(stackCounts.threejs).toBe(9);
+    expect(stackCounts.threejs).toBe(15);
     expect(stackCounts['ai-rag']).toBe(4);
   });
 
@@ -153,20 +153,26 @@ describe('Catalog Engine', () => {
     expect(fastapi.some((p) => p.id === 'vectradoc-rag')).toBe(true);
   });
 
-  it('filters Three.js 3D PBR systems (9) and AI / RAG / MCP systems (4) deterministically', () => {
+  it('filters Three.js 3D PBR systems (15) and AI / RAG / MCP systems (4) deterministically', () => {
     const threejsIds = filterCatalogByStack(CATALOG_PRODUCTS, 'threejs')
       .map((p) => p.id)
       .sort();
     expect(threejsIds).toEqual([
       'aeroforge-digital-twin',
       'aether-acoustics',
+      'aurelia-resort',
       'chronos-horology',
       'fleetpulse-gis',
+      'kinetix-proptech',
+      'kuro-omakase',
       'maison-vera',
       'medcore-ehr',
+      'meridian-logistics',
       'nordic-home-atelier',
+      'pulse-pos-fnb',
       'vectradoc-rag',
       'velox-ev-motors',
+      'zenith-wealth-fintech',
     ]);
 
     const aiRagIds = filterCatalogByStack(CATALOG_PRODUCTS, 'ai-rag')
