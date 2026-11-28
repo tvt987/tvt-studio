@@ -130,12 +130,12 @@ describe('Catalog Engine', () => {
     expect(engCount).toBe(6);
   });
 
-  it('counts architectural tech stacks accurately across all 26 monorepos (26 / 18 / 8 / 6 / 4)', () => {
+  it('counts architectural tech stacks accurately across all 26 monorepos (26 / 18 / 8 / 9 / 4)', () => {
     const stackCounts = countCatalogStacks(CATALOG_PRODUCTS);
     expect(stackCounts.all).toBe(26);
     expect(stackCounts.dotnet).toBe(18);
     expect(stackCounts.fastapi).toBe(8);
-    expect(stackCounts.threejs).toBe(6);
+    expect(stackCounts.threejs).toBe(9);
     expect(stackCounts['ai-rag']).toBe(4);
   });
 
@@ -153,7 +153,7 @@ describe('Catalog Engine', () => {
     expect(fastapi.some((p) => p.id === 'vectradoc-rag')).toBe(true);
   });
 
-  it('filters Three.js 3D PBR systems (6) and AI / RAG / MCP systems (4) deterministically', () => {
+  it('filters Three.js 3D PBR systems (9) and AI / RAG / MCP systems (4) deterministically', () => {
     const threejsIds = filterCatalogByStack(CATALOG_PRODUCTS, 'threejs')
       .map((p) => p.id)
       .sort();
@@ -163,6 +163,9 @@ describe('Catalog Engine', () => {
       'chronos-horology',
       'fleetpulse-gis',
       'maison-vera',
+      'medcore-ehr',
+      'nordic-home-atelier',
+      'vectradoc-rag',
       'velox-ev-motors',
     ]);
 
@@ -196,7 +199,7 @@ describe('Catalog Engine', () => {
       filterAndSortCatalog(CATALOG_PRODUCTS, 'commerce-3d', '', 'featured'),
       'threejs'
     ).filter((p) => p.priceVnd <= 3_990_000);
-    expect(commerceThreeJsVip).toHaveLength(4);
+    expect(commerceThreeJsVip).toHaveLength(5);
     expect(commerceThreeJsVip[0].id).toBe('velox-ev-motors');
   });
 

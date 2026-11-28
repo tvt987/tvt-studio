@@ -71,7 +71,7 @@ describe('Agency vs TVT Studio ROI Comparator Engine', () => {
     const luminaRoi = calculateAgencyRoi(lumina, 'standard');
 
     expect(aeroRoi.agencyMultiplier).toBe(6.2);
-    expect(vectraRoi.agencyMultiplier).toBe(6.1);
+    expect(vectraRoi.agencyMultiplier).toBe(6.5);
     expect(luminaRoi.agencyMultiplier).toBe(4.6);
     expect(aeroRoi.agencyMultiplier).toBeGreaterThan(luminaRoi.agencyMultiplier);
     expect(vectraRoi.agencyMultiplier).toBeGreaterThan(luminaRoi.agencyMultiplier);

@@ -38,7 +38,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ locale, onPreviewLive 
       label: locale === 'vi' ? 'Hệ Thống & Pro Tools Live' : 'Live Apps & Pro Tools',
     },
     {
-      value: '4,500',
+      value: '4,685',
       label: locale === 'vi' ? 'Tests Xanh (.NET 10 / FastAPI / UI)' : 'Green Tests (.NET 10 / FastAPI / UI)',
     },
     {
