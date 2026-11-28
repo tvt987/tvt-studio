@@ -130,12 +130,12 @@ describe('Catalog Engine', () => {
     expect(engCount).toBe(6);
   });
 
-  it('counts architectural tech stacks accurately across all 26 monorepos (26 / 18 / 8 / 5 / 4)', () => {
+  it('counts architectural tech stacks accurately across all 26 monorepos (26 / 18 / 8 / 6 / 4)', () => {
     const stackCounts = countCatalogStacks(CATALOG_PRODUCTS);
     expect(stackCounts.all).toBe(26);
     expect(stackCounts.dotnet).toBe(18);
     expect(stackCounts.fastapi).toBe(8);
-    expect(stackCounts.threejs).toBe(5);
+    expect(stackCounts.threejs).toBe(6);
     expect(stackCounts['ai-rag']).toBe(4);
   });
 
@@ -153,7 +153,7 @@ describe('Catalog Engine', () => {
     expect(fastapi.some((p) => p.id === 'vectradoc-rag')).toBe(true);
   });
 
-  it('filters Three.js 3D PBR systems (5) and AI / RAG / MCP systems (4) deterministically', () => {
+  it('filters Three.js 3D PBR systems (6) and AI / RAG / MCP systems (4) deterministically', () => {
     const threejsIds = filterCatalogByStack(CATALOG_PRODUCTS, 'threejs')
       .map((p) => p.id)
       .sort();
@@ -161,6 +161,7 @@ describe('Catalog Engine', () => {
       'aeroforge-digital-twin',
       'aether-acoustics',
       'chronos-horology',
+      'fleetpulse-gis',
       'maison-vera',
       'velox-ev-motors',
     ]);
