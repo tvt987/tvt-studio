@@ -111,10 +111,10 @@ export const PRO_TOOLS = [
   {
     slug: 'api-diff-lab',
     group: 'ENGINEERING',
-    title: { vi: 'So Sánh JSON/OpenAPI & SLA Latency', en: 'JSON/OpenAPI Diff & SLA Latency' },
+    title: { vi: 'Kiểm Toán OpenAPI 3.1 & SLA Latency', en: 'OpenAPI 3.1 Linter & SLA Latency' },
     desc: {
-      vi: 'Bắt lỗi Breaking Change giữa 2 payload JSON/OpenAPI và chia ngân sách độ trễ P99.',
-      en: 'Structural JSON/OpenAPI breaking-change diff & P50/P95/P99 latency budget waterfall.',
+      vi: 'Chấm điểm bảo mật OpenAPI 3.1 (10 luật), bắt lỗi Breaking Change & chia ngân sách P99.',
+      en: '10-rule OpenAPI 3.1 Security Linter, JSON breaking-change diff & P50/P95/P99 budget.',
     },
   },
 ];
@@ -185,7 +185,7 @@ export const ProToolsSuiteSection: React.FC<ProToolsSuiteSectionProps> = ({ loca
                   className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                 />
                 <span className="font-mono-num absolute right-3 bottom-3 rounded-md border border-white/20 bg-black/75 px-2.5 py-1 text-[10px] font-bold text-white backdrop-blur-md">
-                  12 PRO ENGINES · v2.0 ↗
+                  12 PRO ENGINES · v2.5 ↗
                 </span>
               </div>
             </a>

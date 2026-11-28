@@ -27,7 +27,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
   {
     id: 'maison-vera',
     sku: 'TVT-3D-01',
-    name: 'Maison Véra 3D v5.0',
+    name: 'Maison Véra 3D v6.0',
     subtitle: {
       vi: 'Website Thời Trang & Kính Mắt 3D HDRI, Tròng UV & Đo Khuôn Mặt',
       en: 'Luxury 3D HDRI Eyewear, UV Polarized Lens Lab & Bespoke Fit',
@@ -74,7 +74,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
   {
     id: 'aether-acoustics',
     sku: 'TVT-3D-02',
-    name: 'Aether Acoustics 3D v4.0',
+    name: 'Aether Acoustics 3D v5.0',
     subtitle: {
       vi: 'Website Âm Thanh 3D, Radar Không Gian HRTF & Phòng RT60',
       en: '3D Spatial Audio, Binaural HRTF Radar & Room RT60 Acoustic Lab',
@@ -121,7 +121,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
   {
     id: 'lumina-medspa',
     sku: 'TVT-MED-03',
-    name: 'Lumina MedSpa Clinic v3.0',
+    name: 'Lumina MedSpa Clinic v4.0',
     subtitle: {
       vi: 'Website Phòng Khám Nha Khoa / Thẩm Mỹ & Đặt Lịch',
       en: 'Aesthetic Clinic, Dental & Smart Booking Platform',
@@ -169,7 +169,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
   {
     id: 'kinetix-proptech',
     sku: 'TVT-PROP-04',
-    name: 'Kinetix PropTech v3.0',
+    name: 'Kinetix PropTech v4.0',
     subtitle: {
       vi: 'Sàn Bất Động Sản 3D & Máy Tính Lãi Vay',
       en: '3D Real Estate Portal & Mortgage Simulator',
@@ -265,7 +265,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
   {
     id: 'atelier-canvas',
     sku: 'TVT-SAAS-06',
-    name: 'Atelier Canvas Pro v5.0',
+    name: 'Atelier Canvas Pro v6.0',
     subtitle: {
       vi: 'Công Cụ Thiết Kế Vector, Design Tokens & Trình Chạy Prototype',
       en: 'Browser Vector Studio, Design Tokens & Interactive Prototype Player',
@@ -312,7 +312,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
   {
     id: 'nexus-lake',
     sku: 'TVT-DATA-07',
-    name: 'Nexus Lake OLAP v4.0',
+    name: 'Nexus Lake OLAP v5.0',
     subtitle: {
       vi: 'Nền Tảng BI & Kho Dữ Liệu SQL DuckDB-WASM, Notebook Đa Ô & Pivot',
       en: 'In-Browser DuckDB-WASM Lakehouse, SQL Notebook & Cohort Heatmap',
@@ -359,7 +359,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
   {
     id: 'verdict-graph',
     sku: 'TVT-AI-08',
-    name: 'Verdict Graph AI v4.0',
+    name: 'Verdict Graph AI v5.0',
     subtitle: {
       vi: 'Hệ Thống Điều Phối Multi-Agent DAG, Time-Travel Diff & FinOps',
       en: 'Multi-Agent DAG Builder, Time-Travel Diff & LLM FinOps Router',
@@ -406,7 +406,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
   {
     id: 'aegispulse',
     sku: 'TVT-ENT-09',
-    name: 'AegisPulse SRE v5.0',
+    name: 'AegisPulse SRE v6.0',
     subtitle: {
       vi: 'Kiến Trúc SRE Phân Tán .NET 10, Chaos Raft & Flamegraph',
       en: 'Distributed .NET 10 SRE, Raft Chaos Injector & GC Flamegraph',
@@ -453,7 +453,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
   {
     id: 'aurelia-resort',
     sku: 'TVT-HOSP-10',
-    name: 'Aurelia Resort PMS v3.0',
+    name: 'Aurelia Resort PMS v4.0',
     subtitle: {
       vi: 'Website Resort 5 Sao & Đặt Phòng Villa Trực Tiếp',
       en: '5-Star Beachfront Resort & Direct Villa Booking Engine',
@@ -498,7 +498,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
   {
     id: 'velox-ev-motors',
     sku: 'TVT-EV-11',
-    name: 'Velox EV Motors v5.0',
+    name: 'Velox EV Motors v6.0',
     subtitle: {
       vi: 'Showroom Hypercar Điện 3D HDRI, Cửa Cánh Chim & Launch 0–100',
       en: '3D HDRI Hypercar Showroom, Gullwing Doors & 0–100 Launch Telemetry',
@@ -543,7 +543,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
   {
     id: 'solaris-academy',
     sku: 'TVT-EDU-12',
-    name: 'Solaris Academy LMS v2.0',
+    name: 'Solaris Academy LMS v3.0',
     subtitle: {
       vi: 'Nền Tảng E-Learning, Chấm Code Sandbox & Cấp Chứng Chỉ',
       en: 'Interactive Coding LMS, Zero-Eval Sandbox & Verifiable Certificates',
@@ -588,7 +588,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
   {
     id: 'kuro-omakase',
     sku: 'TVT-FINE-13',
-    name: 'Kuro Omakase Hinoki v2.0',
+    name: 'Kuro Omakase Hinoki v3.0',
     subtitle: {
       vi: 'Nhà Hàng Fine Dining & Sơ Đồ Quầy Hinoki 14 Chỗ',
       en: 'Michelin Omakase & Interactive 14-Seat Hinoki Counter Booking',
@@ -633,7 +633,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
   {
     id: 'vanguard-fitness',
     sku: 'TVT-FIT-14',
-    name: 'Vanguard Fitness Club v2.0',
+    name: 'Vanguard Fitness Club v3.0',
     subtitle: {
       vi: 'CLB Gym, Pilates & Mô Phỏng Chuyển Hóa 12 Tuần',
       en: 'Luxury Gym, Pilates & 12-Week Metabolic Transformation Portal',
@@ -678,7 +678,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
   {
     id: 'meridian-logistics',
     sku: 'TVT-LOG-15',
-    name: 'Meridian Logistics v3.0',
+    name: 'Meridian Logistics v4.0',
     subtitle: {
       vi: 'Nền Tảng Vận Tải Quốc Tế, Tính CBM & Tra Cứu Vận Đơn',
       en: 'Global Freight Control Tower, CBM Quoter & Waybill Tracker',
@@ -723,7 +723,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
   {
     id: 'coda-hr-payroll',
     sku: 'TVT-HR-16',
-    name: 'CodaHR Payroll 2026 v3.0',
+    name: 'CodaHR Payroll 2026 v4.0',
     subtitle: {
       vi: 'Phần Mềm Tính Lương Luật 2026 (5 Bậc) & Tuyển Dụng ATS',
       en: 'Vietnam 2026 Law Payroll Calculator, Batch Excel & Kanban ATS',
@@ -768,7 +768,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
   {
     id: 'veritas-legal-firm',
     sku: 'TVT-LAW-17',
-    name: 'Veritas Legal Studio v2.0',
+    name: 'Veritas Legal Studio v3.0',
     subtitle: {
       vi: 'Website Hãng Luật & Trình Soạn Hợp Đồng Chấm Điểm Rủi Ro',
       en: 'Corporate Law Firm & Bilingual Contract Risk Analyzer Studio',
@@ -813,7 +813,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
   {
     id: 'nordic-home-atelier',
     sku: 'TVT-INT-18',
-    name: 'Nordic Home Atelier v2.0',
+    name: 'Nordic Home Atelier v3.0',
     subtitle: {
       vi: 'Nội Thất Cao Cấp & Công Cụ Thiết Kế Mặt Bằng 2D',
       en: 'Bespoke Scandinavian Furniture & 2D Floorplan Room Designer',
@@ -858,7 +858,7 @@ export const CATALOG_PRODUCTS: TemplateProduct[] = [
   {
     id: 'zenith-wealth-fintech',
     sku: 'TVT-FIN-19',
-    name: 'Zenith Wealth FinTech v3.0',
+    name: 'Zenith Wealth FinTech v4.0',
     subtitle: {
       vi: 'Cổng Quản Lý Tài Sản, Monte Carlo FIRE & Tái Cân Bằng Danh Mục',
       en: 'Private Wealth Terminal, Monte Carlo FIRE & Portfolio Optimizer',
